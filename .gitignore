@@ -1,0 +1,67 @@
+# ==========================================
+# 🚫 ARCHIVOS Y CARPETAS QUE GIT IGNORA
+# ==========================================
+
+# 🏗️ Carpetas de compilación y binarios
+build/
+sdkconfig.old
+*.bin
+*.elf
+*.map
+*.hex
+
+# ⚙️ Archivos de configuración generados
+sdkconfig.defaults
+sdkconfig.defaults.old
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/
+Makefile
+
+# 🧩 Archivos temporales de Python o CMake
+__pycache__/
+*.pyc
+*.pyo
+*.tmp
+*.log
+
+# 💻 Configuración local del entorno
+.vscode/
+.idea/
+*.code-workspace
+
+# 📦 Archivos de dependencias descargadas o caches
+*.obj
+*.o
+*.a
+*.d
+*.so
+*.dll
+
+# 🧪 Archivos de test o simulación locales
+*.gcda
+*.gcno
+*.gcov
+
+# 📋 Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 🧱 Archivos de backup
+*~
+*.bak
+*.swp
+*.swo
+
+# 🧰 Repositorios de dependencias externas
+submodules/
+components/esp-idf/
+managed_components/
+managed_components_temp/
+
+# ⚙️ Archivos generados por IDF monitor o flasher
+flash_project_args
+flasher_args.json
+project_description.json
