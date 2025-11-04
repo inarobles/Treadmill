@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/esp/idf-examples/**)",
+      "Bash(dir:*)",
+      "Bash(dir /s \"c:\\esp\\idf-examples\" /b)",
+      "Bash(cat:*)",
+      "Bash(idf.py reconfigure:*)",
+      "Bash(for file in c:/esp/Consola_Cinta/Plantilla/main/*.c c:/esp/Consola_Cinta/Plantilla/main/*.h)",
+      "Bash(wc:*)",
+      "Bash(done)",
+      "Bash(/c/Espressif/python_env/idf5.5_py3.11_env/Scripts/python.exe /c/Espressif/frameworks/esp-idf-v5.5.1/tools/idf.py reconfigure)",
+      "Read(//c/Espressif/frameworks/esp-idf-v5.5.1/components/**)",
+      "Read(//c/Espressif/frameworks/esp-idf-v5.5.1/examples/**)",
+      "Bash(lsof:*)",
+      "Bash(idf.py build:*)",
+      "Bash(/c/Espressif/python_env/idf5.5_py3.11_env/Scripts/python.exe /c/Espressif/frameworks/esp-idf-v5.5.1/tools/idf.py build:*)",
+      "Bash(find:*)",
+      "Bash(/c/Espressif/python_env/idf5.5_py3.11_env/Scripts/python.exe:*)",
+      "Bash(timeout 180 /c/Espressif/python_env/idf5.5_py3.11_env/Scripts/python.exe:*)",
+      "Bash(python:*)",
+      "Bash(ninja:*)",
+      "Bash(sed:*)",
+      "Bash(git checkout:*)",
+      "Bash(perl -i -0777 -pe:*)",
+      "Bash(tee:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(perl -i -pe:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,13 @@
+## IDF Component Manager Manifest File
+dependencies:
+  lvgl/lvgl:
+    version: 8.4.*
+    public: true
+  espressif/esp_lvgl_port: ^2.6
+
+  # ESP32-C6 connectivity components
+  espressif/esp_wifi_remote:
+    version: "1.1.5"
+
+  espressif/esp_hosted:
+    version: "2.6.1"

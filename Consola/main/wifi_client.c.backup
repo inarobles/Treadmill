@@ -1,0 +1,323 @@
+#include "esp_log.h"
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "nvs_flash.h"
+#include "esp_netif.h"
+#include "esp_http_client.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_heap_caps.h"
+
+#include "wifi_client.h"
+#include "ui.h" // Include UI header to call ui_loading_complete
+
+static const char *TAG = "WIFI_CLIENT";
+
+// Credentials and URLs
+#define WIFI_SSID      "MOVISTAR_4B85"
+#define WIFI_PASS      "785DB8AC2EBB31161F39"
+
+// URLs for uploading data to different Google Scripts
+#define UPLOAD_URL_INA    "https://script.google.com/macros/s/AKfycbxCjlHprXi40arHypxwlsWov-_zrejxzbOLiIhFZo7ffizBNK_z_oNG09kBk1qS5VJ-kw/exec"
+#define UPLOAD_URL_ITSASO "https://script.google.com/macros/s/AKfycbxDA9al2_Yewn3ReoThMDZYYTrJNNoNTbKG6FV4upAWCRmUwjK9NGK5Ae9lZRb3taB_pw/exec"
+
+
+// --- WIFI STATUS ---
+static bool g_wifi_connected = false;
+
+// --- DOWNLOAD GLOBALS (as expected by ui.c) ---
+char *g_downloaded_file_content = NULL;
+int g_downloaded_file_size = 0;
+static int received_len = 0;
+
+// --- FORWARD DECLARATIONS ---
+static void http_download_task(void *pvParameters);
+static void upload_task(void *pvParameters);
+
+
+// --- HTTP EVENT HANDLER ---
+esp_err_t _http_event_handler(esp_http_client_event_t *evt)
+{
+    // This handler is now only used for the download task.
+    switch(evt->event_id) {
+        case HTTP_EVENT_ERROR:
+            ESP_LOGE(TAG, "HTTP_EVENT_ERROR");
+            break;
+        case HTTP_EVENT_ON_CONNECTED:
+            ESP_LOGI(TAG, "HTTP_EVENT_ON_CONNECTED");
+            if (g_downloaded_file_content) {
+                heap_caps_free(g_downloaded_file_content);
+                g_downloaded_file_content = NULL;
+            }
+            g_downloaded_file_size = 0;
+            received_len = 0;
+            break;
+        case HTTP_EVENT_ON_HEADER:
+            ESP_LOGI(TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value);
+            if (g_downloaded_file_size == 0 && strcasecmp(evt->header_key, "Content-Length") == 0) {
+                g_downloaded_file_size = atoi(evt->header_value);
+                if (g_downloaded_file_size > 0) {
+                    g_downloaded_file_content = (char *) heap_caps_malloc(g_downloaded_file_size + 1, MALLOC_CAP_INTERNAL);
+                    if (!g_downloaded_file_content) {
+                        ESP_LOGE(TAG, "Failed to allocate memory for response buffer");
+                        return ESP_FAIL;
+                    }
+                }
+            }
+            break;
+        case HTTP_EVENT_ON_DATA:
+            ESP_LOGD(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+            if (g_downloaded_file_content && (received_len + evt->data_len <= g_downloaded_file_size)) {
+                memcpy(g_downloaded_file_content + received_len, evt->data, evt->data_len);
+                received_len += evt->data_len;
+            }
+            break;
+        case HTTP_EVENT_ON_FINISH:
+            ESP_LOGI(TAG, "HTTP_EVENT_ON_FINISH");
+            if (g_downloaded_file_content) {
+                g_downloaded_file_content[received_len] = '\0';
+                g_downloaded_file_size = received_len;
+                ESP_LOGI(TAG, "Download complete. Total received: %d bytes", received_len);
+            }
+            break;
+        case HTTP_EVENT_DISCONNECTED:
+            ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
+            break;
+        case HTTP_EVENT_REDIRECT:
+            ESP_LOGI(TAG, "HTTP_EVENT_REDIRECT");
+            break;
+        default:
+            break;
+    }
+    return ESP_OK;
+}
+
+// --- TASKS ---
+static void http_download_task(void *pvParameters)
+{
+    char *url = (char*)pvParameters;
+    const int max_wait_time_ms = 60000;
+    const int check_interval_ms = 500;
+    int elapsed_time_ms = 0;
+    bool download_started = false;
+
+    ESP_LOGI(TAG, "Download task started. Waiting for WiFi connection...");
+
+    while (elapsed_time_ms < max_wait_time_ms) {
+        if (is_wifi_connected()) {
+            ESP_LOGI(TAG, "WiFi is connected. Starting download from %s", url);
+            download_started = true;
+
+            esp_http_client_config_t config = {
+                .url = url,
+                .event_handler = _http_event_handler,
+                .user_agent = "ESP32",
+                .buffer_size = 8192,
+                .timeout_ms = 20000,
+                .skip_cert_common_name_check = true
+            };
+            esp_http_client_handle_t client = esp_http_client_init(&config);
+            esp_err_t err = esp_http_client_perform(client);
+
+            if (err == ESP_OK) {
+                ESP_LOGI(TAG, "Download request performed successfully");
+            } else {
+                ESP_LOGE(TAG, "Download request failed: %s", esp_err_to_name(err));
+                if (g_downloaded_file_content) {
+                    heap_caps_free(g_downloaded_file_content);
+                    g_downloaded_file_content = NULL;
+                    g_downloaded_file_size = 0;
+                }
+            }
+            esp_http_client_cleanup(client);
+            break; // Exit the while loop
+        }
+        vTaskDelay(pdMS_TO_TICKS(check_interval_ms));
+        elapsed_time_ms += check_interval_ms;
+    }
+
+    if (!download_started) {
+        ESP_LOGE(TAG, "WiFi did not connect within 60 seconds. Aborting download.");
+        // Ensure globals are null/zero so UI shows an error
+        if (g_downloaded_file_content) {
+            heap_caps_free(g_downloaded_file_content);
+            g_downloaded_file_content = NULL;
+        }
+        g_downloaded_file_size = 0;
+    }
+
+    free(url); // Free the URL buffer copied in wifi_download_file
+    ui_loading_complete(); // Notify UI that the process is complete (success or failure)
+    vTaskDelete(NULL);
+}
+
+static void upload_task(void *pvParameters)
+{
+    char *url_buffer = (char *)pvParameters;
+    ESP_LOGI(TAG, "Starting upload to: %s", url_buffer);
+
+    esp_http_client_config_t config = {
+        .url = url_buffer,
+        .user_agent = "ESP32",
+        .timeout_ms = 20000,
+        .skip_cert_common_name_check = true
+    };
+    esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_err_t err = esp_http_client_perform(client);
+
+    bool success = false;
+    if (err == ESP_OK) {
+        int status_code = esp_http_client_get_status_code(client);
+        ESP_LOGI(TAG, "Upload successful, status = %d", status_code);
+        success = (status_code == 200);  // Solo marcar como exitoso si es HTTP 200
+    } else {
+        ESP_LOGE(TAG, "Upload failed: %s", esp_err_to_name(err));
+    }
+    esp_http_client_cleanup(client);
+    free(url_buffer);
+
+    // Notify UI that upload is complete
+    ui_upload_complete(success);
+
+    vTaskDelete(NULL);
+}
+
+// --- PUBLIC API FUNCTIONS ---
+
+bool is_wifi_connected(void) {
+    return g_wifi_connected;
+}
+
+void upload_to_ina(int number) {
+    char* url_buffer = malloc(256);
+    if (url_buffer) {
+        snprintf(url_buffer, 256, "%s?data=%d", UPLOAD_URL_INA, number);
+        xTaskCreate(&upload_task, "upload_task_ina", 4096, url_buffer, 5, NULL);
+    }
+}
+
+void upload_to_itsaso(int number) {
+    char* url_buffer = malloc(256);
+    if (url_buffer) {
+        snprintf(url_buffer, 256, "%s?data=%d", UPLOAD_URL_ITSASO, number);
+        xTaskCreate(&upload_task, "upload_task_itsaso", 4096, url_buffer, 5, NULL);
+    }
+}
+
+// URL encode helper function
+static void url_encode(const char *src, char *dst, size_t dst_size) {
+    const char *hex = "0123456789ABCDEF";
+    size_t dst_idx = 0;
+
+    while (*src && dst_idx < dst_size - 1) {
+        if ((*src >= 'A' && *src <= 'Z') ||
+            (*src >= 'a' && *src <= 'z') ||
+            (*src >= '0' && *src <= '9') ||
+            *src == '-' || *src == '_' || *src == '.' || *src == '~') {
+            // Safe character, copy as-is
+            dst[dst_idx++] = *src;
+        } else {
+            // Encode character as %XX
+            if (dst_idx + 3 < dst_size) {
+                dst[dst_idx++] = '%';
+                dst[dst_idx++] = hex[(*src >> 4) & 0x0F];
+                dst[dst_idx++] = hex[*src & 0x0F];
+            } else {
+                break;  // Not enough space
+            }
+        }
+        src++;
+    }
+    dst[dst_idx] = '\0';
+}
+
+void upload_text_to_ina(const char *text) {
+    char* url_buffer = malloc(1024);
+    char* encoded_text = malloc(512);
+    if (url_buffer && encoded_text) {
+        url_encode(text, encoded_text, 512);
+        snprintf(url_buffer, 1024, "%s?data=%s", UPLOAD_URL_INA, encoded_text);
+        free(encoded_text);
+        xTaskCreate(&upload_task, "upload_text_ina", 4096, url_buffer, 5, NULL);
+    } else {
+        free(url_buffer);
+        free(encoded_text);
+    }
+}
+
+void upload_text_to_itsaso(const char *text) {
+    char* url_buffer = malloc(1024);
+    char* encoded_text = malloc(512);
+    if (url_buffer && encoded_text) {
+        url_encode(text, encoded_text, 512);
+        snprintf(url_buffer, 1024, "%s?data=%s", UPLOAD_URL_ITSASO, encoded_text);
+        free(encoded_text);
+        xTaskCreate(&upload_task, "upload_text_itsaso", 4096, url_buffer, 5, NULL);
+    } else {
+        free(url_buffer);
+        free(encoded_text);
+    }
+}
+
+void wifi_download_file(const char *url) {
+    char *url_copy = strdup(url);
+    if (url_copy) {
+        xTaskCreate(&http_download_task, "http_download_task", 16384, url_copy, 5, NULL);
+    }
+}
+
+// --- WIFI INITIALIZATION ---
+
+static void wifi_event_handler(void* arg, esp_event_base_t event_base, 
+                               int32_t event_id, void* event_data)
+{
+    if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+        ESP_LOGI(TAG, "Got IP address: " IPSTR, IP2STR(&event->ip_info.ip));
+        g_wifi_connected = true; // Set connected flag
+        esp_netif_dns_info_t dns_info;
+        IP_ADDR4(&dns_info.ip, 8, 8, 8, 8);
+        esp_netif_set_dns_info(event->esp_netif, ESP_NETIF_DNS_MAIN, &dns_info);
+        ESP_LOGI(TAG, "Manually set DNS server to 8.8.8.8");
+    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        ESP_LOGI(TAG, "Disconnected from WiFi, retrying...");
+        g_wifi_connected = false; // Clear connected flag
+        esp_wifi_connect();
+    }
+}
+
+esp_err_t wifi_client_init(void)
+{
+    ESP_LOGI(TAG, "Initializing WiFi Client (ESP-Hosted Mode)...");
+
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_create_default_wifi_sta();
+
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, WIFI_EVENT_STA_DISCONNECTED, &wifi_event_handler, NULL));
+
+    wifi_config_t wifi_config = {
+        .sta = {
+            .ssid = WIFI_SSID,
+            .password = WIFI_PASS,
+        },
+    };
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+    esp_err_t err = esp_wifi_connect();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "esp_wifi_connect failed on first try with err=0x%x. Relying on event handler for retries.", err);
+    }
+
+    ESP_LOGI(TAG, "WiFi client initialization finished. Waiting for connection...");
+
+    return ESP_OK;
+}

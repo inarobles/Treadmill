@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /R \"c:\\esp\\Consola_Cinta\\Plantilla\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

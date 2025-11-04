@@ -1,0 +1,140 @@
+1. 🎯 Objetivo
+Resolver el error Pending queue full! causado por la saturación del bus RS485. Esto ocurre cuando los comandos SET (acciones del usuario) se envían rápidamente y compiten con el polling de fondo de los comandos GET.
+
+2. 💡 Arquitectura de la Solución (Lógica "Opción B")
+Implementaremos una arquitectura de control de transmisión centralizada en cm_master_task que logra tres objetivos:
+
+Desacoplamiento: La UI (botones) no envía comandos. Solo actualiza variables de estado globales (ej. g_target_incline).
+
+Prevención de Saturación (Rate-Limiting): La cm_master_task solo envía un comando SET (ej. SET_INCLINE) si el objetivo ha cambiado y no hay un comando SET previo del mismo tipo esperando un ACK.
+
+Polling Priorizado (Tu Mejora): La tarea de polling (GET) se adapta:
+
+Bus Libre: Realiza el sondeo completo (Status, Velocidad, Inclinación, Ventiladores).
+
+Bus Ocupado (Esperando ACK de un SET): Realiza solo el sondeo crítico (GET_STATUS) para no dejar de monitorizar fallos del VFD.
+
+3. 📋 Tareas de Implementación (Consola - cm_master.c)
+Tarea 1: Definir Variables de Estado Globales
+Asegúrate de que estas variables de estado existen globalmente en el ámbito de la tarea de comunicación (cm_master.c):
+
+C
+
+// Objetivos (actualizados por la UI)
+static float g_target_speed_kmh = 0.0;
+static float g_target_incline_pct = 0.0;
+
+// Estado de envío (gestionado por cm_master_task)
+static float g_last_sent_speed = 0.0;
+static float g_last_sent_incline = 0.0;
+static bool g_waiting_for_speed_ack = false;
+static bool g_waiting_for_incline_ack = false;
+
+// Intervalo de polling (ej. 300ms)
+#define HEARTBEAT_INTERVAL_MS 300
+Tarea 2: Modificar la Lógica de la UI (Botones)
+Los callbacks (manejadores de eventos) de los botones no deben llamar a send_set_...() nunca. Solo deben actualizar las variables g_target_...:
+
+C
+
+// Ejemplo para el botón de subir inclinación
+void on_incline_plus_press() {
+    // 1. Calcular nuevo objetivo
+    float new_target = g_target_incline + 0.5; // O el incremento que uses
+    
+    // 2. Limitar (si es necesario)
+    if (new_target > MAX_INCLINE) {
+        new_target = MAX_INCLINE;
+    }
+    
+    // 3. ACTUALIZAR LA VARIABLE (única acción)
+    g_target_incline = new_target;
+    
+    // NO LLAMAR A send_set_incline() AQUÍ
+}
+
+// (Aplicar la misma lógica para todos los botones: speed+, speed-, incline-)
+Tarea 3: Reemplazar la Lógica de cm_master_task
+Este es el núcleo de la solución. El bucle while(1) de la tarea maestra debe reemplazarse por esta lógica de priorización:
+
+C
+
+// Lógica completa y robusta para cm_master_task
+
+while (1) {
+    // --- PASO 1: PRIORIZAR COMANDOS SET (Acción del Usuario) ---
+    
+    // (A) Comprobar y enviar CAMBIOS DE INCLINACIÓN
+    if (g_target_incline != g_last_sent_incline && !g_waiting_for_incline_ack) {
+        
+        if (send_set_incline(g_target_incline) == ESP_OK) {
+            g_last_sent_incline = g_target_incline;
+            g_waiting_for_incline_ack = true; // Esperando ACK
+        }
+        // Nota: Si send_set_incline falla (ej. cola llena), se reintentará en el prox. ciclo.
+    }
+    
+    // (B) Comprobar y enviar CAMBIOS DE VELOCIDAD (Añadir esta lógica)
+    if (g_target_speed != g_last_sent_speed && !g_waiting_for_speed_ack) {
+        
+        if (send_set_speed(g_target_speed) == ESP_OK) {
+            g_last_sent_speed = g_target_speed;
+            g_waiting_for_speed_ack = true; // Esperando ACK
+        }
+    }
+
+    // --- PASO 2: EJECUTAR POLLING (Lógica Priorizada - Tu Mejora) ---
+    
+    if (g_waiting_for_incline_ack || g_waiting_for_speed_ack) {
+        // --- CASO A: BUS OCUPADO (Esperando ACK de un SET) ---
+        // Solo ejecutar el polling crítico para monitorizar fallos del VFD.
+        
+        send_get_status(); // 0x22
+    
+    } else {
+        // --- CASO B: BUS LIBRE ---
+        // Ejecutar el polling completo para sincronizar toda la UI.
+        
+        send_get_status(); // 0x22
+        vTaskDelay(pdMS_TO_TICKS(10)); // Espaciado entre tramas
+        
+        send_get_sensor_speed(); // 0x21
+        vTaskDelay(pdMS_TO_TICKS(10));
+        
+        send_get_incline_position(); // 0x23
+        vTaskDelay(pdMS_TO_TICKS(10));
+        
+        send_get_fan_state(); // 0x24
+    }
+
+    // --- PASO 3: ESPERAR SIGUIENTE CICLO ---
+    vTaskDelay(pdMS_TO_TICKS(HEARTBEAT_INTERVAL_MS));
+}
+Tarea 4: Actualizar el Manejador de ACK (Recepción UART)
+En la tarea de recepción (uart_rx_task), la lógica que procesa los ACK (0x80) debe ahora "desbloquear" los flags de espera:
+
+C
+
+// En el manejador de respuestas ACK (ej. process_ack(uint8_t seq))
+
+// ... (lógica existente para encontrar el comando pendiente por 'seq') ...
+
+if (pending_cmd == CM_CMD_SET_INCLINE) {
+    g_waiting_for_incline_ack = false; // <-- AÑADIR
+}
+
+if (pending_cmd == CM_CMD_SET_SPEED) {
+    g_waiting_for_speed_ack = false; // <-- AÑADIR
+}
+
+// ... (etc. para otros comandos SET si es necesario)
+4. 📈 Resultado Esperado
+El error Pending queue full! desaparecerá.
+
+Las pulsaciones rápidas de los botones de velocidad/inclinación se sentirán instantáneas (el comando SET se envía casi de inmediato).
+
+La cola de transmisión nunca se saturará, ya que los comandos SET se auto-limitan (rate-limit) mediante los flags g_waiting_for_..._ack.
+
+El polling de los datos de la UI (GET_...) se pausará automáticamente para dar prioridad a las acciones del usuario, pero...
+
+...la monitorización de seguridad (GET_STATUS para fallos del VFD) nunca se detendrá.

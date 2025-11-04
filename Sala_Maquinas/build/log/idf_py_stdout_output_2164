@@ -1,0 +1,298 @@
+Command: C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM3 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 C:\esp\Cinta\Sala_Maquinas\build\sala_maquinas.elf C:\esp\Cinta\Sala_Maquinas\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM3'
+ul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6380
+ho 0 tail 12 room 4
+load:0x40078000,len:15916
+load:0x40080400,len:3860
+entry 0x40080638
+[0;32mI (29) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader[0m
+[0;32mI (29) boot: compile time Nov  3 2025 19:20:01[0m
+[0;32mI (29) boot: Multicore bootloader[0m
+[0;32mI (31) boot: chip revision: v3.1[0m
+[0;32mI (34) boot.esp32: SPI Speed      : 40MHz[0m
+[0;32mI (38) boot.esp32: SPI Mode       : DIO[0m
+[0;32mI (41) boot.esp32: SPI Flash Size : 4MB[0m
+[0;32mI (45) boot: Enabling RNG early entropy source...[0m
+[0;32mI (49) boot: Partition Table:[0m
+[0;32mI (52) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (58) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (65) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (71) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (78) boot: End of partition table[0m
+[0;32mI (81) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=10310h ( 66320) map[0m
+[0;32mI (111) esp_image: segment 1: paddr=00020338 vaddr=3ffb0000 size=023d8h (  9176) load[0m
+[0;32mI (115) esp_image: segment 2: paddr=00022718 vaddr=40080000 size=0d7c0h ( 55232) load[0m
+[0;32mI (137) esp_image: segment 3: paddr=0002fee0 vaddr=50000000 size=00020h (    32) load[0m
+[0;32mI (137) esp_image: segment 4: paddr=0002ff08 vaddr=00000000 size=00110h (   272) [0m
+[0;32mI (140) esp_image: segment 5: paddr=00030020 vaddr=400d0020 size=22374h (140148) map[0m
+[0;32mI (202) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (202) boot: Disabling RNG early entropy source...[0m
+[0;32mI (213) cpu_start: Multicore app[0m
+[0;32mI (221) cpu_start: Pro cpu start user code[0m
+[0;32mI (221) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (221) app_init: Application information:[0m
+[0;32mI (224) app_init: Project name:     sala_maquinas[0m
+[0;32mI (229) app_init: App version:      1[0m
+[0;32mI (234) app_init: Compile time:     Nov  3 2025 19:18:02[0m
+[0;32mI (240) app_init: ELF file SHA256:  720c8a6e7...[0m
+[0;32mI (245) app_init: ESP-IDF:          v5.5.1-dirty[0m
+[0;32mI (250) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (255) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (260) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (265) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (272) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM[0m
+[0;32mI (278) heap_init: At 3FFB2D38 len 0002D2C8 (180 KiB): DRAM[0m
+[0;32mI (284) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM[0m
+[0;32mI (291) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM[0m
+[0;32mI (297) heap_init: At 4008D7C0 len 00012840 (74 KiB): IRAM[0m
+[0;33mW (304) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig[0m
+[0;32mI (317) spi_flash: detected chip: generic[0m
+[0;32mI (322) spi_flash: flash io: dio[0m
+[0;32mI (327) main_task: Started on CPU0[0m
+[0;32mI (331) main_task: Calling app_main()[0m
+[0;32mI (334) SLAVE: ==============================================[0m
+[0;32mI (341) SLAVE:   Sala de Maquinas - Sistema Esclavo[0m
+[0;32mI (346) SLAVE:   FASE 9: Integración de Hardware[0m
+[0;32mI (352) SLAVE: ==============================================[0m
+[0;32mI (367) SLAVE: GPIOs configurados. Asignación v5 (Sensores en 34, 35).[0m
+[0;32mI (368) SLAVE: Temporizador de bomba de cera creado.[0m
+[0;32mI (371) SPEED_SENSOR: Inicializando sensor de velocidad (PCNT) en GPIO 34[0m
+[0;31mE (378) gpio: gpio_pulldown_en(116): GPIO number error (input-only pad has no internal PD)[0m
+[0;32mI (387) SPEED_SENSOR: GPIO 34 configurado con pull-down para evitar ruido[0m
+[0;31mE (395) gpio: gpio_pullup_en(78): GPIO number error (input-only pad has no internal PU)[0m
+[0;32mI (404) SPEED_SENSOR: Sensor de velocidad (PCNT) inicializado y contando.[0m
+[0;32mI (411) SLAVE: Configurando UART para RS485...[0m
+[0;32mI (417) SLAVE: UART1 configurado: 115200 baud, TX=17, RX=16[0m
+[0;32mI (422) SLAVE: Tarea UART RX iniciada. Escuchando en UART1...[0m
+[0;32mI (429) SLAVE: Tarea UART RX creada[0m
+[0;32mI (433) VFD_DRIVER_MODBUS: Inicializando driver Modbus Master...[0m
+[0;32mI (441) uart: queue free spaces: 20[0m
+[0;32mI (444) mb_port.serial: mbm_rtu@0x3ffb8030, suspend port from task.[0m
+[0;32mI (551) VFD_DRIVER_MODBUS: Modbus Master inicializado en UART2 (TX:19, RX:18, 9600 bps)[0m
+[0;32mI (551) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;32mI (557) VFD_DRIVER_MODBUS: VFD Driver (Modbus Real) inicializado. Tarea creada.[0m
+[0;32mI (564) SLAVE: Controlador VFD (real) inicializado[0m
+[0;32mI (570) SLAVE: Tarea de actualización de velocidad iniciada[0m
+[0;32mI (576) SLAVE: Tarea de actualización de velocidad creada[0m
+[0;32mI (582) SLAVE: Tarea de control de inclinación iniciada[0m
+[0;32mI (588) SLAVE: Tarea de control de inclinación creada[0m
+[0;32mI (594) SLAVE: Tarea de watchdog creada (timeout: 700ms)[0m
+[0;32mI (594) SLAVE: Tarea de watchdog iniciada (Timeout: 0 ms)[0m
+[0;32mI (606) SLAVE: Sistema iniciado correctamente[0m
+[0;32mI (611) SLAVE: Esperando comandos del Maestro...[0m
+[0;32mI (638) SLAVE: Homing de inclinación completado.[0m
+[0;31mE (1566) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (1567) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (1575) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (1582) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;31mE (2706) SLAVE: ¡WATCHDOG TIMEOUT! No se recibió comando en 0 ms[0m
+[0;33mW (2706) SLAVE: ⚠️ ENTERING SAFE STATE - Communication lost or emergency stop[0m
+[0;32mI (6590) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;32mI (7237) SLAVE: ✅ SAFE STATE reset. Communication restored.[0m
+[0;31mE (7598) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (7599) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (7607) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (7615) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (10617) SLAVE: Heartbeat #0 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %[0m
+[0;32mI (12622) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (13631) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (13631) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (13639) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (13647) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (18654) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (19663) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (19663) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (19672) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (19679) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (20617) SLAVE: Heartbeat #1 - Speed: 0.00/0.00 km/h, Incline: 0.1/0.2 %[0m
+[0;32mI (24687) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (25696) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (25696) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (25705) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (25712) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (30617) SLAVE: Heartbeat #2 - Speed: 0.00/0.00 km/h, Incline: 0.6/0.6 %[0m
+[0;32mI (30720) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (31729) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (31729) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (31738) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (31745) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (36753) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (37762) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (37762) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (37771) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (37778) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (40617) SLAVE: Heartbeat #3 - Speed: 0.00/0.00 km/h, Incline: 0.4/0.5 %[0m
+[0;32mI (42786) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (43795) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (43795) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (43804) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (43811) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (48819) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (49828) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (49828) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (49837) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (49844) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (50617) SLAVE: Heartbeat #4 - Speed: 0.00/0.00 km/h, Incline: 0.3/0.4 %[0m
+[0;32mI (54852) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (55861) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (55861) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (55870) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (55877) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (60617) SLAVE: Heartbeat #5 - Speed: 0.00/0.00 km/h, Incline: 1.0/1.1 %[0m
+[0;32mI (60885) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (61894) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (61894) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (61903) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (61910) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (66918) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (67927) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (67927) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (67936) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (67943) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (70617) SLAVE: Heartbeat #6 - Speed: 0.00/0.00 km/h, Incline: 2.0/3.2 %[0m
+[0;32mI (72951) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (73960) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (73960) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (73969) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (73976) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (78984) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (79993) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (79993) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (80002) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (80009) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (80617) SLAVE: Heartbeat #7 - Speed: 0.00/0.00 km/h, Incline: 3.0/3.2 %[0m
+[0;32mI (85016) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (86025) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (86025) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (86034) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (86041) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (90617) SLAVE: Heartbeat #8 - Speed: 0.00/0.00 km/h, Incline: 0.5/3.1 %[0m
+[0;32mI (91049) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (92058) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (92058) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (92067) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (92074) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (97082) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (98091) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (98091) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (98100) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (98107) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (100617) SLAVE: Heartbeat #9 - Speed: 0.00/0.00 km/h, Incline: 1.5/3.1 %[0m
+[0;32mI (103115) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (104124) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (104124) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (104133) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (104140) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (109148) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (110157) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (110157) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (110166) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (110173) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (110617) SLAVE: Heartbeat #10 - Speed: 0.00/0.00 km/h, Incline: 2.5/3.1 %[0m
+[0;32mI (115181) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (116190) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (116190) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (116199) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (116206) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (120617) SLAVE: Heartbeat #11 - Speed: 0.00/0.00 km/h, Incline: 0.1/2.8 %[0m
+[0;32mI (121214) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (122223) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (122224) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (122232) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (122239) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (127247) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (128256) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (128256) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (128265) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (128272) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (130617) SLAVE: Heartbeat #12 - Speed: 0.00/0.00 km/h, Incline: 1.1/2.8 %[0m
+[0;32mI (133280) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (134289) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (134289) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (134298) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (134305) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (139313) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (140322) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (140322) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (140331) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (140338) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (140617) SLAVE: Heartbeat #13 - Speed: 0.00/0.00 km/h, Incline: 2.1/2.8 %[0m
+[0;32mI (145346) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (146355) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (146355) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (146364) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (146371) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (150617) SLAVE: Heartbeat #14 - Speed: 0.00/0.00 km/h, Incline: 2.8/2.8 %[0m
+[0;32mI (151379) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (152388) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (152388) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (152397) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (152404) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (157412) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (158421) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (158421) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (158430) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (158437) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (160617) SLAVE: Heartbeat #15 - Speed: 0.00/0.00 km/h, Incline: 0.3/2.6 %[0m
+[0;32mI (163445) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (164454) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (164454) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (164463) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (164470) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (169478) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (170487) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (170487) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (170496) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (170503) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (170617) SLAVE: Heartbeat #16 - Speed: 0.00/0.00 km/h, Incline: 1.3/2.6 %[0m
+[0;32mI (175511) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (176520) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (176520) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (176529) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (176536) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (180617) SLAVE: Heartbeat #17 - Speed: 0.00/0.00 km/h, Incline: 2.3/2.7 %[0m
+[0;32mI (181544) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (182553) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (182553) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (182562) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (182569) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (187577) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (188586) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (188586) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (188595) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (188602) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (190617) SLAVE: Heartbeat #18 - Speed: 0.00/0.00 km/h, Incline: 2.9/2.9 %[0m
+[0;32mI (193610) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (194619) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (194619) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (194628) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (194635) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (199643) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;32mI (200617) SLAVE: Heartbeat #19 - Speed: 0.00/0.00 km/h, Incline: 0.3/2.4 %[0m
+[0;31mE (200652) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (200652) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (200661) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (200668) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (205676) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (206685) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (206685) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (206694) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (206701) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (210617) SLAVE: Heartbeat #20 - Speed: 0.00/0.00 km/h, Incline: 1.3/2.4 %[0m
+[0;32mI (211709) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (212718) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (212718) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (212727) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (212734) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
+[0;32mI (217742) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...[0m
+[0;31mE (218751) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).[0m
+[0;31mE (218751) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT[0m
+[0;31mE (218760) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)[0m
+[0;31mE (218767) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...[0m
