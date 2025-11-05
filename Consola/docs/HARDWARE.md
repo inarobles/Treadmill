@@ -44,11 +44,11 @@ Especificaciones completas de hardware, conexiones y periféricos del sistema de
 
 ## Pantalla y Touch
 
-### LCD 7" 1024x600
+### LCD 10.1" 1280x800
 
 **Especificaciones**:
-- **Tamaño**: 7 pulgadas
-- **Resolución**: 1024 x 600 pixels
+- **Tamaño**: 10.1 pulgadas
+- **Resolución**: 1280 x 800 pixels
 - **Interface**: MIPI-DSI (4 data lanes)
 - **Driver IC**: EK79007
 - **Backlight**: LED controlado por PWM
@@ -168,7 +168,7 @@ if (ret != ESP_OK) {
 | - | Touch I2C SCL | Salida | Por BSP |
 | - | SDIO (ESP-Hosted) | Interface | CLK, CMD, D0-D3 |
 | - | I2S Audio | Interface | BCLK, LRCLK, DOUT, MCLK |
-| - | Botones (x13) | Entrada | GPIOs definidos por BSP |
+| - | Botones (x10) | Entrada | GPIOs definidos por BSP (5 a cada lado) |
 
 **NOTA**: Los pines de Touch I2C, SDIO, I2S y Botones son gestionados automáticamente por el BSP (Board Support Package) y no requieren configuración manual.
 
@@ -258,28 +258,21 @@ Consola (MAX485)          Cable           Base (MAX485)
 
 ### Layout de Botones
 
-El sistema tiene 13 botones físicos organizados en el panel frontal:
+El sistema tiene 10 botones físicos organizados en el panel frontal (5 a cada lado):
 
-**Grupo de Control de Velocidad**:
+**Lado Izquierdo (5 botones)**:
 - `SPEED +`: Incrementar velocidad
 - `SPEED -`: Decrementar velocidad
-- `SET SPEED`: Entrada manual de velocidad
-
-**Grupo de Control de Inclinación**:
 - `CLIMB +`: Incrementar inclinación
 - `CLIMB -`: Decrementar inclinación
-- `SET CLIMB`: Entrada manual de inclinación
-
-**Grupo de Control General**:
 - `STOP`: Parar/Reanudar
-- `COOL DOWN`: Activar enfriamiento
 
-**Grupo de Ventiladores**:
+**Lado Derecho (5 botones)**:
+- `SET SPEED`: Entrada manual de velocidad
+- `SET CLIMB`: Entrada manual de inclinación
+- `COOL DOWN`: Activar enfriamiento
 - `HEAD`: Toggle ventilador cabeza
 - `CHEST`: Toggle ventilador pecho
-
-**Grupo de Selección de Entrenamiento**:
-- `Training 1` a `5`: Selección rápida de modo
 
 ### Configuración de Botones
 
@@ -346,8 +339,8 @@ static const button_config_t buttons[] = {
                      │  └──────────────────────────┘  │
                      │                                │
 ┌────────────┐       │  ┌──────────────────────────┐  │
-│ LCD 7"     │◄──────┼──┤   MIPI-DSI (4-lane)     │  │
-│ 1024x600   │       │  └──────────────────────────┘  │
+│ LCD 10.1"  │◄──────┼──┤   MIPI-DSI (4-lane)     │  │
+│ 1280x800   │       │  └──────────────────────────┘  │
 │ EK79007    │       │                                │
 │            │       │  ┌──────────────────────────┐  │
 │ Touch GT911│◄──────┼──┤   I2C (400kHz)           │  │
@@ -364,7 +357,7 @@ static const button_config_t buttons[] = {
 │ Audio Codec│       │  └──────────────────────────┘  │
 └────────────┘       │                                │
                      │  ┌──────────────────────────┐  │
-                     │  │   GPIO x13 (Botones)     │◄─┼── Botones
+                     │  │   GPIO x10 (Botones)     │◄─┼── Botones (5 por lado)
                      │  └──────────────────────────┘  │
                      │                                │
                      └────────────────────────────────┘
