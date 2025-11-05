@@ -293,7 +293,7 @@ void ui_update_task(void *pvParameter) {
         // --- Actualizar velocidad e inclinación reales desde el esclavo (via RS485) ---
         // Los valores reales vienen del esclavo, no se simulan localmente
         float real_speed_from_slave = cm_master_get_real_speed();
-        float real_incline_from_slave = cm_master_get_real_incline();
+        float real_incline_from_slave = cm_master_get_current_incline();
         g_treadmill_state.speed_kmh = real_speed_from_slave;
 
         // Actualizar inclinación real, excepto en modo cooldown donde se gestiona localmente
