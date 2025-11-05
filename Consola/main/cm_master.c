@@ -67,9 +67,6 @@ static int64_t g_last_response_us = 0;
 /** Última velocidad real recibida del esclavo */
 static float g_real_speed_kmh = 0.0f;
 
-/** Última inclinación real recibida del esclavo */
-static float g_real_incline_pct = 0.0f;
-
 /** Estado del ventilador de cabeza recibido del esclavo (0/1/2) */
 static uint8_t g_head_fan_state = 0;
 
@@ -790,7 +787,6 @@ esp_err_t cm_master_init(void) {
     g_connected = false;
     g_last_response_us = esp_timer_get_time();
     g_real_speed_kmh = 0.0f;
-    g_real_incline_pct = 0.0f;
     g_head_fan_state = 0;
     g_chest_fan_state = 0;
 
@@ -930,18 +926,6 @@ float cm_master_get_real_speed(void) {
     xSemaphoreGive(g_master_mutex);
 
     return speed;
-}
-
-float cm_master_get_real_incline(void) {
-    if (g_master_mutex == NULL) {
-        return 0.0f;
-    }
-
-    xSemaphoreTake(g_master_mutex, portMAX_DELAY);
-    float incline = g_real_incline_pct;
-    xSemaphoreGive(g_master_mutex);
-
-    return incline;
 }
 
 esp_err_t cm_master_set_fan(uint8_t fan_id, uint8_t state) {

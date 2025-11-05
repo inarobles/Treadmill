@@ -97,11 +97,11 @@ bool cm_master_is_connected(void);
 float cm_master_get_real_speed(void);
 
 /**
- * @brief Obtiene la inclinación real (último valor recibido)
+ * @brief Obtiene la inclinación actual del motor lineal (último valor recibido de GET_INCLINE_POSITION)
  *
  * @return Inclinación en %, o 0.0 si no hay datos
  */
-float cm_master_get_real_incline(void);
+float cm_master_get_current_incline(void);
 
 /**
  * @brief Envía comando SET_FAN_STATE al esclavo
