@@ -1,6 +1,6 @@
 # Consola - Sistema de Control de Cinta de Correr (ESP32-P4)
 
-Sistema de consola interactiva completo para control de cinta de correr profesional, basado en ESP32-P4 con pantalla táctil de 7" y múltiples conectividades.
+Sistema de consola interactiva completo para control de cinta de correr profesional, basado en ESP32-P4 con pantalla táctil de 10.1" y múltiples conectividades.
 
 ![ESP32-P4](https://img.shields.io/badge/ESP32--P4-Function%20EV%20Board-blue)
 ![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v5.3%2B-green)
@@ -12,12 +12,12 @@ Este proyecto implementa la consola MAESTRO del sistema de control distribuido d
 
 ### Características Principales
 
-- **Pantalla Táctil**: 7" 1024x600 MIPI-DSI con interfaz gráfica LVGL
+- **Pantalla Táctil**: 10.1" 1280x800 MIPI-DSI con interfaz gráfica LVGL
 - **Comunicación RS485**: Protocolo maestro CM_Protocol v2.1 para control de hardware
 - **Conectividad WiFi**: Gestión de redes WiFi via ESP-Hosted (ESP32-C6)
 - **Bluetooth LE**: Cliente para monitores de frecuencia cardíaca
 - **Sistema de Audio**: Reproducción de audio para eventos
-- **Botones Físicos**: 13 botones para control directo
+- **Botones Físicos**: 10 botones para control directo (5 a cada lado)
 - **Gestión de Entrenamientos**: Múltiples modos de entrenamiento con seguimiento
 - **Persistencia**: Almacenamiento NVS para configuración y estado
 
@@ -62,7 +62,7 @@ El proyecto está documentado en módulos independientes:
 
 - ESP-IDF v5.3 o superior
 - ESP32-P4-Function-EV-Board
-- Pantalla LCD 7" con driver EK79007
+- Pantalla LCD 10.1" 1280x800 con driver EK79007
 - Cable USB-C
 
 ### Compilar y Flashear

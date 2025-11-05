@@ -15,7 +15,7 @@ Documentación completa del sistema de interfaz gráfica basado en LVGL v8.
 
 ## Descripción General
 
-La interfaz gráfica utiliza LVGL (Light and Versatile Graphics Library) v8 con buffers en PSRAM para renderizado suave en pantalla de 7" 1024x600.
+La interfaz gráfica utiliza LVGL (Light and Versatile Graphics Library) v8 con buffers en PSRAM para renderizado suave en pantalla de 10.1" 1280x800.
 
 **Características**:
 - Pantallas múltiples con transiciones
