@@ -1,15 +1,58 @@
-# 📋 MEJORAS PENDIENTES - Sistema de Control de Inclinación
+# 📋 MEJORAS PENDIENTES - Sistema de Control de Cinta de Correr
 
 **Documento generado:** 2025-11-05
 **Última actualización:** 2025-11-05
 
-Este documento registra las mejoras planificadas para el sistema de control de inclinación de la cinta de correr, tanto en **Consola** como en **Base**.
+Este documento registra las mejoras planificadas para el sistema de control de la cinta de correr, tanto en **Consola** como en **Base**.
 
 ---
 
 ## 🔴 PRIORIDAD ALTA
 
-### 1. Sistema de Retorno a 0% al Salir de la Aplicación
+### 1. Calibración del Sistema de Velocidad del Motor
+
+**Descripción:**
+Calibrar el parámetro `g_calibration_factor` que convierte los pulsos del sensor de velocidad a velocidad real en km/h. El valor actual (0.00875) es un placeholder teórico que necesita verificación con hardware real.
+
+**Requisitos:**
+- Configurar VFD a una frecuencia conocida (ej: 30 Hz)
+- Medir velocidad real de la cinta con método físico:
+  - Marcar un punto en la cinta
+  - Medir tiempo de 1 vuelta completa
+  - Calcular: `velocidad_real = (perímetro_cinta_m × 3.6) / tiempo_segundos`
+- Leer pulsos del sensor durante 1 segundo
+- Calcular nuevo factor: `g_calibration_factor = velocidad_real_medida / pulsos_por_segundo`
+- Actualizar valor en código
+
+**Parámetro a calibrar:**
+- **`g_calibration_factor`** en `Base/main/main.c:44`
+- Valor actual: `0.00875` (placeholder)
+- Fórmula: `velocidad_kmh = (pulsos/segundo) × g_calibration_factor`
+
+**Proceso de calibración:**
+1. Establecer VFD a frecuencia fija (ej: 30 Hz mediante comando SET_SPEED)
+2. Medir velocidad real de cinta físicamente
+3. Registrar pulsos/segundo del sensor (GPIO 34)
+4. Calcular y actualizar `g_calibration_factor`
+5. Verificar con al menos 3 velocidades diferentes (baja, media, alta)
+6. Documentar resultados de calibración
+
+**Archivos afectados:**
+- `Base/main/main.c` - Actualizar `g_calibration_factor` (línea 44)
+- Posiblemente `Base/main/vfd_driver.c` - Verificar `KPH_TO_HZ_RATIO` (línea 53) si es necesario
+- Documentación: `Base/README.md` - Actualizar sección de calibración (líneas 215-241)
+
+**Relación con otros parámetros:**
+- **Sensor de velocidad:** GPIO 34 con PCNT (Pulse Counter)
+- **Intervalo de medición:** 500ms (`SPEED_UPDATE_INTERVAL_MS`)
+- **Ratio VFD:** 60 Hz = 20 km/h (definido en `KPH_TO_HZ_RATIO`)
+
+**Beneficio:**
+Asegurar que la velocidad mostrada en pantalla coincida exactamente con la velocidad real de la cinta, crítico para seguridad y experiencia del usuario.
+
+---
+
+### 2. Sistema de Retorno a 0% al Salir de la Aplicación
 
 **Descripción:**
 Implementar un sistema automático que lleve la cinta a 0% de inclinación cuando el usuario sale de la pantalla principal.
@@ -29,7 +72,7 @@ Garantiza que la cinta siempre quede en posición plana al apagar, evitando sorp
 
 ---
 
-### 2. Sistema de Calibración Automática al Encender
+### 3. Sistema de Calibración Automática al Encender
 
 **Descripción:**
 Al encender la Consola, verificar si la inclinación está en 0%. Si no lo está, bloquear todas las funciones y forzar el retorno a 0% antes de permitir el uso.
@@ -63,7 +106,7 @@ Siempre partir de una posición conocida (0%), eliminando inconsistencias por ap
 
 ## 🟠 PRIORIDAD MEDIA
 
-### 3. Conectar Sensor de Fin de Carrera (GPIO 35 en Base)
+### 4. Conectar Sensor de Fin de Carrera (GPIO 35 en Base)
 
 **Descripción:**
 Habilitar el sensor de fin de carrera físico para realizar homing real al arrancar Base.
@@ -91,7 +134,7 @@ Referencia real de posición 0%, evitando acumulación de errores de posición.
 
 ---
 
-### 4. Ajustar Intervalo de Repetición de Botones CLIMB
+### 5. Ajustar Intervalo de Repetición de Botones CLIMB
 
 **Descripción:**
 Evaluar si el intervalo de repetición actual (6.7 veces/segundo) es adecuado con la nueva velocidad del motor (1.5%/segundo).
@@ -121,7 +164,7 @@ Evitar saturación de comandos y comportamiento errático del motor.
 
 ## 🟢 PRIORIDAD BAJA
 
-### 5. Añadir Logs de Debugging Detallados
+### 6. Añadir Logs de Debugging Detallados
 
 **Descripción:**
 Mejorar logs de debugging para facilitar diagnóstico futuro de problemas del motor lineal.
@@ -147,7 +190,7 @@ Facilitar diagnóstico de problemas en producción mediante análisis de logs.
 
 ---
 
-### 6. Indicador Visual de Movimiento del Motor
+### 7. Indicador Visual de Movimiento del Motor
 
 **Descripción:**
 Añadir indicador en la UI que muestre cuando el motor lineal está activo (subiendo/bajando).
@@ -170,6 +213,7 @@ Feedback visual inmediato al usuario de que el sistema está respondiendo a sus 
 
 | Prioridad | Mejora | Complejidad | Impacto |
 |-----------|--------|-------------|---------|
+| 🔴 Alta | Calibración velocidad motor | Media | Crítico |
 | 🔴 Alta | Retorno a 0% al salir | Media | Alto |
 | 🔴 Alta | Calibración al encender | Media-Alta | Alto |
 | 🟠 Media | Sensor fin de carrera | Baja (hardware) | Alto |
