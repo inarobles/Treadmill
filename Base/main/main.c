@@ -40,8 +40,10 @@ typedef enum {
 
 static const char *TAG = "SLAVE";
 
-// Factor de calibración (¡PLACEHOLDER!)
-static float g_calibration_factor = 0.00875; // (10.5 km/h / 1200 pulsos/seg)
+// Factor de calibración CALIBRADO con hardware real
+// Datos de calibración: 78.10 Hz → 10.00 km/h → 575 pulsos/seg promedio
+// Cálculo: g_calibration_factor = 10.00 km/h / 575 pulsos/seg = 0.0174
+static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona de 12 dientes
 #define SPEED_UPDATE_INTERVAL_MS 500
 
 // ===========================================================================
