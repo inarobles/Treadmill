@@ -483,9 +483,10 @@ Feedback visual inmediato al usuario de que el sistema está respondiendo a sus 
 - 📊 Datos de calibración reales obtenidos con ESP32 + VFD a 78.10 Hz → 10.00 km/h
 - 📊 Mediciones: 575 pulsos/seg promedio con corona de 12 dientes
 - **Archivos modificados:**
-  - `Base/main/main.c:44` - Factor de calibración del sensor Hall
-  - `Base/main/vfd_driver.c:53` - Ratio de conversión km/h a Hz del VFD
-- **Commit:** `PENDING`
+  - `Base/main/main.c:46` - Factor de calibración del sensor Hall
+  - `Base/main/vfd_driver.c:57` - Ratio de conversión km/h a Hz del VFD
+  - `Base/docs/CALIBRACION.md` - Documento completo de calibración
+- **Commit:** `04c210f`
 
 ### 2025-11-05 - Correcciones Sistema de Inclinación
 - ✅ Corregido bug de lectura de inclinación real en UI
