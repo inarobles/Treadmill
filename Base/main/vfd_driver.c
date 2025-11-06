@@ -38,7 +38,8 @@
 #define VFD_REG_CONTROL    0x2000 // (Comando Run/Stop)
 #define VFD_REG_FREQ       0x2001 // (Consigna de Frecuencia)
 
-// REGISTRO DE LECTURA (Monitorización)
+// REGISTROS DE LECTURA (Monitorización)
+#define VFD_REG_REAL_FREQ  0x2103 // (Frecuencia real aplicada por el VFD, Hz × 100)
 #define VFD_REG_FAULT_CODE 0x2104 // (Lectura de código de fallo, 0 = Sin fallo)
 
 // Comandos para 0x2000
@@ -73,6 +74,7 @@ static SemaphoreHandle_t vfd_mutex = NULL;
 static vfd_status_t g_vfd_status = VFD_STATUS_DISCONNECTED;
 static float g_target_kph = 0.0;
 static float g_current_freq_hz = 0.0;
+static float g_vfd_real_freq_hz = 0.0;  // Frecuencia real leída del VFD (0x2103)
 static bool g_emergency_stop = false;
 
 // Tarea de control
@@ -148,6 +150,17 @@ float vfd_driver_get_target_freq_hz(void) {
     float freq;
     if (xSemaphoreTake(vfd_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
         freq = g_current_freq_hz;
+        xSemaphoreGive(vfd_mutex);
+    } else {
+        freq = 0.0f;
+    }
+    return freq;
+}
+
+float vfd_driver_get_real_freq_hz(void) {
+    float freq;
+    if (xSemaphoreTake(vfd_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+        freq = g_vfd_real_freq_hz;
         xSemaphoreGive(vfd_mutex);
     } else {
         freq = 0.0f;
@@ -300,15 +313,38 @@ static void vfd_control_task(void *pvParameters) {
             }
         }
 
-        // --- SECCIÓN DE LECTURA (NUEVA) ---
+        // --- SECCIÓN DE LECTURA ---
         vTaskDelay(pdMS_TO_TICKS(20)); // Pequeña pausa entre escritura y lectura
 
+        // Leer frecuencia real del VFD (registro 0x2103)
+        uint16_t real_freq_centihz = 0;
+        esp_err_t read_freq_err = vfd_read_register(VFD_REG_REAL_FREQ, &real_freq_centihz);
+
+        if (read_freq_err == ESP_OK) {
+            float real_freq_hz = real_freq_centihz / 100.0f;
+
+            // Almacenar frecuencia real leída
+            if (xSemaphoreTake(vfd_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+                g_vfd_real_freq_hz = real_freq_hz;
+                xSemaphoreGive(vfd_mutex);
+            }
+
+            // Log periódico para debugging (cada 10 ciclos = 2 segundos)
+            static uint8_t log_counter = 0;
+            if (++log_counter >= 10) {
+                log_counter = 0;
+                ESP_LOGI(TAG_VFD, "VFD Real: %.2f Hz | Target: %.2f Hz | Speed: %.1f km/h",
+                         real_freq_hz, g_current_freq_hz, kph);
+            }
+        }
+
+        // Leer código de fallo (registro 0x2104)
         uint16_t fault_code = 0;
-        esp_err_t read_err = vfd_read_register(VFD_REG_FAULT_CODE, &fault_code);
+        esp_err_t read_fault_err = vfd_read_register(VFD_REG_FAULT_CODE, &fault_code);
 
         // Actualizar el estado global basado en la lectura
         if (xSemaphoreTake(vfd_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
-            if (read_err != ESP_OK) {
+            if (read_fault_err != ESP_OK) {
                 // El estado (DISCONNECTED) ya fue fijado por vfd_read_register()
                 ESP_LOGW(TAG_VFD, "No se pudo leer el estado de fallo (¿desconectado?)");
             } else {

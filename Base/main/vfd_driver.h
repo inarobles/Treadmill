@@ -44,5 +44,15 @@ vfd_status_t vfd_driver_get_status(void);
  */
 float vfd_driver_get_target_freq_hz(void);
 
+/**
+ * @brief Obtiene la frecuencia real del VFD leída del registro 0x2103.
+ *
+ * Esta es la frecuencia que el VFD está aplicando actualmente al motor,
+ * útil para monitorear el progreso de rampas de aceleración/desaceleración.
+ *
+ * @return float Frecuencia real en Hz (0.0 si no se ha leído aún).
+ */
+float vfd_driver_get_real_freq_hz(void);
+
 
 #endif // VFD_DRIVER_H
