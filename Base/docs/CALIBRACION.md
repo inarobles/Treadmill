@@ -302,7 +302,7 @@ Variación: 1.4% (excelente estabilidad)
 | Error de velocidad | < ±2% | ✅ Cumple (0.05%) |
 | Estabilidad de lectura | CV < 3% | ✅ Cumple (1.4%) |
 | Repetibilidad | ±5% entre pruebas | ✅ Cumple |
-| Linealidad | R² > 0.99 | 🔄 Pendiente verificar múltiples velocidades |
+| Linealidad | R² > 0.99 | ✅ Verificada por el usuario |
 
 ---
 

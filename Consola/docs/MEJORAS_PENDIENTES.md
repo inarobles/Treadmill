@@ -477,16 +477,20 @@ Feedback visual inmediato al usuario de que el sistema está respondiendo a sus 
 
 ## ✅ MEJORAS YA IMPLEMENTADAS (Historial)
 
-### 2025-11-06 - Calibración del Sistema de Velocidad y VFD
+### 2025-11-06 - Calibración del Sistema de Velocidad y Documentación VFD
 - ✅ **Tarea #1:** Calibrado `g_calibration_factor` con hardware real (0.00875 → 0.0174)
 - ✅ **Tarea #10:** Corregido `KPH_TO_HZ_RATIO` del VFD (3.0 → 7.8125)
+- ✅ **Tarea #7:** Documentados parámetros de rampa y configuración del VFD SU300
 - 📊 Datos de calibración reales obtenidos con ESP32 + VFD a 78.10 Hz → 10.00 km/h
 - 📊 Mediciones: 575 pulsos/seg promedio con corona de 12 dientes
-- **Archivos modificados:**
+- 📊 Linealidad verificada por el usuario en todo el rango de velocidades
+- 📊 Rampa de aceleración medida: ~13 Hz/seg (6 segundos de 0 a 78 Hz)
+- **Archivos creados/modificados:**
   - `Base/main/main.c:46` - Factor de calibración del sensor Hall
   - `Base/main/vfd_driver.c:57` - Ratio de conversión km/h a Hz del VFD
   - `Base/docs/CALIBRACION.md` - Documento completo de calibración
-- **Commit:** `04c210f`
+  - `Base/docs/VFD_CONFIG.md` - Configuración y registros Modbus del VFD SU300
+- **Commits:** `04c210f`, `PENDING`
 
 ### 2025-11-05 - Correcciones Sistema de Inclinación
 - ✅ Corregido bug de lectura de inclinación real en UI
