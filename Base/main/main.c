@@ -58,7 +58,7 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 // ===========================================================================
 // ASIGNACIÓN DE PINES (v5)
 // ===========================================================================
-#define SENSOR_SPEED_PIN        34 // (PCNT)
+#define SENSOR_SPEED_PIN        15 // (PCNT) - Sensor Hall con corona de 12 dientes
 #define INCLINE_LIMIT_SWITCH_PIN 35 // (Entrada)
 #define HEAD_FAN_ON_OFF_PIN     26 // Relé 6
 #define HEAD_FAN_SPEED_PIN      25 // Relé 7
