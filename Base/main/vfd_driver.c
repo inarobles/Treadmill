@@ -50,7 +50,11 @@
 #define VFD_REG_F0_02      0x0002 // (Fuente de Frecuencia)
 
 // --- Constantes del Driver ---
-#define KPH_TO_HZ_RATIO    (60.0f / 20.0f) // (Asumido 20 km/h = 60 Hz)
+// CALIBRADO con hardware real: 10.00 km/h = 78.10 Hz
+// Fórmula del VFD SU300: km/h = Hz × (6.4 / 50.0) → Hz = km/h × (50.0 / 6.4)
+// Por tanto: 20 km/h = 156.25 Hz (NO 60 Hz como se asumía antes)
+// Ratio: Hz/km/h = 50.0/6.4 = 7.8125
+#define KPH_TO_HZ_RATIO    (50.0f / 6.4f) // Calibrado 2025-11-06: 7.8125 Hz/km/h
 #define VFD_TASK_STACK     4096
 #define VFD_TASK_PRIO      8
 #define VFD_POLL_MS        200 // (Frecuencia de actualización de velocidad)
