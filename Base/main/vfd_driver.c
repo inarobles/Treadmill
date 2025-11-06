@@ -286,7 +286,8 @@ static void vfd_control_task(void *pvParameters) {
             }
         } else {
             // --- MARCHA ---
-            float freq_hz = (kph / 20.0f) * 60.0f;
+            // Usar constante calibrada KPH_TO_HZ_RATIO = 7.8125 (NO la fórmula antigua 3.0)
+            float freq_hz = kph * KPH_TO_HZ_RATIO;
             uint16_t freq_centi_hz = (uint16_t)(freq_hz * 100.0f);
 
             vfd_write_register(VFD_REG_FREQ, freq_centi_hz);
