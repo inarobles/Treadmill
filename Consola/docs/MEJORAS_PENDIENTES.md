@@ -32,7 +32,7 @@ Calibrar el parámetro `g_calibration_factor` que convierte los pulsos del senso
 **Proceso de calibración:**
 1. Establecer VFD a frecuencia fija (ej: 30 Hz mediante comando SET_SPEED)
 2. Medir velocidad real de cinta físicamente
-3. Registrar pulsos/segundo del sensor (GPIO 34)
+3. Registrar pulsos/segundo del sensor (GPIO 15 - corona de 12 dientes)
 4. Calcular y actualizar `g_calibration_factor`
 5. Verificar con al menos 3 velocidades diferentes (baja, media, alta)
 6. Documentar resultados de calibración
@@ -43,9 +43,9 @@ Calibrar el parámetro `g_calibration_factor` que convierte los pulsos del senso
 - Documentación: `Base/README.md` - Actualizar sección de calibración (líneas 215-241)
 
 **Relación con otros parámetros:**
-- **Sensor de velocidad:** GPIO 34 con PCNT (Pulse Counter)
+- **Sensor de velocidad:** GPIO 15 con PCNT (Pulse Counter) - Corona de 12 dientes
 - **Intervalo de medición:** 500ms (`SPEED_UPDATE_INTERVAL_MS`)
-- **Ratio VFD:** 60 Hz = 20 km/h (definido en `KPH_TO_HZ_RATIO`)
+- **Ratio VFD:** 7.8125 Hz/km/h (calibrado en `KPH_TO_HZ_RATIO`)
 
 **Beneficio:**
 Asegurar que la velocidad mostrada en pantalla coincida exactamente con la velocidad real de la cinta, crítico para seguridad y experiencia del usuario.
@@ -238,37 +238,27 @@ Control y visibilidad sobre el comportamiento de aceleración/desaceleración de
 
 ---
 
-### 8. Implementar Rampa de Aceleración en Software para Velocidad
+### 8. ~~Implementar Rampa de Aceleración en Software para Velocidad~~ ❌ DESCARTADA
 
-**Descripción:**
-Actualmente, los botones SPEED +/- envían cambios de velocidad directos al VFD sin implementar una rampa gradual en software. La Consola define modos de rampa (`ramp_mode_t`) pero solo se usan para STOP/COOLDOWN/RESUME, no para cambios normales de velocidad.
+**Decisión:** Esta tarea se ha **descartado**.
 
-**Estado actual:**
-- ✅ Rampa implementada: STOP → 0 km/h
-- ✅ Rampa implementada: COOLDOWN → 0 km/h
-- ✅ Rampa implementada: RESUME → velocidad previa
-- ❌ NO HAY rampa: Incrementos normales (ej: 5 km/h → 10 km/h)
+**Razón:**
+Las rampas internas del VFD (parámetros F1-14 y F1-15) funcionan perfectamente para aceleraciones y desaceleraciones normales. Las pruebas con hardware real demuestran que son suaves y adecuadas para el uso en cinta de correr.
 
-**Variable definida pero no usada:**
-En `treadmill_state.h:39` existe `cooldown_climb_ramp_rate` pero no hay equivalente para velocidad.
+**Enfoque adoptado:**
+- ✅ **Rampas del VFD:** Se usan para TODOS los cambios normales de velocidad (SPEED +/-, SET_SPEED)
+- ✅ **Rampa en software:** SOLO para COOLDOWN (desaceleración gradual controlada desde la Consola)
+- ✅ **Rampa implementada:** STOP → 0 km/h (usa rampa del VFD)
+- ✅ **Rampa implementada:** COOLDOWN → 0 km/h (usa rampa en software, línea 324-338 de ui.c)
+- ✅ **Rampa implementada:** RESUME → velocidad previa (usa rampa del VFD)
 
-**Propuesta:**
-1. Añadir nueva variable `speed_ramp_rate_kmh_per_sec` en `treadmill_state.h`
-2. Modificar `ui_speed_inc()` y `ui_speed_dec()` en `ui.c:1781-1843` para:
-   - No enviar comando inmediato al presionar botón
-   - Actualizar solo `target_speed` local
-   - Dejar que una tarea periódica ajuste gradualmente hacia el objetivo
-3. Crear tarea de rampa de velocidad que incremente/decremente según `speed_ramp_rate`
+**Beneficio de este enfoque:**
+- Simplicidad: No duplicar lógica que el VFD ya maneja bien
+- Menos tráfico RS485: No enviar múltiples comandos intermedios
+- Mejor rendimiento: El VFD está optimizado para control de motor
+- Control donde importa: COOLDOWN tiene requisitos específicos de UX
 
-**Archivos afectados:**
-- `Consola/main/treadmill_state.h` - Añadir `speed_ramp_rate_kmh_per_sec`
-- `Consola/main/ui.c` - Modificar lógica de `ui_speed_inc/dec()`
-- `Consola/main/ui.c` - Crear tarea de rampa de velocidad (similar a rampa de inclinación)
-
-**Beneficio:**
-Control unificado de rampas, experiencia de usuario más suave y predecible.
-
-**Prioridad:** Opcional - El VFD ya proporciona rampa interna, pero implementarlo en software da mayor control.
+**Estado:** ❌ **NO SE IMPLEMENTARÁ**
 
 ---
 

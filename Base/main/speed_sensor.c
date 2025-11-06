@@ -9,7 +9,7 @@
 static const char *TAG_SPEED = "SPEED_SENSOR";
 
 // Asignación de Pines v5
-#define PCNT_GPIO       34 // Pin v5 para "Sensor Velocidad" (Solo Entrada)
+#define PCNT_GPIO       15 // Pin v5 para "Sensor Hall Velocidad" (Corona 12 dientes)
 
 static pcnt_unit_handle_t pcnt_unit = NULL;
 
