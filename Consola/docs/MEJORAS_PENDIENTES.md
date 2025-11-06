@@ -490,7 +490,7 @@ Feedback visual inmediato al usuario de que el sistema está respondiendo a sus 
   - `Base/main/vfd_driver.c:57` - Ratio de conversión km/h a Hz del VFD
   - `Base/docs/CALIBRACION.md` - Documento completo de calibración
   - `Base/docs/VFD_CONFIG.md` - Configuración y registros Modbus del VFD SU300
-- **Commits:** `04c210f`, `PENDING`
+- **Commits:** `04c210f` (calibración), `ccb247f` (documentación VFD)
 
 ### 2025-11-05 - Correcciones Sistema de Inclinación
 - ✅ Corregido bug de lectura de inclinación real en UI
