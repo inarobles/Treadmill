@@ -17,10 +17,8 @@
 #include <math.h>
 
 // ===========================================================================
-// CORRECCIÓN: DEFINICIONES DE PROTOCOLO FALTANTES
+// PROTOCOLO ASCII SIMPLE
 // ===========================================================================
-#include "cm_protocol.h"
-#include "cm_frame.h"   // <--- CORRECCIÓN: Include faltante para cm_frame_t
 
 // Definición de estado de inclinación
 typedef enum {
@@ -30,11 +28,16 @@ typedef enum {
     INCLINE_MOTOR_HOMING
 } incline_motor_state_t;
 
-// Códigos NAK (Error)
-#define NAK_INVALID_PAYLOAD CM_ERR_INVALID_PAYLOAD
-#define NAK_UNKNOWN_CMD     CM_ERR_UNKNOWN_CMD
-#define NAK_NOT_READY       CM_ERR_NOT_READY
-#define NAK_VFD_FAULT       CM_ERR_VFD_FAULT
+// Códigos de error para ACK
+#define ACK_OK              "OK"
+#define ACK_ERROR_VFD_FAULT "VFD_FAULT"
+#define ACK_ERROR_OUT_OF_RANGE "OUT_OF_RANGE"
+#define ACK_ERROR_NOT_CALIBRATED "NOT_CALIBRATED"
+#define ACK_ERROR_UNKNOWN_CMD "UNKNOWN_CMD"
+#define ACK_ERROR_RELAY_FAULT "RELAY_FAULT"
+
+// Buffer para líneas UART
+#define UART_LINE_BUFFER_SIZE 128
 // ===========================================================================
 
 
@@ -74,7 +77,7 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 SemaphoreHandle_t g_speed_mutex;
 static bool g_emergency_state = false;
 static uint64_t g_last_command_time_us = 0;
-#define WATCHDOG_TIMEOUT_US (700 * 1000) // 700ms
+#define WATCHDOG_TIMEOUT_US (1000 * 1000) // 1000ms (1 segundo)
 static float g_real_speed_kmh = 0.0f;
 static float g_target_speed_kmh = 0.0f;
 static float g_real_incline_pct = 0.0f;
@@ -173,327 +176,314 @@ static void configure_gpios(void) {
 }
 
 // ===========================================================================
-// LÓGICA DE PROTOCOLO v2.1 (RESPUESTAS)
+// PROTOCOLO ASCII SIMPLE (RESPUESTAS)
 // ===========================================================================
 
 /**
- * @brief Envía una trama completa por UART
+ * @brief Envía una línea de texto por UART
  */
-static esp_err_t send_frame(uint8_t cmd, uint8_t seq, const uint8_t *payload, uint8_t len) {
-    cm_frame_t frame = {
-        .cmd = cmd,
-        .seq = seq,
-        .len = len
-    };
-
-    if (len > 0 && payload != NULL) {
-        memcpy(frame.payload, payload, len);
-    }
-
-    uint8_t buffer[CM_MAX_STUFFED_SIZE];
-    size_t frame_len = cm_build_frame(&frame, buffer, sizeof(buffer));
-
-    if (frame_len == 0) {
-        ESP_LOGE(TAG, "Error al construir trama");
-        return ESP_FAIL;
-    }
-
-    int written = uart_write_bytes(UART_PORT_NUM, buffer, frame_len);
+static esp_err_t send_line(const char *line) {
+    int len = strlen(line);
+    int written = uart_write_bytes(UART_PORT_NUM, line, len);
     if (written < 0) {
-        ESP_LOGE(TAG, "Error al enviar trama por UART");
+        ESP_LOGE(TAG, "Error al enviar línea por UART");
         return ESP_FAIL;
     }
-
-    ESP_LOGD(TAG, "Trama enviada: CMD=0x%02X, SEQ=%d, LEN=%d", cmd, seq, len);
+    ESP_LOGD(TAG, "Línea enviada: %s", line);
     return ESP_OK;
 }
 
 /**
- * @brief Envía ACK
+ * @brief Envía ACK=OK
  */
-static esp_err_t send_ack(uint8_t seq) {
-    return send_frame(CM_RSP_ACK, seq, &seq, 1);
+static void send_ack_ok(void) {
+    send_line("ACK=OK\n");
 }
 
 /**
- * @brief Envía NAK con código de error
+ * @brief Envía ACK=ERROR,<motivo>
  */
-static esp_err_t send_nak(uint8_t seq, uint8_t error_code) {
-    uint8_t payload[2] = { seq, error_code };
-    return send_frame(CM_RSP_NAK, seq, payload, 2);
+static void send_ack_error(const char *error_code) {
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "ACK=ERROR,%s\n", error_code);
+    send_line(buffer);
 }
 
-static void send_status(uint8_t seq) {
-    uint8_t status_payload = 0x00;
-
-    // Bit 0: Estado del VFD (1 = Fallo o Desconectado, 0 = OK)
-    vfd_status_t vfd_status = vfd_driver_get_status();
-    if (vfd_status != VFD_STATUS_OK) {
-        status_payload |= 0x01;
-    }
-
-    send_frame(CM_RSP_STATUS, seq, &status_payload, 1);
-}
-
-static void send_sensor_speed(uint8_t seq) {
+/**
+ * @brief Envía respuesta DATA consolidada
+ * Formato: DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>
+ */
+static void send_data_response(void) {
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
     float real_speed = g_real_speed_kmh;
-    xSemaphoreGive(g_speed_mutex);
-    uint16_t speed_x100 = (uint16_t)(real_speed * 100.0f);
-    uint8_t payload[2] = { (uint8_t)((speed_x100 >> 8) & 0xFF), (uint8_t)(speed_x100 & 0xFF) };
-    send_frame(CM_RSP_SENSOR_SPEED, seq, payload, 2); // <-- CORREGIDO
-}
-
-static void send_incline_position(uint8_t seq) {
-    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
     float real_incline = g_real_incline_pct;
-    xSemaphoreGive(g_speed_mutex);
-    uint16_t incline_x10 = (uint16_t)(real_incline * 10.0f);
-    uint8_t payload[2] = { (uint8_t)((incline_x10 >> 8) & 0xFF), (uint8_t)(incline_x10 & 0xFF) };
-    send_frame(CM_RSP_INCLINE_POSITION, seq, payload, 2); // <-- CORREGIDO
-}
-
-static void send_fan_state(uint8_t seq) {
-    uint8_t payload[2];
-
-    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
-    payload[0] = g_head_fan_state;
-    payload[1] = g_chest_fan_state;
+    uint8_t head_fan = g_head_fan_state;
+    uint8_t chest_fan = g_chest_fan_state;
     xSemaphoreGive(g_speed_mutex);
 
-    send_frame(CM_RSP_FAN_STATE, seq, payload, 2);
+    // Obtener frecuencia real del VFD
+    float vfd_freq = vfd_driver_get_real_freq_hz();
+
+    // Obtener código de fallo del VFD
+    vfd_status_t vfd_status = vfd_driver_get_status();
+    uint8_t vfd_fault = (vfd_status == VFD_STATUS_OK) ? 0 : 1;
+
+    char buffer[96];
+    snprintf(buffer, sizeof(buffer), "DATA=%.2f,%.1f,%.2f,%d,%d,%d\n",
+             real_speed, real_incline, vfd_freq, vfd_fault, head_fan, chest_fan);
+    send_line(buffer);
 }
 
 // ===========================================================================
-// LÓGICA DE PROTOCOLO v2.1 (PROCESADORES DE COMANDOS)
+// PROTOCOLO ASCII (PROCESADORES DE COMANDOS)
 // ===========================================================================
 
-static void process_set_speed(uint8_t seq, const uint8_t *payload, uint8_t len) {
-    if (len != 2) { send_nak(seq, NAK_INVALID_PAYLOAD); return; }
+/**
+ * @brief Extrae el valor flotante de un comando "CMD=valor"
+ */
+static float extract_float_value(const char *cmd_line) {
+    const char *equals = strchr(cmd_line, '=');
+    if (equals == NULL) return 0.0f;
+    return atof(equals + 1);
+}
 
-    // Verificar estado del VFD antes de aceptar el comando
+/**
+ * @brief Extrae el valor entero de un comando "CMD=valor"
+ */
+static int extract_int_value(const char *cmd_line) {
+    const char *equals = strchr(cmd_line, '=');
+    if (equals == NULL) return 0;
+    return atoi(equals + 1);
+}
+
+/**
+ * @brief Procesa SET_SPEED=<kph>
+ */
+static void process_set_speed(float target_speed) {
+    // Verificar estado del VFD
     vfd_status_t vfd_status = vfd_driver_get_status();
     if (vfd_status == VFD_STATUS_FAULT) {
-        ESP_LOGE(TAG, "Rechazando SET_SPEED: VFD en estado de FALLO");
-        send_nak(seq, NAK_VFD_FAULT);
+        ESP_LOGE(TAG, "Rechazando SET_SPEED: VFD en FALLO");
+        send_ack_error(ACK_ERROR_VFD_FAULT);
         return;
     }
     if (vfd_status == VFD_STATUS_DISCONNECTED) {
         ESP_LOGE(TAG, "Rechazando SET_SPEED: VFD desconectado");
-        send_nak(seq, NAK_VFD_FAULT);
+        send_ack_error(ACK_ERROR_VFD_FAULT);
         return;
     }
 
-    uint16_t target_speed_raw = (payload[0] << 8) | payload[1];
-    float target_speed = (float)target_speed_raw / 100.0f;
-    if (target_speed < 0) target_speed = 0;
+    // Validar rango
+    if (target_speed < 0 || target_speed > 20.0f) {
+        ESP_LOGE(TAG, "Velocidad fuera de rango: %.2f km/h", target_speed);
+        send_ack_error(ACK_ERROR_OUT_OF_RANGE);
+        return;
+    }
+
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
     g_target_speed_kmh = target_speed;
     xSemaphoreGive(g_speed_mutex);
+
     vfd_driver_set_speed(target_speed);
-    send_ack(seq);
+    send_ack_ok();
+    ESP_LOGI(TAG, "SET_SPEED: %.2f km/h", target_speed);
 }
 
-static void process_set_incline(uint8_t seq, const uint8_t *payload, uint8_t len) {
-    if (len != 2) { send_nak(seq, NAK_INVALID_PAYLOAD); return; }
-    uint16_t target_incline_raw = (payload[0] << 8) | payload[1];
-    float target_incline = (float)target_incline_raw / 10.0f;
-    if (target_incline < 0) target_incline = 0;
-    if (!g_incline_is_calibrated) { send_nak(seq, NAK_NOT_READY); return; }
+/**
+ * @brief Procesa SET_INCLINE=<pct>
+ */
+static void process_set_incline(float target_incline) {
+    if (!g_incline_is_calibrated) {
+        send_ack_error(ACK_ERROR_NOT_CALIBRATED);
+        return;
+    }
+
+    // Validar rango
+    if (target_incline < 0 || target_incline > 15.0f) {
+        send_ack_error(ACK_ERROR_OUT_OF_RANGE);
+        return;
+    }
+
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
     g_target_incline_pct = target_incline;
     xSemaphoreGive(g_speed_mutex);
-    send_ack(seq);
+
+    send_ack_ok();
+    ESP_LOGI(TAG, "SET_INCLINE: %.1f%%", target_incline);
 }
 
-static void process_calibrate_incline(uint8_t seq) {
-    ESP_LOGI(TAG, "CALIBRATE_INCLINE: Iniciando rutina de Homing");
+/**
+ * @brief Procesa CALIBRATE_INCLINE=1
+ */
+static void process_calibrate_incline(void) {
+    ESP_LOGI(TAG, "CALIBRATE_INCLINE: Iniciando rutina de homing");
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
     g_incline_motor_state = INCLINE_MOTOR_HOMING;
     g_incline_is_calibrated = false;
     xSemaphoreGive(g_speed_mutex);
-    send_ack(seq);
-}
-
-static void process_set_fan_state(uint8_t seq, const uint8_t *payload, uint8_t len) {
-    if (len != 2) { send_nak(seq, NAK_INVALID_PAYLOAD); return; }
-    uint8_t fan_id = payload[0];
-    uint8_t fan_state = payload[1];
-    if (fan_state > 2) { send_nak(seq, NAK_INVALID_PAYLOAD); return; }
-
-    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
-    if (fan_id == 0x01) { // Ventilador Cabeza
-        g_head_fan_state = fan_state;
-        gpio_set_level(HEAD_FAN_ON_OFF_PIN, (fan_state > 0) ? 1 : 0);
-        gpio_set_level(HEAD_FAN_SPEED_PIN, (fan_state == 2) ? 1 : 0);
-    } else if (fan_id == 0x02) { // Ventilador Pecho
-        g_chest_fan_state = fan_state;
-        gpio_set_level(CHEST_FAN_ON_OFF_PIN, (fan_state > 0) ? 1 : 0);
-        gpio_set_level(CHEST_FAN_SPEED_PIN, (fan_state == 2) ? 1 : 0);
-    } else {
-        xSemaphoreGive(g_speed_mutex);
-        send_nak(seq, NAK_INVALID_PAYLOAD);
-        return;
-    }
-    xSemaphoreGive(g_speed_mutex);
-    send_ack(seq);
-}
-
-static void process_set_relay(uint8_t seq, const uint8_t *payload, uint8_t len) {
-    if (len != 2) { send_nak(seq, NAK_INVALID_PAYLOAD); return; }
-    uint8_t relay_id = payload[0];
-    uint8_t relay_state = payload[1];
-    if (relay_id == 0x01) { // Bomba de Cera
-        if (relay_state == 1) {
-            ESP_LOGI(TAG, "SET_RELAY: Activando bomba de cera por 5 segundos");
-            xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
-            gpio_set_level(WAX_PUMP_RELAY_PIN, 1);
-            g_wax_pump_relay_state = 1;
-            xSemaphoreGive(g_speed_mutex);
-            ESP_ERROR_CHECK(esp_timer_start_once(wax_pump_timer_handle, WAX_PUMP_ACTIVATION_DURATION_MS * 1000));
-        } else {
-            xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
-            gpio_set_level(WAX_PUMP_RELAY_PIN, 0);
-            g_wax_pump_relay_state = 0;
-            xSemaphoreGive(g_speed_mutex);
-            if (esp_timer_is_active(wax_pump_timer_handle)) {
-                ESP_ERROR_CHECK(esp_timer_stop(wax_pump_timer_handle));
-            }
-        }
-    } else {
-        send_nak(seq, NAK_INVALID_PAYLOAD);
-        return;
-    }
-    send_ack(seq);
-}
-
-static void process_emergency_stop(uint8_t seq) {
-    ESP_LOGW(TAG, "🚨 EMERGENCY_STOP received!");
-    enter_safe_state();
-    send_ack(seq);
+    send_ack_ok();
 }
 
 /**
- * @brief Procesa una trama v2.1 válida
+ * @brief Procesa SET_FAN_HEAD=<state> (0=off, 1=low, 2=high)
+ * No envía ACK, el P4 verificará el estado con GET_DATA
  */
-static void process_frame(const cm_frame_t *frame) {
+static void process_set_fan_head(int fan_state) {
+    if (fan_state < 0 || fan_state > 2) return;
+
+    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+    g_head_fan_state = fan_state;
+    xSemaphoreGive(g_speed_mutex);
+
+    gpio_set_level(HEAD_FAN_ON_OFF_PIN, (fan_state > 0) ? 1 : 0);
+    gpio_set_level(HEAD_FAN_SPEED_PIN, (fan_state == 2) ? 1 : 0);
+
+    ESP_LOGI(TAG, "SET_FAN_HEAD: %d", fan_state);
+}
+
+/**
+ * @brief Procesa SET_FAN_CHEST=<state>
+ * No envía ACK, el P4 verificará el estado con GET_DATA
+ */
+static void process_set_fan_chest(int fan_state) {
+    if (fan_state < 0 || fan_state > 2) return;
+
+    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+    g_chest_fan_state = fan_state;
+    xSemaphoreGive(g_speed_mutex);
+
+    gpio_set_level(CHEST_FAN_ON_OFF_PIN, (fan_state > 0) ? 1 : 0);
+    gpio_set_level(CHEST_FAN_SPEED_PIN, (fan_state == 2) ? 1 : 0);
+
+    ESP_LOGI(TAG, "SET_FAN_CHEST: %d", fan_state);
+}
+
+/**
+ * @brief Procesa CMD_WAX=1 (activar bomba de cera por 5 segundos)
+ */
+static void process_cmd_wax(void) {
+    ESP_LOGI(TAG, "CMD_WAX: Activando bomba de cera por 5 segundos");
+
+    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+    gpio_set_level(WAX_PUMP_RELAY_PIN, 1);
+    g_wax_pump_relay_state = 1;
+    xSemaphoreGive(g_speed_mutex);
+
+    esp_err_t err = esp_timer_start_once(wax_pump_timer_handle, WAX_PUMP_ACTIVATION_DURATION_MS * 1000);
+    if (err == ESP_OK) {
+        send_ack_ok();
+    } else {
+        ESP_LOGE(TAG, "Error al iniciar timer de bomba de cera");
+        send_ack_error(ACK_ERROR_RELAY_FAULT);
+    }
+}
+
+/**
+ * @brief Procesa CMD_STOP=1
+ */
+static void process_cmd_stop(void) {
+    ESP_LOGW(TAG, "🚨 CMD_STOP received!");
+    enter_safe_state();
+    send_ack_ok();
+}
+
+/**
+ * @brief Procesa GET_DATA=1
+ * Envía respuesta DATA consolidada
+ */
+static void process_get_data(void) {
+    send_data_response();
+}
+
+/**
+ * @brief Procesa un comando ASCII recibido
+ */
+static void process_command(const char *cmd_line) {
     reset_safe_state();
-    switch (frame->cmd) {
-        case CM_CMD_GET_STATUS: send_status(frame->seq); break;
-        case CM_CMD_GET_SENSOR_SPEED: send_sensor_speed(frame->seq); break;
-        case CM_CMD_GET_INCLINE_POSITION: send_incline_position(frame->seq); break;
-        case CM_CMD_GET_FAN_STATE: send_fan_state(frame->seq); break;
-        case CM_CMD_SET_SPEED: process_set_speed(frame->seq, frame->payload, frame->len); break;
-        case CM_CMD_SET_INCLINE: process_set_incline(frame->seq, frame->payload, frame->len); break;
-        case CM_CMD_CALIBRATE_INCLINE: process_calibrate_incline(frame->seq); break;
-        case CM_CMD_SET_FAN_STATE: process_set_fan_state(frame->seq, frame->payload, frame->len); break;
-        case CM_CMD_SET_RELAY: process_set_relay(frame->seq, frame->payload, frame->len); break;
-        case CM_CMD_EMERGENCY_STOP: process_emergency_stop(frame->seq); break;
-        default:
-            ESP_LOGW(TAG, "Comando desconocido: 0x%02X", frame->cmd);
-            send_nak(frame->seq, NAK_UNKNOWN_CMD);
-            break;
+
+    ESP_LOGD(TAG, "Comando recibido: %s", cmd_line);
+
+    // Comandos con ACK
+    if (strncmp(cmd_line, "SET_SPEED=", 10) == 0) {
+        float speed = extract_float_value(cmd_line);
+        process_set_speed(speed);
+    }
+    else if (strncmp(cmd_line, "SET_INCLINE=", 12) == 0) {
+        float incline = extract_float_value(cmd_line);
+        process_set_incline(incline);
+    }
+    else if (strncmp(cmd_line, "CALIBRATE_INCLINE=", 18) == 0) {
+        process_calibrate_incline();
+    }
+    else if (strncmp(cmd_line, "CMD_WAX=", 8) == 0) {
+        process_cmd_wax();
+    }
+    else if (strncmp(cmd_line, "CMD_STOP=", 9) == 0) {
+        process_cmd_stop();
+    }
+    // Comandos sin ACK
+    else if (strncmp(cmd_line, "SET_FAN_HEAD=", 13) == 0) {
+        int state = extract_int_value(cmd_line);
+        process_set_fan_head(state);
+    }
+    else if (strncmp(cmd_line, "SET_FAN_CHEST=", 14) == 0) {
+        int state = extract_int_value(cmd_line);
+        process_set_fan_chest(state);
+    }
+    // Comando de lectura
+    else if (strncmp(cmd_line, "GET_DATA=", 9) == 0) {
+        process_get_data();
+    }
+    else {
+        ESP_LOGW(TAG, "Comando desconocido: %s", cmd_line);
+        send_ack_error(ACK_ERROR_UNKNOWN_CMD);
     }
 }
 
 // ===========================================================================
-// PARSER SIMPLE BYTE-A-BYTE
+// PARSER ASCII SIMPLE (LÍNEA A LÍNEA)
 // ===========================================================================
 
-typedef enum {
-    PARSER_WAIT_SOF,
-    PARSER_READ_FRAME
-} parser_state_enum_t;
+/**
+ * @brief Tarea de recepción UART - Lee líneas terminadas en \n
+ */
+static void uart_rx_task(void *pvParameters) {
+    char line_buffer[UART_LINE_BUFFER_SIZE];
+    size_t line_pos = 0;
 
-typedef struct {
-    parser_state_enum_t state;
-    uint8_t buffer[CM_MAX_STUFFED_SIZE];
-    size_t buffer_len;
-    int64_t last_byte_time;
-} cm_parser_state_t;
+    ESP_LOGI(TAG, "Tarea UART RX iniciada (modo ASCII). Escuchando en UART%d...", UART_PORT_NUM);
 
-typedef enum {
-    CM_PARSE_SUCCESS,
-    CM_PARSE_INCOMPLETE,
-    CM_PARSE_ERROR
-} cm_parse_result_t;
+    while (1) {
+        uint8_t byte;
+        int len = uart_read_bytes(UART_PORT_NUM, &byte, 1, pdMS_TO_TICKS(100));
 
-static void cm_parser_init(cm_parser_state_t *parser) {
-    parser->state = PARSER_WAIT_SOF;
-    parser->buffer_len = 0;
-    parser->last_byte_time = 0;
-}
-
-static bool cm_parser_timeout(cm_parser_state_t *parser, uint32_t timeout_ms) {
-    if (parser->buffer_len > 0 && parser->last_byte_time > 0) {
-        int64_t elapsed = (esp_timer_get_time() - parser->last_byte_time) / 1000;
-        if (elapsed > timeout_ms) {
-            parser->state = PARSER_WAIT_SOF;
-            parser->buffer_len = 0;
-            return true;
+        if (len > 0) {
+            // Detectar fin de línea
+            if (byte == '\n' || byte == '\r') {
+                if (line_pos > 0) {
+                    // Terminar string y procesar comando
+                    line_buffer[line_pos] = '\0';
+                    process_command(line_buffer);
+                    line_pos = 0;
+                }
+            }
+            // Acumular caracteres (ignorar \r adicionales)
+            else if (byte >= 32 && byte < 127) {  // Solo caracteres imprimibles ASCII
+                if (line_pos < UART_LINE_BUFFER_SIZE - 1) {
+                    line_buffer[line_pos++] = byte;
+                } else {
+                    // Buffer lleno, descartar línea
+                    ESP_LOGW(TAG, "Línea demasiado larga, descartando");
+                    line_pos = 0;
+                }
+            }
         }
     }
-    return false;
-}
-
-static cm_parse_result_t cm_parse_byte(cm_parser_state_t *parser, uint8_t byte, cm_frame_t *frame) {
-    parser->last_byte_time = esp_timer_get_time();
-
-    if (parser->state == PARSER_WAIT_SOF) {
-        if (byte == CM_SOF) {
-            parser->buffer[0] = byte;
-            parser->buffer_len = 1;
-            parser->state = PARSER_READ_FRAME;
-        }
-        return CM_PARSE_INCOMPLETE;
-    }
-
-    // PARSER_READ_FRAME
-    if (parser->buffer_len >= CM_MAX_STUFFED_SIZE) {
-        parser->state = PARSER_WAIT_SOF;
-        parser->buffer_len = 0;
-        return CM_PARSE_ERROR;
-    }
-
-    parser->buffer[parser->buffer_len++] = byte;
-
-    // Intentar parsear cuando tengamos al menos el tamaño mínimo
-    if (parser->buffer_len >= CM_MIN_FRAME_SIZE + 1) {  // +1 por el SOF
-        if (cm_parse_frame(parser->buffer, parser->buffer_len, frame)) {
-            parser->state = PARSER_WAIT_SOF;
-            parser->buffer_len = 0;
-            return CM_PARSE_SUCCESS;
-        }
-    }
-
-    return CM_PARSE_INCOMPLETE;
 }
 
 // ===========================================================================
 // TAREAS RTOS
 // ===========================================================================
-
-static void uart_rx_task(void *pvParameters) {
-    uint8_t data[UART_BUF_SIZE];
-    cm_parser_state_t parser_state;
-    cm_frame_t frame;
-    cm_parser_init(&parser_state);
-    ESP_LOGI(TAG, "Tarea UART RX iniciada. Escuchando en UART%d...", UART_PORT_NUM);
-    while (1) {
-        int len = uart_read_bytes(UART_PORT_NUM, data, UART_BUF_SIZE, 20 / portTICK_PERIOD_MS);
-        if (len > 0) {
-            for (int i = 0; i < len; i++) {
-                if (cm_parse_byte(&parser_state, data[i], &frame) == CM_PARSE_SUCCESS) {
-                    ESP_LOGD(TAG, "Trama recibida: CMD=0x%02X, SEQ=%d, LEN=%d", frame.cmd, frame.seq, frame.len);
-                    process_frame(&frame);
-                }
-            }
-        }
-        if (cm_parser_timeout(&parser_state, 100)) {
-             ESP_LOGW(TAG, "Parser timeout, reset a SOF");
-        }
-    }
-}
 
 static void speed_update_task(void *pvParameters) {
     ESP_LOGI(TAG, "Tarea de actualización de velocidad iniciada");
@@ -619,7 +609,7 @@ static void watchdog_task(void *pvParameters) {
 void app_main(void) {
     ESP_LOGI(TAG, "==============================================");
     ESP_LOGI(TAG, "  Sala de Maquinas - Sistema Esclavo");
-    ESP_LOGI(TAG, "  FASE 9: Integración de Hardware");
+    ESP_LOGI(TAG, "  PROTOCOLO: ASCII Simple (UART Direct)");
     ESP_LOGI(TAG, "==============================================");
 
     esp_err_t ret = nvs_flash_init();
@@ -682,7 +672,7 @@ void app_main(void) {
     ESP_LOGI(TAG, "Tarea de control de inclinación creada");
 
     xTaskCreate(watchdog_task, "watchdog_task", 2048, NULL, 6, NULL);
-    ESP_LOGI(TAG, "Tarea de watchdog creada (timeout: 700ms)");
+    ESP_LOGI(TAG, "Tarea de watchdog creada (timeout: 1000ms)");
 
     ESP_LOGI(TAG, "Sistema iniciado correctamente");
     ESP_LOGI(TAG, "Esperando comandos del Maestro...");
