@@ -819,7 +819,7 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     // KCAL (izquierda, encima de las horas de Time)
     panels.kcal_label = lv_label_create(parent);
     lv_obj_add_style(panels.kcal_label, &style_value_main, 0);
-    lv_obj_align_to(panels.kcal_label, panels.time_label, LV_ALIGN_OUT_TOP_LEFT, 0, -40);
+    lv_obj_align_to(panels.kcal_label, panels.time_label, LV_ALIGN_OUT_TOP_LEFT, -200, -40);
 
     lv_obj_t* unit_kcal = lv_label_create(parent);
     lv_obj_add_style(unit_kcal, &style_unit, 0);
@@ -836,7 +836,7 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     // DISTANCE (derecha, encima de los segundos de Time)
     panels.dist_label = lv_label_create(parent);
     lv_obj_add_style(panels.dist_label, &style_value_main, 0);
-    lv_obj_align_to(panels.dist_label, panels.time_label, LV_ALIGN_OUT_TOP_RIGHT, 0, -40);
+    lv_obj_align_to(panels.dist_label, panels.time_label, LV_ALIGN_OUT_TOP_RIGHT, 200, -40);
 
     lv_obj_t* unit_dist = lv_label_create(parent);
     lv_obj_add_style(unit_dist, &style_unit, 0);
