@@ -523,14 +523,24 @@ void ui_update_task(void *pvParameter) {
         }
 
         // Kcal
-        if (current_kcal != prev_kcal) {
-            if (weight_entered_copy || user_weight_kg_copy == 0.0f) {
+        static bool prev_weight_entered = false;
+        if (current_kcal != prev_kcal || weight_entered_copy != prev_weight_entered) {
+            if (weight_entered_copy) {
+                // Si hay peso introducido, mostrar valor numérico
                 lv_label_set_text_fmt(label_kcal, "%d", current_kcal);
+            } else {
+                // Si no hay peso, mostrar "--"
+                lv_label_set_text(label_kcal, "--");
             }
             if (set_mode_copy != SET_MODE_WEIGHT) {
-                lv_label_set_text_fmt(label_kcal_set, "%d", current_kcal);
+                if (weight_entered_copy) {
+                    lv_label_set_text_fmt(label_kcal_set, "%d", current_kcal);
+                } else {
+                    lv_label_set_text(label_kcal_set, "--");
+                }
             }
             prev_kcal = current_kcal;
+            prev_weight_entered = weight_entered_copy;
         }
 
         // Actualizar labels de ventiladores
@@ -817,7 +827,7 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     // KCAL (izquierda, encima de las horas de Time)
     panels.kcal_label = lv_label_create(parent);
     lv_obj_add_style(panels.kcal_label, &style_value_main, 0);
-    lv_label_set_text(panels.kcal_label, "0");
+    lv_label_set_text(panels.kcal_label, "--");
     lv_obj_align_to(panels.kcal_label, panels.time_label, LV_ALIGN_OUT_TOP_LEFT, -231, -40);
     lv_obj_set_width(panels.kcal_label, 200);
     lv_obj_set_style_text_align(panels.kcal_label, LV_TEXT_ALIGN_RIGHT, 0);
