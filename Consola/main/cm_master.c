@@ -341,6 +341,7 @@ esp_err_t cm_master_set_speed(float speed_kmh) {
     }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     g_target_speed_kmh = speed_kmh;
+    g_real_speed_kmh = speed_kmh;  // Actualizar UI inmediatamente (optimistic update)
     xSemaphoreGive(g_master_mutex);
 
     ESP_LOGI(TAG, "Velocidad objetivo: %.2f km/h", speed_kmh);
@@ -353,6 +354,7 @@ esp_err_t cm_master_set_incline(float incline_pct) {
     }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     g_target_incline_pct = incline_pct;
+    g_current_incline_pct = incline_pct;  // Actualizar UI inmediatamente (optimistic update)
     xSemaphoreGive(g_master_mutex);
 
     ESP_LOGI(TAG, "Inclinación objetivo: %.1f%%", incline_pct);
