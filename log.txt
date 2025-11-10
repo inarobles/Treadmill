@@ -1,10 +1,10 @@
 
-C:\esp\Cinta\Consola>idf.py -p COM4 flash monitor
+C:\esp\Treadmill\Consola>idf.py -p COM4 flash monitor
 Executing action: flash
-Running ninja in directory C:\esp\Cinta\Consola\build
+Running ninja in directory C:\esp\Treadmill\Consola\build
 Executing "ninja flash"...
-[1/5] C:\WINDOWS\system32\cmd.exe /C...inta/Consola/build/lvgl_demo_v8.bin"
-lvgl_demo_v8.bin binary size 0x1c9d50 bytes. Smallest app partition is 0x800000 bytes. 0x6362b0 bytes (78%) free.
+[1/5] C:\WINDOWS\system32\cmd.exe /C...mill/Consola/build/lvgl_demo_v8.bin"
+lvgl_demo_v8.bin binary size 0x1caad0 bytes. Smallest app partition is 0x800000 bytes. 0x635530 bytes (78%) free.
 [1/1] C:\WINDOWS\system32\cmd.exe /C...ola/build/bootloader/bootloader.bin"
 Bootloader binary size 0x5c20 bytes. 0x3e0 bytes (4%) free.
 [4/5] C:\WINDOWS\system32\cmd.exe /C...ts/esptool_py/run_serial_tool.cmake"
@@ -23,87 +23,87 @@ Changing baud rate to 460800
 Changed.
 Configuring flash size...
 Flash will be erased from 0x00002000 to 0x00007fff...
-Flash will be erased from 0x00010000 to 0x001d9fff...
+Flash will be erased from 0x00010000 to 0x001dafff...
 Flash will be erased from 0x00008000 to 0x00008fff...
 SHA digest in image updated
-Compressed 23584 bytes to 14456...
+Compressed 23584 bytes to 14458...
 Writing at 0x00002000... (100 %)
-Wrote 23584 bytes (14456 compressed) at 0x00002000 in 0.8 seconds (effective 231.1 kbit/s)...
+Wrote 23584 bytes (14458 compressed) at 0x00002000 in 0.8 seconds (effective 234.7 kbit/s)...
 Hash of data verified.
-Compressed 1875280 bytes to 989267...
+Compressed 1878736 bytes to 991007...
 Writing at 0x00010000... (1 %)
-Writing at 0x0001f5ef... (3 %)
-Writing at 0x0002bd25... (4 %)
-Writing at 0x00039820... (6 %)
-Writing at 0x00046b4c... (8 %)
-Writing at 0x000574c5... (9 %)
-Writing at 0x0005f9bc... (11 %)
-Writing at 0x00068c05... (13 %)
-Writing at 0x00074e34... (14 %)
-Writing at 0x00081f39... (16 %)
-Writing at 0x000902b1... (18 %)
-Writing at 0x000a0057... (19 %)
-Writing at 0x000a8d36... (21 %)
-Writing at 0x000b0ced... (22 %)
-Writing at 0x000b6cd9... (24 %)
-Writing at 0x000bd35d... (26 %)
-Writing at 0x000c56d4... (27 %)
-Writing at 0x000cd301... (29 %)
-Writing at 0x000d522a... (31 %)
-Writing at 0x000dc08c... (32 %)
-Writing at 0x000e2cf2... (34 %)
-Writing at 0x000e8d60... (36 %)
-Writing at 0x000ee8b0... (37 %)
-Writing at 0x000f3ee7... (39 %)
-Writing at 0x000f9620... (40 %)
-Writing at 0x000ff0d6... (42 %)
-Writing at 0x00105820... (44 %)
-Writing at 0x0010c2a5... (45 %)
-Writing at 0x00111638... (47 %)
-Writing at 0x00116f82... (49 %)
-Writing at 0x0011c795... (50 %)
-Writing at 0x00123449... (52 %)
-Writing at 0x00128f61... (54 %)
-Writing at 0x0012eec7... (55 %)
-Writing at 0x001350e2... (57 %)
-Writing at 0x0013ab3a... (59 %)
-Writing at 0x00140d66... (60 %)
-Writing at 0x00146ec6... (62 %)
-Writing at 0x0014d9c8... (63 %)
-Writing at 0x00153e9a... (65 %)
-Writing at 0x00159b77... (67 %)
-Writing at 0x00161090... (68 %)
-Writing at 0x001677c3... (70 %)
-Writing at 0x0016dee0... (72 %)
-Writing at 0x001739c1... (73 %)
-Writing at 0x0017948d... (75 %)
-Writing at 0x0017eca4... (77 %)
-Writing at 0x00184a55... (78 %)
-Writing at 0x0018b6cc... (80 %)
-Writing at 0x00190c0f... (81 %)
-Writing at 0x0019654c... (83 %)
-Writing at 0x0019bff9... (85 %)
-Writing at 0x001a2bdb... (86 %)
-Writing at 0x001a9391... (88 %)
-Writing at 0x001b01a2... (90 %)
-Writing at 0x001b6d60... (91 %)
-Writing at 0x001bcb3a... (93 %)
-Writing at 0x001c2132... (95 %)
-Writing at 0x001c8566... (96 %)
-Writing at 0x001ce8e2... (98 %)
-Writing at 0x001d4b79... (100 %)
-Wrote 1875280 bytes (989267 compressed) at 0x00010000 in 29.8 seconds (effective 502.9 kbit/s)...
+Writing at 0x0001f5b8... (3 %)
+Writing at 0x0002bca4... (4 %)
+Writing at 0x0003977c... (6 %)
+Writing at 0x000471d9... (8 %)
+Writing at 0x0005716c... (9 %)
+Writing at 0x0005f84d... (11 %)
+Writing at 0x00068bc6... (13 %)
+Writing at 0x0007505b... (14 %)
+Writing at 0x00082216... (16 %)
+Writing at 0x00090270... (18 %)
+Writing at 0x0009fdd7... (19 %)
+Writing at 0x000a9019... (21 %)
+Writing at 0x000b0cdc... (22 %)
+Writing at 0x000b6cf6... (24 %)
+Writing at 0x000bd36e... (26 %)
+Writing at 0x000c56f6... (27 %)
+Writing at 0x000cd319... (29 %)
+Writing at 0x000d521c... (31 %)
+Writing at 0x000dc071... (32 %)
+Writing at 0x000e2bc6... (34 %)
+Writing at 0x000e89ca... (36 %)
+Writing at 0x000ee4c1... (37 %)
+Writing at 0x000f3b2b... (39 %)
+Writing at 0x000f91d1... (40 %)
+Writing at 0x000fec11... (42 %)
+Writing at 0x00105a6e... (44 %)
+Writing at 0x0010bdac... (45 %)
+Writing at 0x00111237... (47 %)
+Writing at 0x00116b19... (49 %)
+Writing at 0x0011c5fc... (50 %)
+Writing at 0x0012349a... (52 %)
+Writing at 0x00128d56... (54 %)
+Writing at 0x0012ecb4... (55 %)
+Writing at 0x00134e13... (57 %)
+Writing at 0x0013a7c5... (59 %)
+Writing at 0x00140d54... (60 %)
+Writing at 0x00146cd7... (62 %)
+Writing at 0x0014da64... (63 %)
+Writing at 0x00153b9f... (65 %)
+Writing at 0x00159b30... (67 %)
+Writing at 0x00160fe6... (68 %)
+Writing at 0x001677ba... (70 %)
+Writing at 0x0016dba9... (72 %)
+Writing at 0x0017361b... (73 %)
+Writing at 0x0017907c... (75 %)
+Writing at 0x0017ec1e... (77 %)
+Writing at 0x00184750... (78 %)
+Writing at 0x0018b2a4... (80 %)
+Writing at 0x00190893... (81 %)
+Writing at 0x001960ed... (83 %)
+Writing at 0x0019bc48... (85 %)
+Writing at 0x001a2b6e... (86 %)
+Writing at 0x001a9243... (88 %)
+Writing at 0x001b027c... (90 %)
+Writing at 0x001b6de9... (91 %)
+Writing at 0x001bce6b... (93 %)
+Writing at 0x001c2571... (95 %)
+Writing at 0x001c860a... (96 %)
+Writing at 0x001ceb00... (98 %)
+Writing at 0x001d4f2d... (100 %)
+Wrote 1878736 bytes (991007 compressed) at 0x00010000 in 29.5 seconds (effective 508.7 kbit/s)...
 Hash of data verified.
 Compressed 3072 bytes to 120...
 Writing at 0x00008000... (100 %)
-Wrote 3072 bytes (120 compressed) at 0x00008000 in 0.1 seconds (effective 374.6 kbit/s)...
+Wrote 3072 bytes (120 compressed) at 0x00008000 in 0.1 seconds (effective 369.1 kbit/s)...
 Hash of data verified.
 
 Leaving...
 Hard resetting via RTS pin...
 Executing action: monitor
-Running idf_monitor in directory C:\esp\Cinta\Consola
-Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM4 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 1 --decode-panic backtrace C:\esp\Cinta\Consola\build\lvgl_demo_v8.elf C:\esp\Cinta\Consola\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM4'"...
+Running idf_monitor in directory C:\esp\Treadmill\Consola
+Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM4 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 1 --decode-panic backtrace C:\esp\Treadmill\Consola\build\lvgl_demo_v8.elf C:\esp\Treadmill\Consola\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM4'"...
 --- Warning: GDB cannot open serial ports accessed as COMx
 --- Using \\.\COM4 instead...
 --- esp-idf-monitor 1.8.0 on \\.\COM4 115200
@@ -120,7 +120,7 @@ load:0x4ff2cbd0,len:0x345c
 entry 0x4ff29eda
 --- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
 I (25) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader
-I (26) boot: compile time Nov  2 2025 01:35:03
+I (26) boot: compile time Nov 10 2025 09:23:41
 I (26) boot: Multicore bootloader
 I (28) boot: chip revision: v1.0
 I (29) boot: efuse block revision: v0.3
@@ -136,660 +136,455 @@ I (68) boot:  1 phy_init         RF data          01 01 0000f000 00001000
 I (75) boot:  2 factory          factory app      00 00 00010000 00800000
 I (81) boot:  3 storage          Unknown data     01 82 00810000 00700000
 I (89) boot: End of partition table
-I (91) esp_image: segment 0: paddr=00010020 vaddr=48110020 size=9fac4h (654020) map
-I (200) esp_image: segment 1: paddr=000afaec vaddr=30100000 size=00068h (   104) load
-I (202) esp_image: segment 2: paddr=000afb5c vaddr=4ff00000 size=004bch (  1212) load
-I (205) esp_image: segment 3: paddr=000b0020 vaddr=48000020 size=108ee0h (1085152) map
-I (378) esp_image: segment 4: paddr=001b8f08 vaddr=4ff004bc size=1c63ch (116284) load
-I (401) esp_image: segment 5: paddr=001d554c vaddr=4ff1cb00 size=047b4h ( 18356) load
-I (406) esp_image: segment 6: paddr=001d9d08 vaddr=50108080 size=00020h (    32) load
-I (413) boot: Loaded app from partition at offset 0x10000
+I (91) esp_image: segment 0: paddr=00010020 vaddr=48110020 size=9f63ch (652860) map
+I (200) esp_image: segment 1: paddr=000af664 vaddr=30100000 size=00068h (   104) load
+I (202) esp_image: segment 2: paddr=000af6d4 vaddr=4ff00000 size=00944h (  2372) load
+I (205) esp_image: segment 3: paddr=000b0020 vaddr=48000020 size=10a0e0h (1089760) map
+I (379) esp_image: segment 4: paddr=001ba108 vaddr=4ff00944 size=1c1b4h (115124) load
+I (401) esp_image: segment 5: paddr=001d62c4 vaddr=4ff1cb00 size=047b4h ( 18356) load
+I (406) esp_image: segment 6: paddr=001daa80 vaddr=50108080 size=00020h (    32) load
+I (414) boot: Loaded app from partition at offset 0x10000
 I (414) boot: Disabling RNG early entropy source...
-I (428) hex_psram: vendor id    : 0x0d (AP)
+I (429) hex_psram: vendor id    : 0x0d (AP)
 I (429) hex_psram: Latency      : 0x01 (Fixed)
 I (429) hex_psram: DriveStr.    : 0x00 (25 Ohm)
-I (429) hex_psram: dev id       : 0x03 (generation 4)
-I (434) hex_psram: density      : 0x07 (256 Mbit)
+I (430) hex_psram: dev id       : 0x03 (generation 4)
+I (435) hex_psram: density      : 0x07 (256 Mbit)
 I (439) hex_psram: good-die     : 0x06 (Pass)
 I (443) hex_psram: SRF          : 0x02 (Slow Refresh)
-I (447) hex_psram: BurstType    : 0x00 ( Wrap)
+I (448) hex_psram: BurstType    : 0x00 ( Wrap)
 I (452) hex_psram: BurstLen     : 0x03 (2048 Byte)
-I (456) hex_psram: BitMode      : 0x01 (X16 Mode)
+I (457) hex_psram: BitMode      : 0x01 (X16 Mode)
 I (461) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
 I (466) hex_psram: DriveStrength: 0x00 (1/1)
 I (470) MSPI DQS: tuning success, best phase id is 0
-I (642) MSPI DQS: tuning success, best delayline id is 17
+I (643) MSPI DQS: tuning success, best delayline id is 17
 I esp_psram: Found 32MB PSRAM device
 I esp_psram: Speed: 200MHz
-I (673) mmu_psram: .rodata xip on psram
+I (674) mmu_psram: .rodata xip on psram
 I (726) mmu_psram: .text xip on psram
-I (726) hex_psram: psram CS IO is dedicated
-I (726) cpu_start: Multicore app
-I (1178) esp_psram: SPI SRAM memory test OK
-I (1187) cpu_start: Pro cpu start user code
-I (1187) cpu_start: cpu freq: 360000000 Hz
-I (1187) app_init: Application information:
-I (1187) app_init: Project name:     lvgl_demo_v8
-I (1191) app_init: App version:      1
-I (1195) app_init: Compile time:     Nov  2 2025 01:33:39
-I (1200) app_init: ELF file SHA256:  65516405d...
+I (727) hex_psram: psram CS IO is dedicated
+I (727) cpu_start: Multicore app
+I (1177) esp_psram: SPI SRAM memory test OK
+I (1185) cpu_start: Pro cpu start user code
+I (1185) cpu_start: cpu freq: 360000000 Hz
+I (1186) app_init: Application information:
+I (1186) app_init: Project name:     lvgl_demo_v8
+I (1190) app_init: App version:      57cba28-dirty
+I (1195) app_init: Compile time:     Nov 10 2025 09:21:05
+I (1200) app_init: ELF file SHA256:  9b13d889f...
 I (1204) app_init: ESP-IDF:          v5.5.1-dirty
 I (1209) efuse_init: Min chip rev:     v0.1
-I (1213) efuse_init: Max chip rev:     v1.99
+I (1212) efuse_init: Max chip rev:     v1.99
 I (1217) efuse_init: Chip rev:         v1.0
-I (1221) heap_init: Initializing. RAM available for dynamic allocation:
-I (1227) heap_init: At 4FF285A0 len 00012A20 (74 KiB): RAM
+I (1220) heap_init: Initializing. RAM available for dynamic allocation:
+I (1227) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
 I (1232) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
 I (1237) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
 I (1243) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
 I (1248) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
 I (1253) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
-I (1260) esp_psram: Adding pool of 28K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
-I (1271) esp_psram: Adding pool of 1K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
-I (1283) spi_flash: detected chip: boya
+I (1260) esp_psram: Adding pool of 23K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (1271) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (1282) spi_flash: detected chip: boya
 I (1286) spi_flash: flash io: qio
 I (1289) host_init: ESP Hosted : Host chip_ip[18]
 I (1303) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
-I (1304) H_API: ** add_esp_wifi_remote_channels **
-I (1306) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800e9f8] Rx[0x48022f54]
---- 0x4800e9f8: transport_drv_sta_tx at C:/esp/Cinta/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
---- 0x48022f54: esp_wifi_remote_channel_rx at C:/esp/Cinta/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-I (1314) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e93a] Rx[0x48022f54]
---- 0x4800e93a: transport_drv_ap_tx at C:/esp/Cinta/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
---- 0x48022f54: esp_wifi_remote_channel_rx at C:/esp/Cinta/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-sdio_mempool_create free:31917608 min-free:31917608 lfb-def:31457280 lfb-8bit:31457280
+I (1303) H_API: ** add_esp_wifi_remote_channels **
+I (1306) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
+--- 0x4800ea10: transport_drv_sta_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
+--- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
+I (1313) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
+--- 0x4800e952: transport_drv_ap_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
+--- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
+sdio_mempool_create free:31915268 min-free:31915268 lfb-def:31457280 lfb-8bit:31457280
 
-I (1330) H_SDIO_DRV: sdio_data_to_rx_buf_task started
-I (1334) main_task: Started on CPU0
-I (1338) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
-I (1345) main_task: Calling app_main()
-I (1352) WIFI_MANAGER: Initializing WiFi Manager
-I (1353) WIFI_MANAGER: WiFi Manager initialized successfully
-I (1359) LVGL: Starting LVGL task
-I (1362) ESP32_P4_EV: MIPI DSI PHY Powered on
-I (1367) ESP32_P4_EV: Install MIPI DSI LCD control panel
-I (1371) ESP32_P4_EV: Install ILI9881C LCD control panel
-I (1522) jd9365: LCD ID: 93 65 04
-I (1649) ESP32_P4_EV: Display initialized
-I (1710) gsl3680: start init
-I (1710) gsl3680: clear reg
-I (1840) gsl3680: start load fw
-I (2701) gsl3680: load fw success
-I (2701) gsl3680: enter
-I (2711) gsl_point_id: gsl_DataInit
-I (2771) gsl3680: enter
-I (2781) gsl_point_id: gsl_DataInit
-I (2781) ESP32_P4_EV: Setting LCD backlight: 100%
-I (2781) UI: Loaded wax counter from NVS: 0 seconds
-I (2907) Audio: Inicializando altavoz...
-I (2912) ES8311: Work in Slave mode
-I (3025) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
-I (3025) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
-I (3056) Adev_Codec: Open codec device OK
-I (3079) Audio: Buffer de pitido generado (4410 bytes)
-I (3079) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
-I (3080) NIMBLE_BLE_CLIENT: Initializing BLE Client for ESP-Hosted...
-I (3081) ButtonHandler: MCP23017 configurado para los botones.
-I (3091) transport: Attempt connection with slave: retry[0]
-W (3096) H_SDIO_DRV: Reset slave using GPIO[54]
-I (3100) os_wrapper_esp: GPIO [54] configured
-I (4306) sdio_wrapper: SDIO master: Slot 1, Data-Lines: 4-bit Freq(KHz)[20000 KHz]
-I (4306) sdio_wrapper: GPIOs: CLK[18] CMD[19] D0[14] D1[15] D2[16] D3[17] Slave_Reset[54]
-I (4310) sdio_wrapper: Queues: Tx[20] Rx[20] SDIO-Rx-Mode[1]
-Name:
-Type: SDIO
-Speed: 20.00 MHz (limit: 20.00 MHz)
-Size: 0MB
-CSD: ver=1, sector_size=0, capacity=0 read_bl_len=0
-SCR: sd_spec=0, bus_width=0
-TUPLE: DEVICE, size: 3: D9 01 FF
-TUPLE: MANFID, size: 4
-  MANF: 0092, CARD: 6666
-TUPLE: FUNCID, size: 2: 0C 00
-TUPLE: FUNCE, size: 4: 00 00 02 32
-TUPLE: CONFIG, size: 5: 01 01 00 02 07
-TUPLE: CFTABLE_ENTRY, size: 8
-  INDX: C1, Intface: 1, Default: 1, Conf-Entry-Num: 1
-  IF: 41
-  FS: 30, misc: 0, mem_space: 1, irq: 1, io_space: 0, timing: 0, power: 0
-  IR: 30, mask: 1,   IRQ: FF FF
-  LEN: FFFF
-TUPLE: END
-I (4391) sdio_wrapper: Function 0 Blocksize: 512
-I (4396) sdio_wrapper: Function 1 Blocksize: 512
-I (4400) H_SDIO_DRV: Card init success, TRANSPORT_RX_ACTIVE
-I (4405) transport: set_transport_state: 1
-I (4409) transport: Waiting for esp_hosted slave to be ready
-I (4430) H_SDIO_DRV: SDIO Host operating in STREAMING MODE
-I (4430) H_SDIO_DRV: Open data path at slave
-I (4430) H_SDIO_DRV: Starting SDIO process rx task
-I (4436) H_SDIO_DRV: Received ESP_PRIV_IF type message
-I (4437) transport: Received INIT event from ESP32 peripheral
-I (4443) transport: EVENT: 12
-I (4445) transport: Identified slave [esp32c6]
-W (4449) H_SDIO_DRV: SDIO clock freq set to [20000]KHz, Max possible (on PCB) is 40000KHz
-I (4457) transport: EVENT: 11
-I (4460) transport: capabilities: 0xd
-I (4463) transport: Features supported are:
-I (4467) transport:      * WLAN
-I (4470) transport:        - HCI over SDIO
-I (4473) transport:        - BLE only
-I (4477) transport: EVENT: 13
-W (4479) transport: === ESP-Hosted Version Warning ===
-Version on Host is NEWER than version on co-processor
-RPC requests sent by host may encounter timeout errors
-or may not be supported by co-processor
-W (4497) transport: === ESP-Hosted Version Warning ===
-I (4502) transport: ESP board type is : 13
+I (1329) H_SDIO_DRV: sdio_data_to_rx_buf_task started
+I (1333) main_task: Started on CPU0
+I (1337) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (1344) main_task: Calling app_main()
+I (1351) WIFI_MANAGER: Initializing WiFi Manager
+I (1352) WIFI_MANAGER: WiFi Manager initialized successfully
+I (1358) LVGL: Starting LVGL task
+I (1361) ESP32_P4_EV: MIPI DSI PHY Powered on
+I (1366) ESP32_P4_EV: Install MIPI DSI LCD control panel
+I (1370) ESP32_P4_EV: Install ILI9881C LCD control panel
+I (1521) jd9365: LCD ID: 93 65 04
+I (1648) ESP32_P4_EV: Display initialized
+I (1709) gsl3680: start init
+I (1709) gsl3680: clear reg
+I (1839) gsl3680: start load fw
+I (2699) gsl3680: load fw success
+I (2699) gsl3680: enter
+I (2709) gsl_point_id: gsl_DataInit
+I (2769) gsl3680: enter
+I (2779) gsl_point_id: gsl_DataInit
+I (2779) ESP32_P4_EV: Setting LCD backlight: 100%
+I (2779) UI: Loaded wax counter from NVS: 6540 seconds
+I (2904) Audio: Inicializando altavoz...
+I (2909) ES8311: Work in Slave mode
+I (3022) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
+I (3022) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
+I (3054) Adev_Codec: Open codec device OK
+I (3077) Audio: Buffer de pitido generado (4410 bytes)
+I (3077) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
 
-I (4506) transport: Base transport is set-up, TRANSPORT_TX_ACTIVE
-I (4512) H_API: Transport active
-I (4515) transport: Slave chip Id[12]
-I (4518) transport: raw_tp_dir[-], flow_ctrl: low[60] high[80]
-I (4524) transport: transport_delayed_init
-I (4528) esp_cli: Remove any existing deep_sleep cmd in cli
-I (4533) esp_cli: Registering command: crash
-I (4537) esp_cli: Registering command: reboot
-I (4541) esp_cli: Registering command: mem-dump
-I (4545) esp_cli: Registering command: task-dump
-I (4550) esp_cli: Registering command: cpu-dump
-I (4554) esp_cli: Registering command: heap-trace
-I (4558) esp_cli: Registering command: sock-dump
-I (4563) esp_cli: Registering command: host-power-save
-I (4568) vhci_drv: Host BT Support: Enabled
-I (4572) vhci_drv:      BT Transport Type: VHCI
-I (4575) H_SDIO_DRV: Received INIT event
-I (4579) H_SDIO_DRV: Event type: 0x22
-I (4582) H_SDIO_DRV: Write thread started
-I (4614) NIMBLE_BLE_CLIENT: BLE Host Task Started
-I (4614) NIMBLE_BLE_CLIENT: BLE Client initialization complete.
-I (4614) WIFI_CLIENT: Initializing WiFi Client...
-I (4620) transport: Attempt connection with slave: retry[0]
-I (4623) transport: Transport is already up
-I (4624) NimBLE: GAP procedure initiated: stop advertising.
+assert failed: xQueueSemaphoreTake queue.c:1709 (( pxQueue ))
+--- Stack dump detected
+Core  0 register dump:
+MEPC    : 0x4ff10e74  RA      : 0x4ff109f4  SP      : 0x4ff522f0  GP      : 0x4ff1d300
+--- 0x4ff10e74: panic_abort at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/panic.c:483
+--- 0x4ff109f4: esp_vApplicationTickHook at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/freertos_hooks.c:31
+TP      : 0x4ff52580  T0      : 0x37363534  T1      : 0x7271706f  T2      : 0x33323130
+S0/FP   : 0x00000001  S1      : 0x0000008a  A0      : 0x4ff52338  A1      : 0x4ff1fc29
+A2      : 0x00000001  A3      : 0x4ff27000  A4      : 0x00000001  A5      : 0x4ff27000
+A6      : 0x0000000c  A7      : 0x76757473  S2      : 0x4ff52338  S3      : 0x4ff5233d
+S4      : 0x4ff1fc28  S5      : 0x4ff52338  S6      : 0x00000000  S7      : 0x00000000
+S8      : 0x4ff1d660  S9      : 0x00000000  S10     : 0x48123000  S11     : 0x4814e000
+T3      : 0x6e6d6c6b  T4      : 0x6a696867  T5      : 0x66656463  T6      : 0x62613938
+MSTATUS : 0x00011880  MTVEC   : 0x4ff00003  MCAUSE  : 0x00000002  MTVAL   : 0x00000000
+--- 0x4ff00003: _vector_table at ??:?
+MHARTID : 0x00000000
 
-I (4634) NimBLE: Failed to restore IRKs from store; status=8
+--- Warning: Failed to run gdb_panic_server.py script: Command '['riscv32-esp-elf-gdb', '--batch', '-n', 'C:\\esp\\Treadmill\\Consola\\build\\lvgl_demo_v8.elf', '-ex', 'add-symbol-file C:\\esp\\Treadmill\\Consola\\build\\bootloader\\bootloader.elf', '-ex', 'target remote | "C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe" -m esp_idf_panic_decoder --target esp32p4 "C:\\Users\\Ina\\AppData\\Local\\Temp\\tmp1lpue4b6"', '-ex', 'bt']' returned non-zero exit status 1.
+--- Warning: b'add symbol table from file "C:espTreadmillConsolabuildbootloaderbootloader.elf"\r\nC:espTreadmillConsolabuildbootloaderbootloader.elf: No such file or directory.\r\nerror starting child process \'C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe -m esp_idf_panic_decoder --target esp32p4 C:\\Users\\Ina\\AppData\\Local\\Temp\\tmp1lpue4b6\': CreateProcess: No such file or directory\r\nNo stack.\r\n'
 
-I (4637) NIMBLE_BLE_CLIENT: BLE Host synced.
-I (4642) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
-I (4648) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-I (4656) NimBLE: GAP procedure initiated: connect;
-I (4661) NimBLE: peer_addr_type=1 peer_addr=
-I (4665) NimBLE: ed:67:b1:95:9b:28
-I (4668) NimBLE:  scan_itvl=16 scan_window=16 itvl_min=24 itvl_max=40 latency=0 supervision_timeout=256 min_ce_len=0 max_ce_len=0 own_addr_type=0
-I (4681) NimBLE:
 
-I (4685) NIMBLE_BLE_CLIENT: BLE reconnect task started
-I (4685) NIMBLE_BLE_CLIENT: Reconnect task started
-I (5330) RPC_WRAP: --- ESP Event: Slave ESP Init ---
-I (5538) WIFI_CLIENT: wifi_init_sta finished.
-I (5538) CM_MASTER: Initializing CM Protocol Master...
-I (5538) CM_MASTER: UART1 configured: 115200 baud, TX=4, RX=5
-I (5541) CM_MASTER: CM Protocol Master initialized (timeout=100ms, max_retries=3)
-I (5545) RPC_WRAP: ESP Event: wifi station started
-I (5553) CM_MASTER: UART RX task started
-I (5556) CM_MASTER: Command watchdog task started (timeout=100ms, interval=50ms)
-I (5564) CM_MASTER: Master task started - heartbeat every 300 ms
-I (5569) CM_MASTER: Master tasks started (TX + RX + Watchdog)
-I (5575) MainApp: Inicialización completa.
-I (5579) main_task: Returned from app_main()
-I (5671) WIFI_CLIENT: WIFI_EVENT_STA_START: Initializing connection process.
-I (5671) WIFI_MANAGER: Found 2 saved SSIDs in order
-I (5672) WIFI_CLIENT: Attempting to connect to SPOOFER (1/2)
-I (5677) WIFI_MANAGER: Credentials loaded for SSID: SPOOFER
-I (5714) H_API: esp_wifi_remote_connect
-W (5730) rpc_rsp: Hosted RPC_Resp [0x21a], uid [7], resp code [12295]
-I (5869) CM_MASTER: Sent frame: CMD=0x22, SEQ=0, LEN=0
-I (5879) CM_MASTER: Sent frame: CMD=0x21, SEQ=1, LEN=0
-I (5889) CM_MASTER: Sent frame: CMD=0x23, SEQ=2, LEN=0
-I (5899) CM_MASTER: Sent frame: CMD=0x24, SEQ=3, LEN=0
-I (5923) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=0
-I (5924) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (5924) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=1
-I (5928) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (5932) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=2
-I (5937) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (5942) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=3
-I (5948) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (6169) CM_MASTER: Sent frame: CMD=0x22, SEQ=4, LEN=0
-I (6179) CM_MASTER: Sent frame: CMD=0x21, SEQ=5, LEN=0
-I (6189) CM_MASTER: Sent frame: CMD=0x23, SEQ=6, LEN=0
-I (6199) CM_MASTER: Sent frame: CMD=0x24, SEQ=7, LEN=0
-I (6223) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=4
-I (6223) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (6223) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=5
-I (6227) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (6232) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=6
-I (6237) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (6242) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=7
-I (6247) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (6469) CM_MASTER: Sent frame: CMD=0x22, SEQ=8, LEN=0
-I (6479) CM_MASTER: Sent frame: CMD=0x21, SEQ=9, LEN=0
-I (6489) CM_MASTER: Sent frame: CMD=0x23, SEQ=10, LEN=0
-I (6499) CM_MASTER: Sent frame: CMD=0x24, SEQ=11, LEN=0
-I (6523) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=8
-I (6523) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (6523) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=9
-I (6527) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (6532) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=10
-I (6537) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (6542) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=11
-I (6547) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (6769) CM_MASTER: Sent frame: CMD=0x22, SEQ=12, LEN=0
-I (6779) CM_MASTER: Sent frame: CMD=0x21, SEQ=13, LEN=0
-I (6789) CM_MASTER: Sent frame: CMD=0x23, SEQ=14, LEN=0
-I (6799) CM_MASTER: Sent frame: CMD=0x24, SEQ=15, LEN=0
-I (6823) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=12
-I (6823) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (6823) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=13
-I (6827) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (6832) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=14
-I (6837) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (6842) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=15
-I (6848) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (7069) CM_MASTER: Sent frame: CMD=0x22, SEQ=16, LEN=0
-I (7079) CM_MASTER: Sent frame: CMD=0x21, SEQ=17, LEN=0
-I (7089) CM_MASTER: Sent frame: CMD=0x23, SEQ=18, LEN=0
-I (7099) CM_MASTER: Sent frame: CMD=0x24, SEQ=19, LEN=0
-I (7123) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=16
-I (7123) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (7123) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=17
-I (7127) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (7132) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=18
-I (7137) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (7142) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=19
-I (7148) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (7369) CM_MASTER: Sent frame: CMD=0x22, SEQ=20, LEN=0
-I (7379) CM_MASTER: Sent frame: CMD=0x21, SEQ=21, LEN=0
-I (7389) CM_MASTER: Sent frame: CMD=0x23, SEQ=22, LEN=0
-I (7399) CM_MASTER: Sent frame: CMD=0x24, SEQ=23, LEN=0
-I (7423) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=20
-I (7423) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (7423) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=21
-I (7428) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (7432) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=22
-I (7437) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (7442) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=23
-I (7448) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (7669) CM_MASTER: Sent frame: CMD=0x22, SEQ=24, LEN=0
-I (7679) CM_MASTER: Sent frame: CMD=0x21, SEQ=25, LEN=0
-I (7689) CM_MASTER: Sent frame: CMD=0x23, SEQ=26, LEN=0
-I (7699) CM_MASTER: Sent frame: CMD=0x24, SEQ=27, LEN=0
-I (7723) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=24
-I (7723) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (7723) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=25
-I (7727) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (7732) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=26
-I (7737) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (7742) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=27
-I (7748) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (7969) CM_MASTER: Sent frame: CMD=0x22, SEQ=28, LEN=0
-I (7979) CM_MASTER: Sent frame: CMD=0x21, SEQ=29, LEN=0
-I (7989) CM_MASTER: Sent frame: CMD=0x23, SEQ=30, LEN=0
-I (7999) CM_MASTER: Sent frame: CMD=0x24, SEQ=31, LEN=0
-I (8023) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=28
-I (8023) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (8023) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=29
-I (8027) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (8032) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=30
-I (8037) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (8042) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=31
-I (8048) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (8269) CM_MASTER: Sent frame: CMD=0x22, SEQ=32, LEN=0
-I (8279) CM_MASTER: Sent frame: CMD=0x21, SEQ=33, LEN=0
-I (8289) CM_MASTER: Sent frame: CMD=0x23, SEQ=34, LEN=0
-I (8299) CM_MASTER: Sent frame: CMD=0x24, SEQ=35, LEN=0
-I (8323) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=32
-I (8323) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (8323) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=33
-I (8327) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (8332) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=34
-I (8337) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (8342) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=35
-I (8348) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (8569) CM_MASTER: Sent frame: CMD=0x22, SEQ=36, LEN=0
-I (8579) CM_MASTER: Sent frame: CMD=0x21, SEQ=37, LEN=0
-I (8589) CM_MASTER: Sent frame: CMD=0x23, SEQ=38, LEN=0
-I (8599) CM_MASTER: Sent frame: CMD=0x24, SEQ=39, LEN=0
-I (8623) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=36
-I (8623) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (8623) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=37
-I (8627) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (8632) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=38
-I (8637) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (8642) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=39
-I (8648) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (8869) CM_MASTER: Sent frame: CMD=0x22, SEQ=40, LEN=0
-I (8879) CM_MASTER: Sent frame: CMD=0x21, SEQ=41, LEN=0
-I (8889) CM_MASTER: Sent frame: CMD=0x23, SEQ=42, LEN=0
-I (8899) CM_MASTER: Sent frame: CMD=0x24, SEQ=43, LEN=0
-I (8923) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=40
-I (8923) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (8923) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=41
-I (8927) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (8932) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=42
-I (8937) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (8942) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=43
-I (8948) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (9169) CM_MASTER: Sent frame: CMD=0x22, SEQ=44, LEN=0
-I (9179) CM_MASTER: Sent frame: CMD=0x21, SEQ=45, LEN=0
-I (9189) CM_MASTER: Sent frame: CMD=0x23, SEQ=46, LEN=0
-I (9199) CM_MASTER: Sent frame: CMD=0x24, SEQ=47, LEN=0
-I (9223) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=44
-I (9223) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (9223) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=45
-I (9227) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (9232) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=46
-I (9237) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (9242) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=47
-I (9248) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (9469) CM_MASTER: Sent frame: CMD=0x22, SEQ=48, LEN=0
-I (9479) CM_MASTER: Sent frame: CMD=0x21, SEQ=49, LEN=0
-I (9489) CM_MASTER: Sent frame: CMD=0x23, SEQ=50, LEN=0
-I (9499) CM_MASTER: Sent frame: CMD=0x24, SEQ=51, LEN=0
-I (9523) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=48
-I (9523) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (9523) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=49
-I (9527) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (9532) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=50
-I (9537) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (9542) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=51
-I (9548) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (9692) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
-I (9692) NIMBLE_BLE_CLIENT: Not connected - attempting reconnect to saved device...
-I (9695) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-E (9703) NIMBLE_BLE_CLIENT: Failed to initiate connect; rc=2. Restarting scan.
-E (9710) NIMBLE_BLE_CLIENT: Error starting scan; rc=15
-I (9769) CM_MASTER: Sent frame: CMD=0x22, SEQ=52, LEN=0
-I (9779) CM_MASTER: Sent frame: CMD=0x21, SEQ=53, LEN=0
-I (9789) CM_MASTER: Sent frame: CMD=0x23, SEQ=54, LEN=0
-I (9799) CM_MASTER: Sent frame: CMD=0x24, SEQ=55, LEN=0
-I (9823) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=52
-I (9823) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (9823) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=53
-I (9827) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (9832) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=54
-I (9837) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (9842) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=55
-I (9848) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (10069) CM_MASTER: Sent frame: CMD=0x22, SEQ=56, LEN=0
-I (10079) CM_MASTER: Sent frame: CMD=0x21, SEQ=57, LEN=0
-I (10089) CM_MASTER: Sent frame: CMD=0x23, SEQ=58, LEN=0
-I (10099) CM_MASTER: Sent frame: CMD=0x24, SEQ=59, LEN=0
-I (10123) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=56
-I (10123) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (10123) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=57
-I (10128) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (10133) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=58
-I (10138) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (10143) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=59
-I (10148) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (10369) CM_MASTER: Sent frame: CMD=0x22, SEQ=60, LEN=0
-I (10379) CM_MASTER: Sent frame: CMD=0x21, SEQ=61, LEN=0
-I (10389) CM_MASTER: Sent frame: CMD=0x23, SEQ=62, LEN=0
-I (10399) CM_MASTER: Sent frame: CMD=0x24, SEQ=63, LEN=0
-I (10423) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=60
-I (10423) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (10423) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=61
-I (10428) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (10433) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=62
-I (10438) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (10443) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=63
-I (10448) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (10467) RPC_WRAP: ESP Event: Station mode: Disconnected
-I (10467) WIFI_CLIENT: WIFI_EVENT_STA_DISCONNECTED: Connection failed or lost.
-I (10468) WIFI_CLIENT: Trying next saved network...
-I (10473) WIFI_CLIENT: Attempting to connect to MOVISTAR_4B85 (2/2)
-I (10479) WIFI_MANAGER: Credentials loaded for SSID: MOVISTAR_4B85
-I (10534) H_API: esp_wifi_remote_connect
-I (10669) CM_MASTER: Sent frame: CMD=0x22, SEQ=64, LEN=0
-I (10679) CM_MASTER: Sent frame: CMD=0x21, SEQ=65, LEN=0
-I (10689) CM_MASTER: Sent frame: CMD=0x23, SEQ=66, LEN=0
-I (10699) CM_MASTER: Sent frame: CMD=0x24, SEQ=67, LEN=0
-I (10723) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=64
-I (10723) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (10723) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=65
-I (10728) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (10733) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=66
-I (10738) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (10743) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=67
-I (10748) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (10969) CM_MASTER: Sent frame: CMD=0x22, SEQ=68, LEN=0
-I (10979) CM_MASTER: Sent frame: CMD=0x21, SEQ=69, LEN=0
-I (10989) CM_MASTER: Sent frame: CMD=0x23, SEQ=70, LEN=0
-I (10999) CM_MASTER: Sent frame: CMD=0x24, SEQ=71, LEN=0
-I (11023) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=68
-I (11023) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (11023) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=69
-I (11028) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (11033) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=70
-I (11038) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (11043) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=71
-I (11048) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (11269) CM_MASTER: Sent frame: CMD=0x22, SEQ=72, LEN=0
-I (11279) CM_MASTER: Sent frame: CMD=0x21, SEQ=73, LEN=0
-I (11289) CM_MASTER: Sent frame: CMD=0x23, SEQ=74, LEN=0
-I (11299) CM_MASTER: Sent frame: CMD=0x24, SEQ=75, LEN=0
-I (11323) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=72
-I (11323) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (11323) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=73
-I (11328) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (11333) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=74
-I (11338) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (11343) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=75
-I (11348) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (11569) CM_MASTER: Sent frame: CMD=0x22, SEQ=76, LEN=0
-I (11579) CM_MASTER: Sent frame: CMD=0x21, SEQ=77, LEN=0
-I (11589) CM_MASTER: Sent frame: CMD=0x23, SEQ=78, LEN=0
-I (11599) CM_MASTER: Sent frame: CMD=0x24, SEQ=79, LEN=0
-I (11623) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=76
-I (11623) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (11623) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=77
-I (11628) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (11633) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=78
-I (11638) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (11643) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=79
-I (11648) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (11869) CM_MASTER: Sent frame: CMD=0x22, SEQ=80, LEN=0
-I (11879) CM_MASTER: Sent frame: CMD=0x21, SEQ=81, LEN=0
-I (11889) CM_MASTER: Sent frame: CMD=0x23, SEQ=82, LEN=0
-I (11899) CM_MASTER: Sent frame: CMD=0x24, SEQ=83, LEN=0
-I (11923) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=80
-I (11923) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (11923) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=81
-I (11928) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (11933) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=82
-I (11938) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (11943) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=83
-I (11948) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (12169) CM_MASTER: Sent frame: CMD=0x22, SEQ=84, LEN=0
-I (12179) CM_MASTER: Sent frame: CMD=0x21, SEQ=85, LEN=0
-I (12189) CM_MASTER: Sent frame: CMD=0x23, SEQ=86, LEN=0
-I (12199) CM_MASTER: Sent frame: CMD=0x24, SEQ=87, LEN=0
-I (12223) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=84
-I (12223) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (12223) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=85
-I (12228) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (12233) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=86
-I (12238) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (12243) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=87
-I (12248) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (12469) CM_MASTER: Sent frame: CMD=0x22, SEQ=88, LEN=0
-I (12479) CM_MASTER: Sent frame: CMD=0x21, SEQ=89, LEN=0
-I (12489) CM_MASTER: Sent frame: CMD=0x23, SEQ=90, LEN=0
-I (12499) CM_MASTER: Sent frame: CMD=0x24, SEQ=91, LEN=0
-I (12523) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=88
-I (12523) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (12523) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=89
-I (12528) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (12533) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=90
-I (12538) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (12543) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=91
-I (12548) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (12769) CM_MASTER: Sent frame: CMD=0x22, SEQ=92, LEN=0
-I (12779) CM_MASTER: Sent frame: CMD=0x21, SEQ=93, LEN=0
-I (12789) CM_MASTER: Sent frame: CMD=0x23, SEQ=94, LEN=0
-I (12799) CM_MASTER: Sent frame: CMD=0x24, SEQ=95, LEN=0
-I (12823) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=92
-I (12823) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (12823) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=93
-I (12828) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (12833) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=94
-I (12838) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (12843) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=95
-I (12848) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (13069) CM_MASTER: Sent frame: CMD=0x22, SEQ=96, LEN=0
-I (13079) CM_MASTER: Sent frame: CMD=0x21, SEQ=97, LEN=0
-I (13089) CM_MASTER: Sent frame: CMD=0x23, SEQ=98, LEN=0
-I (13099) CM_MASTER: Sent frame: CMD=0x24, SEQ=99, LEN=0
-I (13123) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=96
-I (13123) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (13123) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=97
-I (13128) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (13133) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=98
-I (13138) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (13143) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=99
-I (13148) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (13369) CM_MASTER: Sent frame: CMD=0x22, SEQ=100, LEN=0
-I (13379) CM_MASTER: Sent frame: CMD=0x21, SEQ=101, LEN=0
-I (13389) CM_MASTER: Sent frame: CMD=0x23, SEQ=102, LEN=0
-I (13399) CM_MASTER: Sent frame: CMD=0x24, SEQ=103, LEN=0
-I (13423) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=100
-I (13423) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (13424) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=101
-I (13428) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (13433) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=102
-I (13438) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (13443) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=103
-I (13449) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (13669) CM_MASTER: Sent frame: CMD=0x22, SEQ=104, LEN=0
-I (13679) CM_MASTER: Sent frame: CMD=0x21, SEQ=105, LEN=0
-I (13689) CM_MASTER: Sent frame: CMD=0x23, SEQ=106, LEN=0
-I (13699) CM_MASTER: Sent frame: CMD=0x24, SEQ=107, LEN=0
-I (13723) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=104
-I (13723) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (13724) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=105
-I (13728) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (13733) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=106
-I (13738) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (13743) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=107
-I (13749) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (13969) CM_MASTER: Sent frame: CMD=0x22, SEQ=108, LEN=0
-I (13979) CM_MASTER: Sent frame: CMD=0x21, SEQ=109, LEN=0
-I (13989) CM_MASTER: Sent frame: CMD=0x23, SEQ=110, LEN=0
-I (13999) CM_MASTER: Sent frame: CMD=0x24, SEQ=111, LEN=0
-I (14023) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=108
-I (14023) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (14023) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=109
-I (14028) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (14033) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=110
-I (14038) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (14043) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=111
-I (14049) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (14269) CM_MASTER: Sent frame: CMD=0x22, SEQ=112, LEN=0
-I (14279) CM_MASTER: Sent frame: CMD=0x21, SEQ=113, LEN=0
-I (14289) CM_MASTER: Sent frame: CMD=0x23, SEQ=114, LEN=0
-I (14299) CM_MASTER: Sent frame: CMD=0x24, SEQ=115, LEN=0
-I (14323) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=112
-I (14323) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (14323) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=113
-I (14328) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (14333) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=114
-I (14338) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (14343) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=115
-I (14349) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (14569) CM_MASTER: Sent frame: CMD=0x22, SEQ=116, LEN=0
-I (14579) CM_MASTER: Sent frame: CMD=0x21, SEQ=117, LEN=0
-I (14589) CM_MASTER: Sent frame: CMD=0x23, SEQ=118, LEN=0
-I (14599) CM_MASTER: Sent frame: CMD=0x24, SEQ=119, LEN=0
-I (14623) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=116
-I (14623) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (14623) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=117
-I (14628) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (14633) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=118
-I (14638) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (14643) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=119
-I (14649) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (14715) NIMBLE_BLE_CLIENT: Not connected - attempting reconnect to saved device...
-I (14715) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-E (14719) NIMBLE_BLE_CLIENT: Failed to initiate connect; rc=2. Restarting scan.
-E (14726) NIMBLE_BLE_CLIENT: Error starting scan; rc=15
-I (14869) CM_MASTER: Sent frame: CMD=0x22, SEQ=120, LEN=0
-I (14879) CM_MASTER: Sent frame: CMD=0x21, SEQ=121, LEN=0
-I (14889) CM_MASTER: Sent frame: CMD=0x23, SEQ=122, LEN=0
-I (14899) CM_MASTER: Sent frame: CMD=0x24, SEQ=123, LEN=0
-I (14923) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=120
-I (14923) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (14923) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=121
-I (14928) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (14933) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=122
-I (14938) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (14943) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=123
-I (14949) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (15169) CM_MASTER: Sent frame: CMD=0x22, SEQ=124, LEN=0
-I (15179) CM_MASTER: Sent frame: CMD=0x21, SEQ=125, LEN=0
-I (15189) CM_MASTER: Sent frame: CMD=0x23, SEQ=126, LEN=0
-I (15199) CM_MASTER: Sent frame: CMD=0x24, SEQ=127, LEN=0
-I (15223) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=124
-I (15223) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (15224) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=125
-I (15228) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (15233) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=126
-I (15238) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (15243) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=127
-I (15249) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (15348) RPC_WRAP: ESP Event: Station mode: Disconnected
-I (15349) WIFI_CLIENT: WIFI_EVENT_STA_DISCONNECTED: Connection failed or lost.
-I (15349) WIFI_CLIENT: Trying next saved network...
-I (15354) WIFI_CLIENT: No more saved networks to try.
-I (15359) WIFI_CLIENT: wifi_connect_task: WiFi Connection Failed
-I (15360) WIFI_MANAGER: Starting WiFi scan...
-I (15369) rpc_req: Scan start Req
+Stack memory:
+4ff522f0: 0xa5a5a5a5 0xa5a5a5a5 0x4813df24 0x4ff1a502 0x39303731 0xa5a5a500 0x00000000 0x00000000
+4ff52310: 0xa5000000 0x4ff203c4 0x4813df24 0x4ff203a8 0x48113cee 0x4ff203d4 0x4ff52300 0x4ff203d8
+4ff52330: 0x48113f4c 0x4ff1fc28 0x65737361 0x66207472 0x656c6961 0x78203a64 0x75657551 0x6d655365
+4ff52350: 0x6f687061 0x61546572 0x7120656b 0x65756575 0x313a632e 0x20393037 0x70202828 0x65755178
+4ff52370: 0x29206575 0xa5a50029 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff523b0: 0xa5a5a5a5 0xa5a5a5a5 0x00000084 0x00000018 0x000000d8 0x00000004 0x00000004 0x00000010
+4ff523d0: 0xa5a5a5a5 0xa5a5a5a5 0x4ff0021c 0x4ff134c8 0x48024f76 0x00000000 0x4ff52480 0x4ff1d300
+4ff523f0: 0x4ff52580 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52410: 0x00000000 0x3fb99999 0x4ff28000 0x4ff12010 0x4ff3bad4 0x00000000 0x4ff3ba80 0xffffffff
+4ff52430: 0x4ff3bad4 0x00000000 0x4ff3ba80 0x4ff11fce 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52450: 0x00000000 0x3fb99999 0x4ff28000 0x4802dcd2 0x00011880 0x4ff00003 0x00000000 0x00000000
+4ff52470: 0x00000000 0x3fb99999 0x9999999a 0x48024fe8 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff52490: 0x00000000 0x3ff00000 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff524b0: 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff524d0: 0x00000000 0x408f4000 0x00000000 0x40590000 0x1a63c1f8 0x404ca5dc 0x00000000 0x4ff1d300
+4ff524f0: 0x00000000 0x40ac2000 0x9999999a 0x3fb99999 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52510: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52530: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52550: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52570: 0x00000000 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0x30100000 0x00000068 0x50115737 0x15c72683
+4ff52590: 0x01000637 0x501117b7 0x2e238ed1 0x43b814d7 0x100006b7 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff525b0: 0x00000001 0x4ff505d4 0x4ff505d4 0x00000000 0x00000000 0x00000000 0xa5a5a5a5 0xa5a5a5a5
+4ff525d0: 0xa5a5a5a5 0x00000160 0x4ff52230 0x00000000 0x4ff21538 0x4ff21538 0x4ff525d8 0x4ff21530
+4ff525f0: 0x00000014 0x00000000 0x00000000 0x4ff525d8 0x00000000 0x00000005 0x4ff505d4 0x755f6975
+0x00000000 0x00000005
+4ff52630: 0x00000001 0x00000000 0x00000000 0x0000000b 0x00000000 0x4ff28738 0x4ff287a0 0x4ff28808
+4ff52650: 0x00000000 0x00000000 0x00000001 0x00000000 0x00000000 0x00000000 0x4800666e 0x00000000
+4ff52670: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52690: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff526b0: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff526d0: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
 
-I (15469) CM_MASTER: Sent frame: CMD=0x22, SEQ=128, LEN=0
-I (15479) CM_MASTER: Sent frame: CMD=0x21, SEQ=129, LEN=0
-I (15489) CM_MASTER: Sent frame: CMD=0x23, SEQ=130, LEN=0
-I (15499) CM_MASTER: Sent frame: CMD=0x24, SEQ=131, LEN=0
-I (15523) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=128
-I (15523) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (15523) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=129
-I (15528) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (15533) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=130
-I (15538) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (15543) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=131
-I (15549) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (15769) CM_MASTER: Sent frame: CMD=0x22, SEQ=132, LEN=0
-I (15779) CM_MASTER: Sent frame: CMD=0x21, SEQ=133, LEN=0
-I (15789) CM_MASTER: Sent frame: CMD=0x23, SEQ=134, LEN=0
-I (15799) CM_MASTER: Sent frame: CMD=0x24, SEQ=135, LEN=0
-I (15823) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=132
-I (15823) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (15823) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=133
-I (15828) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (15833) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=134
-I (15838) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (15843) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=135
-I (15849) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
---- To exit from IDF monitor please use "Ctrl+]". Alternatively, you can use Ctrl+T Ctrl+X to exit.
-I (16069) CM_MASTER: Sent frame: CMD=0x22, SEQ=136, LEN=0
-I (16079) CM_MASTER: Sent frame: CMD=0x21, SEQ=137, LEN=0
-I (16089) CM_MASTER: Sent frame: CMD=0x23, SEQ=138, LEN=0
-I (16099) CM_MASTER: Sent frame: CMD=0x24, SEQ=139, LEN=0
-I (16123) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=136
-I (16123) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (16123) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=137
-I (16128) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (16133) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=138
-I (16138) CM_MASTER: RSP_INCLINE_POSITION: incline=0.0 %
-I (16143) CM_MASTER: Valid frame received: CMD=0xA4, SEQ=139
-I (16149) CM_MASTER: RSP_FAN_STATE: head=0, chest=0
-I (16369) CM_MASTER: Sent frame: CMD=0x22, SEQ=140, LEN=0
-I (16379) CM_MASTER: Sent frame: CMD=0x21, SEQ=141, LEN=0
-I (16389) CM_MASTER: Sent frame: CMD=0x23, SEQ=142, LEN=0
-I (16399) CM_MASTER: Sent frame: CMD=0x24, SEQ=143, LEN=0
-I (16423) CM_MASTER: Valid frame received: CMD=0xA2, SEQ=140
-I (16423) CM_MASTER: RSP_STATUS: status=0x01 (VFD: FAULT)
-I (16424) CM_MASTER: Valid frame received: CMD=0xA1, SEQ=141
-I (16428) CM_MASTER: RSP_SENSOR_SPEED: speed=0.00 km/h
-I (16433) CM_MASTER: Valid frame received: CMD=0xA3, SEQ=142
-I (16438) CM_MASTER: R
+
+
+ELF file SHA256: 9b13d889f
+
+Rebooting...
+ESP-ROM:esp32p4-eco2-20240710
+Build:Jul 10 2024
+rst:0xc (SW_CPU_RESET),boot:0x30f (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4ff10f76
+Core1 Saved PC:0x4ff08f9e
+SPI mode:DIO, clock div:1
+load:0x4ff33ce0,len:0x17a4
+load:0x4ff29ed0,len:0xfc0
+load:0x4ff2cbd0,len:0x345c
+entry 0x4ff29eda
+I (33) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader
+I (33) boot: compile time Nov 10 2025 09:23:41
+I (34) boot: Multicore bootloader
+I (35) boot: chip revision: v1.0
+I (37) boot: efuse block revision: v0.3
+I (40) qio_mode: Enabling default flash chip QIO
+I (45) boot.esp32p4: SPI Speed      : 80MHz
+I (48) boot.esp32p4: SPI Mode       : QIO
+I (52) boot.esp32p4: SPI Flash Size : 16MB
+I (56) boot: Enabling RNG early entropy source...
+I (61) boot: Partition Table:
+I (63) boot: ## Label            Usage          Type ST Offset   Length
+I (69) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (76) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (82) boot:  2 factory          factory app      00 00 00010000 00800000
+I (89) boot:  3 storage          Unknown data     01 82 00810000 00700000
+I (96) boot: End of partition table
+I (99) esp_image: segment 0: paddr=00010020 vaddr=48110020 size=9f63ch (652860) map
+I (180) esp_image: segment 1: paddr=000af664 vaddr=30100000 size=00068h (   104) load
+I (181) esp_image: segment 2: paddr=000af6d4 vaddr=4ff00000 size=00944h (  2372) load
+I (185) esp_image: segment 3: paddr=000b0020 vaddr=48000020 size=10a0e0h (1089760) map
+I (314) esp_image: segment 4: paddr=001ba108 vaddr=4ff00944 size=1c1b4h (115124) load
+I (331) esp_image: segment 5: paddr=001d62c4 vaddr=4ff1cb00 size=047b4h ( 18356) load
+I (335) esp_image: segment 6: paddr=001daa80 vaddr=50108080 size=00020h (    32) load
+I (342) boot: Loaded app from partition at offset 0x10000
+I (342) boot: Disabling RNG early entropy source...
+I (359) hex_psram: vendor id    : 0x0d (AP)
+I (359) hex_psram: Latency      : 0x01 (Fixed)
+I (359) hex_psram: DriveStr.    : 0x00 (25 Ohm)
+I (360) hex_psram: dev id       : 0x03 (generation 4)
+I (364) hex_psram: density      : 0x07 (256 Mbit)
+I (369) hex_psram: good-die     : 0x06 (Pass)
+I (373) hex_psram: SRF          : 0x02 (Slow Refresh)
+I (378) hex_psram: BurstType    : 0x00 ( Wrap)
+I (382) hex_psram: BurstLen     : 0x03 (2048 Byte)
+I (386) hex_psram: BitMode      : 0x01 (X16 Mode)
+I (391) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
+I (396) hex_psram: DriveStrength: 0x00 (1/1)
+I (400) MSPI DQS: tuning success, best phase id is 0
+I (572) MSPI DQS: tuning success, best delayline id is 17
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+I (604) mmu_psram: .rodata xip on psram
+I (656) mmu_psram: .text xip on psram
+I (657) hex_psram: psram CS IO is dedicated
+I (657) cpu_start: Multicore app
+I (1113) esp_psram: SPI SRAM memory test OK
+I (1122) cpu_start: Pro cpu start user code
+I (1122) cpu_start: cpu freq: 360000000 Hz
+I (1122) app_init: Application information:
+--- 0x4ff10f76: esp_restart_noos at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/port/soc/esp32p4/system_internal.c:218
+--- 0x4ff08f9e: esp_cpu_wait_for_intr at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support/cpu.c:57
+--- 0x4ff29ed0: esp_bootloader_get_description at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_bootloader_format/esp_bootloader_desc.c:39
+--- 0x4ff2cbd0: esp_flash_encryption_enabled at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/flash_encrypt.c:89
+--- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
+I (1122) app_init: Project name:     lvgl_demo_v8
+I (1127) app_init: App version:      57cba28-dirty
+I (1131) app_init: Compile time:     Nov 10 2025 09:21:05
+I (1136) app_init: ELF file SHA256:  9b13d889f...
+I (1141) app_init: ESP-IDF:          v5.5.1-dirty
+I (1145) efuse_init: Min chip rev:     v0.1
+I (1149) efuse_init: Max chip rev:     v1.99
+I (1153) efuse_init: Chip rev:         v1.0
+I (1157) heap_init: Initializing. RAM available for dynamic allocation:
+I (1163) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
+I (1169) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
+I (1174) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
+I (1179) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
+I (1185) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
+I (1190) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
+I (1196) esp_psram: Adding pool of 23K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (1208) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (1219) spi_flash: detected chip: boya
+I (1222) spi_flash: flash io: qio
+I (1225) host_init: ESP Hosted : Host chip_ip[18]
+I (1240) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
+I (1240) H_API: ** add_esp_wifi_remote_channels **
+I (1243) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
+I (1250) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
+--- 0x4800ea10: transport_drv_sta_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
+--- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
+--- 0x4800e952: transport_drv_ap_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
+--- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
+sdio_mempool_create free:31915268 min-free:31915268 lfb-def:31457280 lfb-8bit:31457280
+
+I (1266) H_SDIO_DRV: sdio_data_to_rx_buf_task started
+I (1270) main_task: Started on CPU0
+I (1274) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (1281) main_task: Calling app_main()
+I (1288) WIFI_MANAGER: Initializing WiFi Manager
+I (1289) WIFI_MANAGER: WiFi Manager initialized successfully
+I (1295) LVGL: Starting LVGL task
+I (1298) ESP32_P4_EV: MIPI DSI PHY Powered on
+I (1303) ESP32_P4_EV: Install MIPI DSI LCD control panel
+I (1307) ESP32_P4_EV: Install ILI9881C LCD control panel
+I (1458) jd9365: LCD ID: 93 65 04
+I (1585) ESP32_P4_EV: Display initialized
+I (1646) gsl3680: start init
+I (1646) gsl3680: clear reg
+I (1776) gsl3680: start load fw
+I (2636) gsl3680: load fw success
+I (2636) gsl3680: enter
+I (2646) gsl_point_id: gsl_DataInit
+I (2706) gsl3680: enter
+I (2716) gsl_point_id: gsl_DataInit
+I (2716) ESP32_P4_EV: Setting LCD backlight: 100%
+I (2716) UI: Loaded wax counter from NVS: 6540 seconds
+I (2841) Audio: Inicializando altavoz...
+I (2846) ES8311: Work in Slave mode
+I (2959) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
+I (2959) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
+I (2991) Adev_Codec: Open codec device OK
+I (3014) Audio: Buffer de pitido generado (4410 bytes)
+I (3014) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
+
+assert failed: xQueueSemaphoreTake queue.c:1709 (( pxQueue ))
+Core  0 register dump:
+MEPC    : 0x4ff10e74  RA      : 0x4ff109f4  SP      : 0x4ff522f0  GP      : 0x4ff1d300
+--- Stack dump detected
+--- 0x4ff10e74: panic_abort at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/panic.c:483
+--- 0x4ff109f4: esp_vApplicationTickHook at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/freertos_hooks.c:31
+TP      : 0x4ff52580  T0      : 0x37363534  T1      : 0x7271706f  T2      : 0x33323130
+S0/FP   : 0x00000001  S1      : 0x0000008a  A0      : 0x4ff52338  A1      : 0x4ff1fc29
+A2      : 0x00000001  A3      : 0x4ff27000  A4      : 0x00000001  A5      : 0x4ff27000
+A6      : 0x0000000c  A7      : 0x76757473  S2      : 0x4ff52338  S3      : 0x4ff5233d
+S4      : 0x4ff1fc28  S5      : 0x4ff52338  S6      : 0x00000000  S7      : 0x00000000
+S8      : 0x4ff1d660  S9      : 0x00000000  S10     : 0x48123000  S11     : 0x4814e000
+T3      : 0x6e6d6c6b  T4      : 0x6a696867  T5      : 0x66656463  T6      : 0x62613938
+MSTATUS : 0x80017880  MTVEC   : 0x4ff00003  MCAUSE  : 0x00000002  MTVAL   : 0x00000000
+--- 0x4ff00003: _vector_table at ??:?
+MHARTID : 0x00000000
+
+--- Warning: Failed to run gdb_panic_server.py script: Command '['riscv32-esp-elf-gdb', '--batch', '-n', 'C:\\esp\\Treadmill\\Consola\\build\\lvgl_demo_v8.elf', '-ex', 'add-symbol-file C:\\esp\\Treadmill\\Consola\\build\\bootloader\\bootloader.elf', '-ex', 'target remote | "C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe" -m esp_idf_panic_decoder --target esp32p4 "C:\\Users\\Ina\\AppData\\Local\\Temp\\tmpy28wsayo"', '-ex', 'bt']' returned non-zero exit status 1.
+--- Warning: b'add symbol table from file "C:espTreadmillConsolabuildbootloaderbootloader.elf"\r\nC:espTreadmillConsolabuildbootloaderbootloader.elf: No such file or directory.\r\nerror starting child process \'C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe -m esp_idf_panic_decoder --target esp32p4 C:\\Users\\Ina\\AppData\\Local\\Temp\\tmpy28wsayo\': CreateProcess: No such file or directory\r\nNo stack.\r\n'
+
+
+Stack memory:
+4ff522f0: 0xa5a5a5a5 0xa5a5a5a5 0x4813df24 0x4ff1a502 0x39303731 0xa5a5a500 0x00000000 0x00000000
+4ff52310: 0xa5000000 0x4ff203c4 0x4813df24 0x4ff203a8 0x48113cee 0x4ff203d4 0x4ff52300 0x4ff203d8
+4ff52330: 0x48113f4c 0x4ff1fc28 0x65737361 0x66207472 0x656c6961 0x78203a64 0x75657551 0x6d655365
+4ff52350: 0x6f687061 0x61546572 0x7120656b 0x65756575 0x313a632e 0x20393037 0x70202828 0x65755178
+4ff52370: 0x29206575 0xa5a50029 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff52390: 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff523b0: 0xa5a5a5a5 0xa5a5a5a5 0x00000084 0x00000018 0x000000d8 0x00000004 0x00000004 0x00000010
+4ff523d0: 0xa5a5a5a5 0xa5a5a5a5 0x4ff0021c 0x4ff134c8 0x48024f76 0x00000000 0x4ff52480 0x4ff1d300
+4ff523f0: 0x4ff52580 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52410: 0x00000000 0x3fb99999 0x4ff28000 0x4ff12010 0x4ff3bad4 0x00000000 0x4ff3ba80 0xffffffff
+4ff52430: 0x4ff3bad4 0x00000000 0x4ff3ba80 0x4ff11fce 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52450: 0x00000000 0x3fb99999 0x4ff28000 0x4802dcd2 0x00011880 0x4ff00003 0x00000000 0x00000000
+4ff52470: 0x00000000 0x3fb99999 0x9999999a 0x48024fe8 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff52490: 0x00000000 0x3ff00000 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff524b0: 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff524d0: 0x00000000 0x408f4000 0x00000000 0x40590000 0x1a63c1f8 0x404ca5dc 0x00000000 0x4ff1d300
+4ff524f0: 0x00000000 0x40ac2000 0x9999999a 0x3fb99999 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52510: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52530: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52550: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52570: 0x00000000 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0x30100000 0x00000068 0x50115737 0x15c72683
+4ff52590: 0x01000637 0x501117b7 0x2e238ed1 0x43b814d7 0x100006b7 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
+4ff525b0: 0x00000001 0x4ff505d4 0x4ff505d4 0x00000000 0x00000000 0x00000000 0xa5a5a5a5 0xa5a5a5a5
+4ff525d0: 0xa5a5a5a5 0x00000160 0x4ff524e0 0x00000000 0x4ff21538 0x4ff21538 0x4ff525d8 0x4ff21530
+4ff525f0: 0x00000014 0x00000000 0x00000000 0x4ff525d8 0x00000000 0x00000005 0x4ff505d4 0x755f6975
+4ff52610: 0x74616470 0x61745f65 0x00006b73 0x00000000 0x4ff525d0 0x00000011 0x00000000 0x00000005
+4ff52630: 0x00000001 0x00000000 0x00000000 0x00000000 0x00000000 0x4ff28738 0x4ff287a0 0x4ff28808
+4ff52650: 0x00000000 0x00000000 0x00000001 0x00000000 0x00000000 0x00000000 0x4800666e 0x00000000
+4ff52670: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff52690: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff526b0: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+4ff526d0: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
+
+
+
+ELF file SHA256: 9b13d889f
+
+Rebooting...
+ESP-ROM:esp32p4-eco2-20240710
+Build:Jul 10 2024
+rst:0xc (SW_CPU_RESET),boot:0x30f (SPI_FAST_FLASH_BOOT)
+Core0 Saved PC:0x4ff10f76
+Core1 Saved PC:0x4ff08f9e
+SPI mode:DIO, clock div:1
+load:0x4ff33ce0,len:0x17a4
+load:0x4ff29ed0,len:0xfc0
+load:0x4ff2cbd0,len:0x345c
+entry 0x4ff29eda
+I (33) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader
+I (33) boot: compile time Nov 10 2025 09:23:41
+I (34) boot: Multicore bootloader
+I (35) boot: chip revision: v1.0
+I (37) boot: efuse block revision: v0.3
+I (40) qio_mode: Enabling default flash chip QIO
+I (45) boot.esp32p4: SPI Speed      : 80MHz
+I (48) boot.esp32p4: SPI Mode       : QIO
+I (52) boot.esp32p4: SPI Flash Size : 16MB
+I (56) boot: Enabling RNG early entropy source...
+I (61) boot: Partition Table:
+I (63) boot: ## Label            Usage          Type ST Offset   Length
+I (69) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (76) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (82) boot:  2 factory          factory app      00 00 00010000 00800000
+I (89) boot:  3 storage          Unknown data     01 82 00810000 00700000
+I (96) boot: End of partition table
+I (99) esp_image: segment 0: paddr=00010020 vaddr=48110020 size=9f63ch (652860) map
+I (180) esp_image: segment 1: paddr=000af664 vaddr=30100000 size=00068h (   104) load
+I (181) esp_image: segment 2: paddr=000af6d4 vaddr=4ff00000 size=00944h (  2372) load
+I (185) esp_image: segment 3: paddr=000b0020 vaddr=48000020 size=10a0e0h (1089760) map
+I (314) esp_image: segment 4: paddr=001ba108 vaddr=4ff00944 size=1c1b4h (115124) load
+I (331) esp_image: segment 5: paddr=001d62c4 vaddr=4ff1cb00 size=047b4h ( 18356) load
+I (335) esp_image: segment 6: paddr=001daa80 vaddr=50108080 size=00020h (    32) load
+I (342) boot: Loaded app from partition at offset 0x10000
+I (342) boot: Disabling RNG early entropy source...
+I (359) hex_psram: vendor id    : 0x0d (AP)
+I (359) hex_psram: Latency      : 0x01 (Fixed)
+I (359) hex_psram: DriveStr.    : 0x00 (25 Ohm)
+I (360) hex_psram: dev id       : 0x03 (generation 4)
+I (364) hex_psram: density      : 0x07 (256 Mbit)
+I (369) hex_psram: good-die     : 0x06 (Pass)
+I (373) hex_psram: SRF          : 0x02 (Slow Refresh)
+I (378) hex_psram: BurstType    : 0x00 ( Wrap)
+I (382) hex_psram: BurstLen     : 0x03 (2048 Byte)
+I (386) hex_psram: BitMode      : 0x01 (X16 Mode)
+I (391) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
+I (396) hex_psram: DriveStrength: 0x00 (1/1)
+I (400) MSPI DQS: tuning success, best phase id is 0
+I (572) MSPI DQS: tuning success, best delayline id is 17
+I esp_psram: Found 32MB PSRAM device
+I esp_psram: Speed: 200MHz
+I (604) mmu_psram: .rodata xip on psram
+I (656) mmu_psram: .text xip on psram
+I (657) hex_psram: psram CS IO is dedicated
+I (657) cpu_start: Multicore app
+I (1107) esp_psram: SPI SRAM memory test OK
+I (1115) cpu_start: Pro cpu start user code
+I (1115) cpu_start: cpu freq: 360000000 Hz
+I (1116) app_init: Application information:
+I (1116) app_init: Project name:     lvgl_demo_v8
+I (1120) app_init: App version:      57cba28-dirty
+I (1125) app_init: Compile time:     Nov 10 2025 09:21:05
+I (1130) app_init: ELF file SHA256:  9b13d889f...
+--- 0x4ff10f76: esp_restart_noos at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/port/soc/esp32p4/system_internal.c:218
+--- 0x4ff08f9e: esp_cpu_wait_for_intr at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support/cpu.c:57
+--- 0x4ff29ed0: esp_bootloader_get_description at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_bootloader_format/esp_bootloader_desc.c:39
+--- 0x4ff2cbd0: esp_flash_encryption_enabled at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/flash_encrypt.c:89
+--- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
+I (1134) app_init: ESP-IDF:          v5.5.1-dirty
+I (1139) efuse_init: Min chip rev:     v0.1
+I (1142) efuse_init: Max chip rev:     v1.99
+I (1147) efuse_init: Chip rev:         v1.0
+I (1150) heap_init: Initializing. RAM available for dynamic allocation:
+I (1157) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
+I (1162) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
+I (1167) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
+I (1173) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
+I (1178) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
+I (1183) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
+I (1190) esp_psram: Adding pool of 23K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (1201) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (1212) spi_flash: detected chip: boya
+I (1216) spi_flash: flash io: qio
+I (1219) host_init: ESP Hosted : Host chip_ip[18]
+I (1233) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
+I (1233) H_API: ** add_esp_wifi_remote_channels **
+I (1236) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
+I (1243) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
+--- 0x4800ea10: transport_drv_sta_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
+--- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
+--- 0x4800e952: transport_drv_ap_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
+--- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
+sdio_mempool_create free:31915268 min-free:31915268 lfb-def:31457280 lfb-8bit:31457280
+
+I (1259) H_SDIO_DRV: sdio_data_to_rx_buf_task started
+I (1263) main_task: Started on CPU0
+I (1267) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (1274) main_task: Calling app_main()
+I (1281) WIFI_MANAGER: Initializing WiFi Manager
+I (1282) WIFI_MANAGER: WiFi Manager initialized successfully
+I (1288) LVGL: Starting LVGL task
+I (1291) ESP32_P4_EV: MIPI DSI PHY Powered on
+I (1296) ESP32_P4_EV: Install MIPI DSI LCD control panel
+I (1300) ESP32_P4_EV: Install ILI9881C LCD control panel
+I (1451) jd9365: LCD ID: 93 65 04
+I (1578) ESP32_P4_EV: Display initialized
+I (1639) gsl3680: start init
+I (1639) gsl3680: clear reg
+I (1769) gsl3680: start load fw
+
+Done
+
+C:\esp\Treadmill\Consola>
