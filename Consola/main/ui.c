@@ -2086,18 +2086,35 @@ static bool _handle_numpad_press_internal(char digit) {
         // Para peso e inclinación solo aceptamos 2 dígitos
         if (g_treadmill_state.set_digit_index >= 2) return false;
 
-        // Validar que no exceda el máximo
-        char temp_buffer[3];
-        strncpy(temp_buffer, g_treadmill_state.set_buffer, g_treadmill_state.set_digit_index);
-        temp_buffer[g_treadmill_state.set_digit_index] = digit;
-        temp_buffer[g_treadmill_state.set_digit_index + 1] = '\0';
+        // Validación especial para CLIMB (máximo 15)
+        if (g_treadmill_state.set_mode == SET_MODE_CLIMB) {
+            if (g_treadmill_state.set_digit_index == 0) {
+                // Primer dígito: solo permitir 0 o 1
+                if (digit != '0' && digit != '1') {
+                    ESP_LOGI(TAG, "Dígito inválido '%c' para inclinación. Solo se permite 0 o 1 en primer dígito (máx 15%%)", digit);
+                    return false;
+                }
+            } else if (g_treadmill_state.set_digit_index == 1) {
+                // Segundo dígito: si primer dígito es 1, solo permitir 0-5
+                if (g_treadmill_state.set_buffer[0] == '1' && digit > '5') {
+                    ESP_LOGI(TAG, "Dígito inválido '%c' para inclinación. Con 1 en decenas, solo se permite 0-5 en unidades (máx 15%%)", digit);
+                    return false;
+                }
+            }
+        }
+        // Validación para WEIGHT (máximo 200)
+        else {
+            // Validar que no exceda el máximo
+            char temp_buffer[3];
+            strncpy(temp_buffer, g_treadmill_state.set_buffer, g_treadmill_state.set_digit_index);
+            temp_buffer[g_treadmill_state.set_digit_index] = digit;
+            temp_buffer[g_treadmill_state.set_digit_index + 1] = '\0';
 
-        float proposed_value = atof(temp_buffer);
-        float max_value = (g_treadmill_state.set_mode == SET_MODE_WEIGHT) ? 200.0f : MAX_CLIMB_PERCENT;
-
-        if (proposed_value > max_value) {
-            ESP_LOGI(TAG, "Dígito inválido '%c'. El valor propuesto %.0f excede el máximo %.0f", digit, proposed_value, max_value);
-            return false;
+            float proposed_value = atof(temp_buffer);
+            if (proposed_value > 200.0f) {
+                ESP_LOGI(TAG, "Dígito inválido '%c'. El peso propuesto %.0f excede el máximo 200", digit, proposed_value);
+                return false;
+            }
         }
 
         g_treadmill_state.set_buffer[g_treadmill_state.set_digit_index] = digit;
