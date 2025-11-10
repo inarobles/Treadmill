@@ -275,14 +275,12 @@ void ui_update_task(void *pvParameter) {
     static int prev_speed_int = -1;
     static int prev_speed_frac = -1;
     static int prev_climb_int = -1;
-    static int prev_climb_frac = -1;
     static uint32_t prev_elapsed_seconds = 0xFFFFFFFF;
     static int prev_dist_value = -1;
     static bool prev_dist_is_meters = true;
     static int prev_pace_int = -1;
     static int prev_pace_frac = -1;
     static int prev_deg_int = -1;
-    static int prev_deg_frac = -1;
     static int prev_pulse = -1;
     static bool prev_pulse_connected = false;
     static int prev_kcal = -1;
@@ -476,16 +474,13 @@ void ui_update_task(void *pvParameter) {
         }
 
         // Climb percent
-        int total_climb_tenths = (int)roundf(climb_percent_copy * 10.0f);
-        int climb_int = total_climb_tenths / 10;
-        int climb_frac = total_climb_tenths % 10;
-        if (climb_int != prev_climb_int || climb_frac != prev_climb_frac) {
-            lv_label_set_text_fmt(label_climb_percent, "%d.%d", climb_int, climb_frac);
+        int climb_int = (int)roundf(climb_percent_copy);
+        if (climb_int != prev_climb_int) {
+            lv_label_set_text_fmt(label_climb_percent, "%d", climb_int);
             if (set_mode_copy != SET_MODE_CLIMB && set_mode_copy != SET_MODE_WEIGHT) {
-                lv_label_set_text_fmt(label_climb_percent_set, "%d.%d", climb_int, climb_frac);
+                lv_label_set_text_fmt(label_climb_percent_set, "%d", climb_int);
             }
             prev_climb_int = climb_int;
-            prev_climb_frac = climb_frac;
         }
 
         // Pace
@@ -517,15 +512,13 @@ void ui_update_task(void *pvParameter) {
 
         // Climb degrees
         float degrees = atan(climb_percent_copy / 100.0) * (180.0 / M_PI);
-        int deg_int = (int)degrees;
-        int deg_frac = (int)fabs((degrees - deg_int) * 10);
-        if (deg_int != prev_deg_int || deg_frac != prev_deg_frac) {
-            lv_label_set_text_fmt(label_climb_deg, "%d.%d", deg_int, deg_frac);
+        int deg_int = (int)roundf(degrees);
+        if (deg_int != prev_deg_int) {
+            lv_label_set_text_fmt(label_climb_deg, "%d", deg_int);
             if (set_mode_copy != SET_MODE_CLIMB) {
-                lv_label_set_text_fmt(label_climb_deg_set, "%d.%d", deg_int, deg_frac);
+                lv_label_set_text_fmt(label_climb_deg_set, "%d", deg_int);
             }
             prev_deg_int = deg_int;
-            prev_deg_frac = deg_frac;
         }
 
         // Pulse
@@ -1672,8 +1665,8 @@ static void create_shutdown_screen(void) {
 static void _update_set_display_text_internal(void) {
     char display_buf[10];
 
-    if (g_treadmill_state.set_mode == SET_MODE_WEIGHT) {
-        // Para peso solo usamos 2 dígitos (decenas y unidades)
+    if (g_treadmill_state.set_mode == SET_MODE_WEIGHT || g_treadmill_state.set_mode == SET_MODE_CLIMB) {
+        // Para peso e inclinación usamos 2 dígitos (decenas y unidades)
         char d1 = (g_treadmill_state.set_digit_index > 0) ? g_treadmill_state.set_buffer[0] : '-';
         char d2 = (g_treadmill_state.set_digit_index > 1) ? g_treadmill_state.set_buffer[1] : '-';
 
@@ -1682,8 +1675,14 @@ static void _update_set_display_text_internal(void) {
         else if (g_treadmill_state.set_digit_index == 1) d2 = cursor;
 
         sprintf(display_buf, "%c%c", d1, d2);
-        lv_label_set_text(label_kcal_set, display_buf);  // Mostramos el peso en el campo de kcal
+
+        if (g_treadmill_state.set_mode == SET_MODE_WEIGHT) {
+            lv_label_set_text(label_kcal_set, display_buf);  // Mostramos el peso en el campo de kcal
+        } else {
+            lv_label_set_text(label_climb_percent_set, display_buf);  // Mostramos inclinación
+        }
     } else {
+        // Para velocidad usamos 3 dígitos con punto decimal
         char d1 = (g_treadmill_state.set_digit_index > 0) ? g_treadmill_state.set_buffer[0] : '-';
         char d2 = (g_treadmill_state.set_digit_index > 1) ? g_treadmill_state.set_buffer[1] : '-';
         char d3 = (g_treadmill_state.set_digit_index > 2) ? g_treadmill_state.set_buffer[2] : '-';
@@ -1694,9 +1693,7 @@ static void _update_set_display_text_internal(void) {
         else if (g_treadmill_state.set_digit_index == 2) d3 = cursor;
 
         sprintf(display_buf, "%c%c.%c", d1, d2, d3);
-
-        lv_obj_t* target_label = (g_treadmill_state.set_mode == SET_MODE_SPEED) ? label_speed_kmh_set : label_climb_percent_set;
-        lv_label_set_text(target_label, display_buf);
+        lv_label_set_text(label_speed_kmh_set, display_buf);
     }
 }
 
@@ -1717,12 +1714,11 @@ static void _switch_to_set_screen_internal(set_mode_t mode) {
 
     if (mode == SET_MODE_SPEED) {
         lv_label_set_text(ta_info_set, "Seleccione la velocidad deseada.");
-        int climb_int = (int)g_treadmill_state.climb_percent;
-        int climb_frac = (int)fabs((g_treadmill_state.climb_percent - climb_int) * 10);
-        lv_label_set_text_fmt(label_climb_percent_set, "%d.%d", climb_int, climb_frac);
+        int climb_int = (int)roundf(g_treadmill_state.climb_percent);
+        lv_label_set_text_fmt(label_climb_percent_set, "%d", climb_int);
         lv_label_set_text(unit_kcal_set, "Kcal");
     } else if (mode == SET_MODE_CLIMB) {
-        lv_label_set_text(ta_info_set, "Seleccione la inclinacion deseada.");
+        lv_label_set_text(ta_info_set, "Seleccione la inclinacion deseada (2 digitos).");
         int speed_int = (int)g_treadmill_state.speed_kmh;
         int speed_frac = (int)fabs((g_treadmill_state.speed_kmh - speed_int) * 10);
         lv_label_set_text_fmt(label_speed_kmh_set, "%d.%d", speed_int, speed_frac);
@@ -1751,9 +1747,8 @@ static void _switch_to_main_screen_internal(void) {
     int speed_frac = (int)fabs((g_treadmill_state.speed_kmh - speed_int) * 10);
     lv_label_set_text_fmt(label_speed_kmh_set, "%d.%d", speed_int, speed_frac);
 
-    int climb_int = (int)g_treadmill_state.climb_percent;
-    int climb_frac = (int)fabs((g_treadmill_state.climb_percent - climb_int) * 10);
-    lv_label_set_text_fmt(label_climb_percent_set, "%d.%d", climb_int, climb_frac);
+    int climb_int = (int)roundf(g_treadmill_state.climb_percent);
+    lv_label_set_text_fmt(label_climb_percent_set, "%d", climb_int);
 }
 
 void ui_init(void) {
@@ -1850,8 +1845,8 @@ void ui_climb_inc(void) {
     if (!g_treadmill_state.is_stopped && !g_treadmill_state.is_cooling_down) {
         should_beep = true;
 
-        // Incrementar objetivo en 0.1%
-        new_target_climb = g_treadmill_state.target_climb_percent + 0.1f;
+        // Incrementar objetivo en 1%
+        new_target_climb = g_treadmill_state.target_climb_percent + 1.0f;
 
         if (new_target_climb > MAX_CLIMB_PERCENT) new_target_climb = MAX_CLIMB_PERCENT;
         g_treadmill_state.target_climb_percent = new_target_climb;
@@ -1874,8 +1869,8 @@ void ui_climb_dec(void) {
     if (!g_treadmill_state.is_stopped && !g_treadmill_state.is_cooling_down) {
         should_beep = true;
 
-        // Decrementar objetivo en 0.1%
-        new_target_climb = g_treadmill_state.target_climb_percent - 0.1f;
+        // Decrementar objetivo en 1%
+        new_target_climb = g_treadmill_state.target_climb_percent - 1.0f;
 
         if (new_target_climb < 0.0f) new_target_climb = 0.0f;
         g_treadmill_state.target_climb_percent = new_target_climb;
@@ -2105,9 +2100,23 @@ void ui_set_climb(void) {
 }
 
 static bool _handle_numpad_press_internal(char digit) {
-    if (g_treadmill_state.set_mode == SET_MODE_WEIGHT) {
-        // Para peso solo aceptamos 2 dígitos
+    if (g_treadmill_state.set_mode == SET_MODE_WEIGHT || g_treadmill_state.set_mode == SET_MODE_CLIMB) {
+        // Para peso e inclinación solo aceptamos 2 dígitos
         if (g_treadmill_state.set_digit_index >= 2) return false;
+
+        // Validar que no exceda el máximo
+        char temp_buffer[3];
+        strncpy(temp_buffer, g_treadmill_state.set_buffer, g_treadmill_state.set_digit_index);
+        temp_buffer[g_treadmill_state.set_digit_index] = digit;
+        temp_buffer[g_treadmill_state.set_digit_index + 1] = '\0';
+
+        float proposed_value = atof(temp_buffer);
+        float max_value = (g_treadmill_state.set_mode == SET_MODE_WEIGHT) ? 200.0f : MAX_CLIMB_PERCENT;
+
+        if (proposed_value > max_value) {
+            ESP_LOGI(TAG, "Dígito inválido '%c'. El valor propuesto %.0f excede el máximo %.0f", digit, proposed_value, max_value);
+            return false;
+        }
 
         g_treadmill_state.set_buffer[g_treadmill_state.set_digit_index] = digit;
         g_treadmill_state.set_digit_index++;
@@ -2117,7 +2126,7 @@ static bool _handle_numpad_press_internal(char digit) {
 
         return (g_treadmill_state.set_digit_index >= 2);  // Completado cuando tenemos 2 dígitos
     } else {
-        // Comportamiento original para velocidad e inclinación
+        // Comportamiento original para velocidad (3 dígitos con decimal)
         if (g_treadmill_state.set_digit_index >= 3) return false;
 
         char temp_buffer[4];
@@ -2131,10 +2140,9 @@ static bool _handle_numpad_press_internal(char digit) {
         }
 
         float proposed_value = atof(temp_buffer) / 10.0f;
-        float max_value = (g_treadmill_state.set_mode == SET_MODE_SPEED) ? MAX_SPEED_KMH : MAX_CLIMB_PERCENT;
 
-        if (proposed_value > max_value) {
-            ESP_LOGI(TAG, "Dígito inválido '%c'. El valor propuesto %.1f excede el máximo %.1f", digit, proposed_value, max_value);
+        if (proposed_value > MAX_SPEED_KMH) {
+            ESP_LOGI(TAG, "Dígito inválido '%c'. El valor propuesto %.1f excede el máximo %.1f", digit, proposed_value, MAX_SPEED_KMH);
             return false;
         }
 
@@ -2185,14 +2193,18 @@ void ui_confirm_set_value(void) {
 
         _switch_to_main_screen_internal();
     } else {
-        float final_value = atof(g_treadmill_state.set_buffer) / 10.0f;
         bool is_speed_mode = (g_treadmill_state.set_mode == SET_MODE_SPEED);
+        float final_value;
 
         if (is_speed_mode) {
+            // Velocidad: 3 dígitos divididos por 10 (ej: "051" = 5.1 km/h)
+            final_value = atof(g_treadmill_state.set_buffer) / 10.0f;
             if (final_value > MAX_SPEED_KMH) final_value = MAX_SPEED_KMH;
             g_treadmill_state.ramp_mode = RAMP_MODE_NORMAL;
             g_treadmill_state.target_speed = final_value;
         } else { // SET_MODE_CLIMB
+            // Inclinación: 2 dígitos sin dividir (ej: "05" = 5%)
+            final_value = atof(g_treadmill_state.set_buffer);
             if (final_value > MAX_CLIMB_PERCENT) final_value = MAX_CLIMB_PERCENT;
             g_treadmill_state.target_climb_percent = final_value;
         }
@@ -2224,16 +2236,14 @@ void ui_confirm_set_value(void) {
                 lv_label_set_text(label_speed_pace, "--:--");
             }
         } else {
-            // Actualizar pendiente
-            int climb_int = (int)final_value;
-            int climb_frac = (int)((final_value - climb_int) * 10);
-            lv_label_set_text_fmt(label_climb_percent, "%d.%d", climb_int, climb_frac);
+            // Actualizar pendiente (sin decimales)
+            int climb_int = (int)roundf(final_value);
+            lv_label_set_text_fmt(label_climb_percent, "%d", climb_int);
 
-            // Actualizar grados (deg = atan(percent/100) * 180/PI)
+            // Actualizar grados (sin decimales)
             float deg = atanf(final_value / 100.0f) * 180.0f / 3.14159f;
-            int deg_int = (int)deg;
-            int deg_frac = (int)((deg - deg_int) * 10);
-            lv_label_set_text_fmt(label_climb_deg, "%d.%d", deg_int, deg_frac);
+            int deg_int = (int)roundf(deg);
+            lv_label_set_text_fmt(label_climb_deg, "%d", deg_int);
         }
         bsp_display_unlock();
 
