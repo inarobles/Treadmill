@@ -562,8 +562,6 @@ void ui_update_task(void *pvParameter) {
             lv_obj_add_event_cb(btn_cooldown, cool_down_event_cb, LV_EVENT_CLICKED, NULL);
             buttons_are_stop_mode = true;
             need_restore_weight_buttons = false;
-            // Marcar que el peso ya ha sido introducido ahora que la cinta se está moviendo
-            g_treadmill_state.weight_entered = true;
             // Cambiar la unidad de "kg" a "Kcal" ahora que empezamos a contar calorías
             if (showing_weight_in_kcal_field) {
                 lv_label_set_text(unit_kcal_main, "Kcal");  // Cambiar unidad en pantalla MAIN
@@ -2147,7 +2145,8 @@ void ui_confirm_set_value(void) {
         if (weight < 30.0f) weight = 30.0f;  // Mínimo 30 kg
         if (weight > 200.0f) weight = 200.0f; // Máximo 200 kg
         g_treadmill_state.user_weight_kg = weight;
-        // NO marcar weight_entered = true todavía, esperamos a que la cinta empiece a moverse
+        // Marcar que el usuario ha introducido el peso
+        g_treadmill_state.weight_entered = true;
 
         // Los botones WEIGHT y BACK se mantienen para permitir corrección
         // Solo se cambiarán cuando la cinta empiece a moverse
