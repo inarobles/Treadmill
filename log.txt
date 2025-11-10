@@ -28,75 +28,75 @@ Flash will be erased from 0x00008000 to 0x00008fff...
 SHA digest in image updated
 Compressed 23584 bytes to 14458...
 Writing at 0x00002000... (100 %)
-Wrote 23584 bytes (14458 compressed) at 0x00002000 in 0.8 seconds (effective 234.7 kbit/s)...
+Wrote 23584 bytes (14458 compressed) at 0x00002000 in 0.8 seconds (effective 241.8 kbit/s)...
 Hash of data verified.
-Compressed 1878736 bytes to 991007...
+Compressed 1878736 bytes to 991011...
 Writing at 0x00010000... (1 %)
-Writing at 0x0001f5b8... (3 %)
-Writing at 0x0002bca4... (4 %)
-Writing at 0x0003977c... (6 %)
-Writing at 0x000471d9... (8 %)
-Writing at 0x0005716c... (9 %)
-Writing at 0x0005f84d... (11 %)
-Writing at 0x00068bc6... (13 %)
-Writing at 0x0007505b... (14 %)
-Writing at 0x00082216... (16 %)
-Writing at 0x00090270... (18 %)
-Writing at 0x0009fdd7... (19 %)
-Writing at 0x000a9019... (21 %)
-Writing at 0x000b0cdc... (22 %)
-Writing at 0x000b6cf6... (24 %)
-Writing at 0x000bd36e... (26 %)
-Writing at 0x000c56f6... (27 %)
-Writing at 0x000cd319... (29 %)
-Writing at 0x000d521c... (31 %)
-Writing at 0x000dc071... (32 %)
-Writing at 0x000e2bc6... (34 %)
-Writing at 0x000e89ca... (36 %)
-Writing at 0x000ee4c1... (37 %)
-Writing at 0x000f3b2b... (39 %)
-Writing at 0x000f91d1... (40 %)
-Writing at 0x000fec11... (42 %)
-Writing at 0x00105a6e... (44 %)
-Writing at 0x0010bdac... (45 %)
+Writing at 0x0001f5b0... (3 %)
+Writing at 0x0002bc9e... (4 %)
+Writing at 0x00039772... (6 %)
+Writing at 0x000471cc... (8 %)
+Writing at 0x00057167... (9 %)
+Writing at 0x0005f847... (11 %)
+Writing at 0x00068bb4... (13 %)
+Writing at 0x00075047... (14 %)
+Writing at 0x0008220c... (16 %)
+Writing at 0x0009026d... (18 %)
+Writing at 0x0009fdcc... (19 %)
+Writing at 0x000a900c... (21 %)
+Writing at 0x000b0cd7... (22 %)
+Writing at 0x000b6cf1... (24 %)
+Writing at 0x000bd366... (26 %)
+Writing at 0x000c56c4... (27 %)
+Writing at 0x000cd313... (29 %)
+Writing at 0x000d5217... (31 %)
+Writing at 0x000dc06d... (32 %)
+Writing at 0x000e2bc0... (34 %)
+Writing at 0x000e89c4... (36 %)
+Writing at 0x000ee4b8... (37 %)
+Writing at 0x000f3b24... (39 %)
+Writing at 0x000f91ca... (40 %)
+Writing at 0x000fec0c... (42 %)
+Writing at 0x00105a68... (44 %)
+Writing at 0x0010bda7... (45 %)
 Writing at 0x00111237... (47 %)
-Writing at 0x00116b19... (49 %)
-Writing at 0x0011c5fc... (50 %)
-Writing at 0x0012349a... (52 %)
-Writing at 0x00128d56... (54 %)
-Writing at 0x0012ecb4... (55 %)
-Writing at 0x00134e13... (57 %)
-Writing at 0x0013a7c5... (59 %)
-Writing at 0x00140d54... (60 %)
-Writing at 0x00146cd7... (62 %)
-Writing at 0x0014da64... (63 %)
-Writing at 0x00153b9f... (65 %)
-Writing at 0x00159b30... (67 %)
-Writing at 0x00160fe6... (68 %)
-Writing at 0x001677ba... (70 %)
-Writing at 0x0016dba9... (72 %)
-Writing at 0x0017361b... (73 %)
-Writing at 0x0017907c... (75 %)
-Writing at 0x0017ec1e... (77 %)
-Writing at 0x00184750... (78 %)
-Writing at 0x0018b2a4... (80 %)
-Writing at 0x00190893... (81 %)
-Writing at 0x001960ed... (83 %)
-Writing at 0x0019bc48... (85 %)
-Writing at 0x001a2b6e... (86 %)
-Writing at 0x001a9243... (88 %)
-Writing at 0x001b027c... (90 %)
-Writing at 0x001b6de9... (91 %)
-Writing at 0x001bce6b... (93 %)
-Writing at 0x001c2571... (95 %)
-Writing at 0x001c860a... (96 %)
-Writing at 0x001ceb00... (98 %)
-Writing at 0x001d4f2d... (100 %)
-Wrote 1878736 bytes (991007 compressed) at 0x00010000 in 29.5 seconds (effective 508.7 kbit/s)...
+Writing at 0x00116b14... (49 %)
+Writing at 0x0011c5f7... (50 %)
+Writing at 0x00123493... (52 %)
+Writing at 0x00128d51... (54 %)
+Writing at 0x0012ecae... (55 %)
+Writing at 0x00134e0f... (57 %)
+Writing at 0x0013a7c0... (59 %)
+Writing at 0x00140d4f... (60 %)
+Writing at 0x00146cd2... (62 %)
+Writing at 0x0014da5e... (63 %)
+Writing at 0x00153b98... (65 %)
+Writing at 0x00159b29... (67 %)
+Writing at 0x00160fe1... (68 %)
+Writing at 0x001677b4... (70 %)
+Writing at 0x0016dba3... (72 %)
+Writing at 0x00173616... (73 %)
+Writing at 0x00179070... (75 %)
+Writing at 0x0017ec10... (77 %)
+Writing at 0x00184749... (78 %)
+Writing at 0x0018b29d... (80 %)
+Writing at 0x0019088d... (81 %)
+Writing at 0x001960e5... (83 %)
+Writing at 0x0019bc42... (85 %)
+Writing at 0x001a2b68... (86 %)
+Writing at 0x001a923e... (88 %)
+Writing at 0x001b0277... (90 %)
+Writing at 0x001b6dce... (91 %)
+Writing at 0x001bce68... (93 %)
+Writing at 0x001c256c... (95 %)
+Writing at 0x001c8602... (96 %)
+Writing at 0x001ceafb... (98 %)
+Writing at 0x001d4f29... (100 %)
+Wrote 1878736 bytes (991011 compressed) at 0x00010000 in 29.6 seconds (effective 508.5 kbit/s)...
 Hash of data verified.
 Compressed 3072 bytes to 120...
 Writing at 0x00008000... (100 %)
-Wrote 3072 bytes (120 compressed) at 0x00008000 in 0.1 seconds (effective 369.1 kbit/s)...
+Wrote 3072 bytes (120 compressed) at 0x00008000 in 0.1 seconds (effective 360.6 kbit/s)...
 Hash of data verified.
 
 Leaving...
@@ -158,7 +158,7 @@ I (457) hex_psram: BitMode      : 0x01 (X16 Mode)
 I (461) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
 I (466) hex_psram: DriveStrength: 0x00 (1/1)
 I (470) MSPI DQS: tuning success, best phase id is 0
-I (643) MSPI DQS: tuning success, best delayline id is 17
+I (642) MSPI DQS: tuning success, best delayline id is 17
 I esp_psram: Found 32MB PSRAM device
 I esp_psram: Speed: 200MHz
 I (674) mmu_psram: .rodata xip on psram
@@ -166,18 +166,18 @@ I (726) mmu_psram: .text xip on psram
 I (727) hex_psram: psram CS IO is dedicated
 I (727) cpu_start: Multicore app
 I (1177) esp_psram: SPI SRAM memory test OK
-I (1185) cpu_start: Pro cpu start user code
-I (1185) cpu_start: cpu freq: 360000000 Hz
+I (1186) cpu_start: Pro cpu start user code
+I (1186) cpu_start: cpu freq: 360000000 Hz
 I (1186) app_init: Application information:
 I (1186) app_init: Project name:     lvgl_demo_v8
-I (1190) app_init: App version:      57cba28-dirty
-I (1195) app_init: Compile time:     Nov 10 2025 09:21:05
-I (1200) app_init: ELF file SHA256:  9b13d889f...
+I (1190) app_init: App version:      db57468-dirty
+I (1195) app_init: Compile time:     Nov 10 2025 10:14:08
+I (1200) app_init: ELF file SHA256:  2acaa3451...
 I (1204) app_init: ESP-IDF:          v5.5.1-dirty
 I (1209) efuse_init: Min chip rev:     v0.1
-I (1212) efuse_init: Max chip rev:     v1.99
+I (1213) efuse_init: Max chip rev:     v1.99
 I (1217) efuse_init: Chip rev:         v1.0
-I (1220) heap_init: Initializing. RAM available for dynamic allocation:
+I (1221) heap_init: Initializing. RAM available for dynamic allocation:
 I (1227) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
 I (1232) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
 I (1237) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
@@ -186,48 +186,48 @@ I (1248) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
 I (1253) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
 I (1260) esp_psram: Adding pool of 23K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
 I (1271) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
-I (1282) spi_flash: detected chip: boya
+I (1283) spi_flash: detected chip: boya
 I (1286) spi_flash: flash io: qio
 I (1289) host_init: ESP Hosted : Host chip_ip[18]
 I (1303) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
-I (1303) H_API: ** add_esp_wifi_remote_channels **
+I (1304) H_API: ** add_esp_wifi_remote_channels **
 I (1306) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
 --- 0x4800ea10: transport_drv_sta_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
 --- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-I (1313) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
+I (1314) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
 --- 0x4800e952: transport_drv_ap_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
 --- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
 sdio_mempool_create free:31915268 min-free:31915268 lfb-def:31457280 lfb-8bit:31457280
 
-I (1329) H_SDIO_DRV: sdio_data_to_rx_buf_task started
-I (1333) main_task: Started on CPU0
-I (1337) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
-I (1344) main_task: Calling app_main()
-I (1351) WIFI_MANAGER: Initializing WiFi Manager
-I (1352) WIFI_MANAGER: WiFi Manager initialized successfully
-I (1358) LVGL: Starting LVGL task
-I (1361) ESP32_P4_EV: MIPI DSI PHY Powered on
-I (1366) ESP32_P4_EV: Install MIPI DSI LCD control panel
-I (1370) ESP32_P4_EV: Install ILI9881C LCD control panel
-I (1521) jd9365: LCD ID: 93 65 04
-I (1648) ESP32_P4_EV: Display initialized
-I (1709) gsl3680: start init
-I (1709) gsl3680: clear reg
-I (1839) gsl3680: start load fw
-I (2699) gsl3680: load fw success
-I (2699) gsl3680: enter
-I (2709) gsl_point_id: gsl_DataInit
-I (2769) gsl3680: enter
-I (2779) gsl_point_id: gsl_DataInit
-I (2779) ESP32_P4_EV: Setting LCD backlight: 100%
-I (2779) UI: Loaded wax counter from NVS: 6540 seconds
-I (2904) Audio: Inicializando altavoz...
-I (2909) ES8311: Work in Slave mode
-I (3022) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
-I (3022) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
-I (3054) Adev_Codec: Open codec device OK
-I (3077) Audio: Buffer de pitido generado (4410 bytes)
-I (3077) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
+I (1330) H_SDIO_DRV: sdio_data_to_rx_buf_task started
+I (1334) main_task: Started on CPU0
+I (1338) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (1345) main_task: Calling app_main()
+I (1352) WIFI_MANAGER: Initializing WiFi Manager
+I (1353) WIFI_MANAGER: WiFi Manager initialized successfully
+I (1359) LVGL: Starting LVGL task
+I (1362) ESP32_P4_EV: MIPI DSI PHY Powered on
+I (1367) ESP32_P4_EV: Install MIPI DSI LCD control panel
+I (1371) ESP32_P4_EV: Install ILI9881C LCD control panel
+I (1522) jd9365: LCD ID: 93 65 04
+I (1649) ESP32_P4_EV: Display initialized
+I (1710) gsl3680: start init
+I (1710) gsl3680: clear reg
+I (1840) gsl3680: start load fw
+I (2700) gsl3680: load fw success
+I (2700) gsl3680: enter
+I (2710) gsl_point_id: gsl_DataInit
+I (2770) gsl3680: enter
+I (2780) gsl_point_id: gsl_DataInit
+I (2780) ESP32_P4_EV: Setting LCD backlight: 100%
+I (2780) UI: Loaded wax counter from NVS: 6540 seconds
+I (2905) Audio: Inicializando altavoz...
+I (2910) ES8311: Work in Slave mode
+I (3023) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
+I (3023) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
+I (3055) Adev_Codec: Open codec device OK
+I (3078) Audio: Buffer de pitido generado (4410 bytes)
+I (3078) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
 
 assert failed: xQueueSemaphoreTake queue.c:1709 (( pxQueue ))
 --- Stack dump detected
@@ -242,12 +242,12 @@ A6      : 0x0000000c  A7      : 0x76757473  S2      : 0x4ff52338  S3      : 0x4f
 S4      : 0x4ff1fc28  S5      : 0x4ff52338  S6      : 0x00000000  S7      : 0x00000000
 S8      : 0x4ff1d660  S9      : 0x00000000  S10     : 0x48123000  S11     : 0x4814e000
 T3      : 0x6e6d6c6b  T4      : 0x6a696867  T5      : 0x66656463  T6      : 0x62613938
-MSTATUS : 0x00011880  MTVEC   : 0x4ff00003  MCAUSE  : 0x00000002  MTVAL   : 0x00000000
+MSTATUS : 0x80017880  MTVEC   : 0x4ff00003  MCAUSE  : 0x00000002  MTVAL   : 0x00000000
 --- 0x4ff00003: _vector_table at ??:?
 MHARTID : 0x00000000
 
---- Warning: Failed to run gdb_panic_server.py script: Command '['riscv32-esp-elf-gdb', '--batch', '-n', 'C:\\esp\\Treadmill\\Consola\\build\\lvgl_demo_v8.elf', '-ex', 'add-symbol-file C:\\esp\\Treadmill\\Consola\\build\\bootloader\\bootloader.elf', '-ex', 'target remote | "C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe" -m esp_idf_panic_decoder --target esp32p4 "C:\\Users\\Ina\\AppData\\Local\\Temp\\tmp1lpue4b6"', '-ex', 'bt']' returned non-zero exit status 1.
---- Warning: b'add symbol table from file "C:espTreadmillConsolabuildbootloaderbootloader.elf"\r\nC:espTreadmillConsolabuildbootloaderbootloader.elf: No such file or directory.\r\nerror starting child process \'C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe -m esp_idf_panic_decoder --target esp32p4 C:\\Users\\Ina\\AppData\\Local\\Temp\\tmp1lpue4b6\': CreateProcess: No such file or directory\r\nNo stack.\r\n'
+--- Warning: Failed to run gdb_panic_server.py script: Command '['riscv32-esp-elf-gdb', '--batch', '-n', 'C:\\esp\\Treadmill\\Consola\\build\\lvgl_demo_v8.elf', '-ex', 'add-symbol-file C:\\esp\\Treadmill\\Consola\\build\\bootloader\\bootloader.elf', '-ex', 'target remote | "C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe" -m esp_idf_panic_decoder --target esp32p4 "C:\\Users\\Ina\\AppData\\Local\\Temp\\tmp6fjgnska"', '-ex', 'bt']' returned non-zero exit status 1.
+--- Warning: b'add symbol table from file "C:espTreadmillConsolabuildbootloaderbootloader.elf"\r\nC:espTreadmillConsolabuildbootloaderbootloader.elf: No such file or directory.\r\nerror starting child process \'C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe -m esp_idf_panic_decoder --target esp32p4 C:\\Users\\Ina\\AppData\\Local\\Temp\\tmp6fjgnska\': CreateProcess: No such file or directory\r\nNo stack.\r\n'
 
 
 Stack memory:
@@ -255,8 +255,8 @@ Stack memory:
 4ff52310: 0xa5000000 0x4ff203c4 0x4813df24 0x4ff203a8 0x48113cee 0x4ff203d4 0x4ff52300 0x4ff203d8
 4ff52330: 0x48113f4c 0x4ff1fc28 0x65737361 0x66207472 0x656c6961 0x78203a64 0x75657551 0x6d655365
 4ff52350: 0x6f687061 0x61546572 0x7120656b 0x65756575 0x313a632e 0x20393037 0x70202828 0x65755178
-4ff52370: 0x29206575 0xa5a50029 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
-a5a5 0xa5a5a5a5 0xa5a5a5a5
+5 0xa5a5a5a5 0xa5a5a5a5
+4ff52390: 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
 4ff523b0: 0xa5a5a5a5 0xa5a5a5a5 0x00000084 0x00000018 0x000000d8 0x00000004 0x00000004 0x00000010
 4ff523d0: 0xa5a5a5a5 0xa5a5a5a5 0x4ff0021c 0x4ff134c8 0x48024f76 0x00000000 0x4ff52480 0x4ff1d300
 4ff523f0: 0x4ff52580 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
@@ -274,10 +274,10 @@ a5a5 0xa5a5a5a5 0xa5a5a5a5
 4ff52570: 0x00000000 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5 0x30100000 0x00000068 0x50115737 0x15c72683
 4ff52590: 0x01000637 0x501117b7 0x2e238ed1 0x43b814d7 0x100006b7 0xa5a5a5a5 0xa5a5a5a5 0xa5a5a5a5
 4ff525b0: 0x00000001 0x4ff505d4 0x4ff505d4 0x00000000 0x00000000 0x00000000 0xa5a5a5a5 0xa5a5a5a5
-4ff525d0: 0xa5a5a5a5 0x00000160 0x4ff52230 0x00000000 0x4ff21538 0x4ff21538 0x4ff525d8 0x4ff21530
+4ff525d0: 0xa5a5a5a5 0x00000160 0x4ff524e0 0x00000000 0x4ff21538 0x4ff21538 0x4ff525d8 0x4ff21530
 4ff525f0: 0x00000014 0x00000000 0x00000000 0x4ff525d8 0x00000000 0x00000005 0x4ff505d4 0x755f6975
-0x00000000 0x00000005
-4ff52630: 0x00000001 0x00000000 0x00000000 0x0000000b 0x00000000 0x4ff28738 0x4ff287a0 0x4ff28808
+4ff52610: 0x74616470 0x61745f65 0x00006b73 0x00000000 0x4ff525d0 0x00000011 0x00000000 0x00000005
+738 0x4ff287a0 0x4ff28808
 4ff52650: 0x00000000 0x00000000 0x00000001 0x00000000 0x00000000 0x00000000 0x4800666e 0x00000000
 4ff52670: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
 4ff52690: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
@@ -286,7 +286,7 @@ a5a5 0xa5a5a5a5 0xa5a5a5a5
 
 
 
-ELF file SHA256: 9b13d889f
+ELF file SHA256: 2acaa3451
 
 Rebooting...
 ESP-ROM:esp32p4-eco2-20240710
@@ -338,6 +338,11 @@ I (386) hex_psram: BitMode      : 0x01 (X16 Mode)
 I (391) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
 I (396) hex_psram: DriveStrength: 0x00 (1/1)
 I (400) MSPI DQS: tuning success, best phase id is 0
+--- 0x4ff10f76: esp_restart_noos at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/port/soc/esp32p4/system_internal.c:218
+--- 0x4ff08f9e: esp_cpu_wait_for_intr at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support/cpu.c:57
+--- 0x4ff29ed0: esp_bootloader_get_description at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_bootloader_format/esp_bootloader_desc.c:39
+--- 0x4ff2cbd0: esp_flash_encryption_enabled at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/flash_encrypt.c:89
+--- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
 I (572) MSPI DQS: tuning success, best delayline id is 17
 I esp_psram: Found 32MB PSRAM device
 I esp_psram: Speed: 200MHz
@@ -345,74 +350,69 @@ I (604) mmu_psram: .rodata xip on psram
 I (656) mmu_psram: .text xip on psram
 I (657) hex_psram: psram CS IO is dedicated
 I (657) cpu_start: Multicore app
-I (1113) esp_psram: SPI SRAM memory test OK
-I (1122) cpu_start: Pro cpu start user code
-I (1122) cpu_start: cpu freq: 360000000 Hz
-I (1122) app_init: Application information:
---- 0x4ff10f76: esp_restart_noos at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/port/soc/esp32p4/system_internal.c:218
---- 0x4ff08f9e: esp_cpu_wait_for_intr at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support/cpu.c:57
---- 0x4ff29ed0: esp_bootloader_get_description at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_bootloader_format/esp_bootloader_desc.c:39
---- 0x4ff2cbd0: esp_flash_encryption_enabled at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/flash_encrypt.c:89
---- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
-I (1122) app_init: Project name:     lvgl_demo_v8
-I (1127) app_init: App version:      57cba28-dirty
-I (1131) app_init: Compile time:     Nov 10 2025 09:21:05
-I (1136) app_init: ELF file SHA256:  9b13d889f...
-I (1141) app_init: ESP-IDF:          v5.5.1-dirty
-I (1145) efuse_init: Min chip rev:     v0.1
-I (1149) efuse_init: Max chip rev:     v1.99
-I (1153) efuse_init: Chip rev:         v1.0
-I (1157) heap_init: Initializing. RAM available for dynamic allocation:
-I (1163) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
-I (1169) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
-I (1174) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
-I (1179) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
-I (1185) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
-I (1190) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
-I (1196) esp_psram: Adding pool of 23K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
-I (1208) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
-I (1219) spi_flash: detected chip: boya
-I (1222) spi_flash: flash io: qio
-I (1225) host_init: ESP Hosted : Host chip_ip[18]
-I (1240) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
-I (1240) H_API: ** add_esp_wifi_remote_channels **
-I (1243) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
-I (1250) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
+I (1117) esp_psram: SPI SRAM memory test OK
+I (1126) cpu_start: Pro cpu start user code
+I (1126) cpu_start: cpu freq: 360000000 Hz
+I (1126) app_init: Application information:
+I (1126) app_init: Project name:     lvgl_demo_v8
+I (1130) app_init: App version:      db57468-dirty
+I (1135) app_init: Compile time:     Nov 10 2025 10:14:08
+I (1140) app_init: ELF file SHA256:  2acaa3451...
+I (1144) app_init: ESP-IDF:          v5.5.1-dirty
+I (1149) efuse_init: Min chip rev:     v0.1
+I (1153) efuse_init: Max chip rev:     v1.99
+I (1157) efuse_init: Chip rev:         v1.0
+I (1161) heap_init: Initializing. RAM available for dynamic allocation:
+I (1167) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
+I (1172) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
+I (1178) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
+I (1183) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
+I (1188) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
+I (1194) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
+I (1200) esp_psram: Adding pool of 23K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (1211) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (1223) spi_flash: detected chip: boya
+I (1226) spi_flash: flash io: qio
+I (1229) host_init: ESP Hosted : Host chip_ip[18]
+I (1244) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
+I (1244) H_API: ** add_esp_wifi_remote_channels **
+I (1246) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
+I (1254) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
 --- 0x4800ea10: transport_drv_sta_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
 --- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
 --- 0x4800e952: transport_drv_ap_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
 --- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
 sdio_mempool_create free:31915268 min-free:31915268 lfb-def:31457280 lfb-8bit:31457280
 
-I (1266) H_SDIO_DRV: sdio_data_to_rx_buf_task started
-I (1270) main_task: Started on CPU0
-I (1274) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
-I (1281) main_task: Calling app_main()
-I (1288) WIFI_MANAGER: Initializing WiFi Manager
-I (1289) WIFI_MANAGER: WiFi Manager initialized successfully
-I (1295) LVGL: Starting LVGL task
-I (1298) ESP32_P4_EV: MIPI DSI PHY Powered on
-I (1303) ESP32_P4_EV: Install MIPI DSI LCD control panel
-I (1307) ESP32_P4_EV: Install ILI9881C LCD control panel
-I (1458) jd9365: LCD ID: 93 65 04
-I (1585) ESP32_P4_EV: Display initialized
-I (1646) gsl3680: start init
-I (1646) gsl3680: clear reg
-I (1776) gsl3680: start load fw
-I (2636) gsl3680: load fw success
-I (2636) gsl3680: enter
-I (2646) gsl_point_id: gsl_DataInit
-I (2706) gsl3680: enter
-I (2716) gsl_point_id: gsl_DataInit
-I (2716) ESP32_P4_EV: Setting LCD backlight: 100%
-I (2716) UI: Loaded wax counter from NVS: 6540 seconds
-I (2841) Audio: Inicializando altavoz...
-I (2846) ES8311: Work in Slave mode
-I (2959) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
-I (2959) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
-I (2991) Adev_Codec: Open codec device OK
-I (3014) Audio: Buffer de pitido generado (4410 bytes)
-I (3014) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
+I (1270) H_SDIO_DRV: sdio_data_to_rx_buf_task started
+I (1274) main_task: Started on CPU0
+I (1278) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (1285) main_task: Calling app_main()
+I (1292) WIFI_MANAGER: Initializing WiFi Manager
+I (1293) WIFI_MANAGER: WiFi Manager initialized successfully
+I (1299) LVGL: Starting LVGL task
+I (1302) ESP32_P4_EV: MIPI DSI PHY Powered on
+I (1307) ESP32_P4_EV: Install MIPI DSI LCD control panel
+I (1311) ESP32_P4_EV: Install ILI9881C LCD control panel
+I (1462) jd9365: LCD ID: 93 65 04
+I (1589) ESP32_P4_EV: Display initialized
+I (1650) gsl3680: start init
+I (1650) gsl3680: clear reg
+I (1780) gsl3680: start load fw
+I (2640) gsl3680: load fw success
+I (2640) gsl3680: enter
+I (2650) gsl_point_id: gsl_DataInit
+I (2710) gsl3680: enter
+I (2720) gsl_point_id: gsl_DataInit
+I (2720) ESP32_P4_EV: Setting LCD backlight: 100%
+I (2720) UI: Loaded wax counter from NVS: 6540 seconds
+I (2845) Audio: Inicializando altavoz...
+I (2850) ES8311: Work in Slave mode
+I (2963) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
+I (2963) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
+I (2995) Adev_Codec: Open codec device OK
+I (3018) Audio: Buffer de pitido generado (4410 bytes)
+I (3018) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
 
 assert failed: xQueueSemaphoreTake queue.c:1709 (( pxQueue ))
 Core  0 register dump:
@@ -431,8 +431,8 @@ MSTATUS : 0x80017880  MTVEC   : 0x4ff00003  MCAUSE  : 0x00000002  MTVAL   : 0x00
 --- 0x4ff00003: _vector_table at ??:?
 MHARTID : 0x00000000
 
---- Warning: Failed to run gdb_panic_server.py script: Command '['riscv32-esp-elf-gdb', '--batch', '-n', 'C:\\esp\\Treadmill\\Consola\\build\\lvgl_demo_v8.elf', '-ex', 'add-symbol-file C:\\esp\\Treadmill\\Consola\\build\\bootloader\\bootloader.elf', '-ex', 'target remote | "C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe" -m esp_idf_panic_decoder --target esp32p4 "C:\\Users\\Ina\\AppData\\Local\\Temp\\tmpy28wsayo"', '-ex', 'bt']' returned non-zero exit status 1.
---- Warning: b'add symbol table from file "C:espTreadmillConsolabuildbootloaderbootloader.elf"\r\nC:espTreadmillConsolabuildbootloaderbootloader.elf: No such file or directory.\r\nerror starting child process \'C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe -m esp_idf_panic_decoder --target esp32p4 C:\\Users\\Ina\\AppData\\Local\\Temp\\tmpy28wsayo\': CreateProcess: No such file or directory\r\nNo stack.\r\n'
+--- Warning: Failed to run gdb_panic_server.py script: Command '['riscv32-esp-elf-gdb', '--batch', '-n', 'C:\\esp\\Treadmill\\Consola\\build\\lvgl_demo_v8.elf', '-ex', 'add-symbol-file C:\\esp\\Treadmill\\Consola\\build\\bootloader\\bootloader.elf', '-ex', 'target remote | "C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe" -m esp_idf_panic_decoder --target esp32p4 "C:\\Users\\Ina\\AppData\\Local\\Temp\\tmpu9k6d3ob"', '-ex', 'bt']' returned non-zero exit status 1.
+--- Warning: b'add symbol table from file "C:espTreadmillConsolabuildbootloaderbootloader.elf"\r\nC:espTreadmillConsolabuildbootloaderbootloader.elf: No such file or directory.\r\nerror starting child process \'C:\\Espressif\\python_env\\idf5.5_py3.11_env\\Scripts\\python.exe -m esp_idf_panic_decoder --target esp32p4 C:\\Users\\Ina\\AppData\\Local\\Temp\\tmpu9k6d3ob\': CreateProcess: No such file or directory\r\nNo stack.\r\n'
 
 
 Stack memory:
@@ -471,7 +471,7 @@ Stack memory:
 
 
 
-ELF file SHA256: 9b13d889f
+ELF file SHA256: 2acaa3451
 
 Rebooting...
 ESP-ROM:esp32p4-eco2-20240710
@@ -530,60 +530,60 @@ I (604) mmu_psram: .rodata xip on psram
 I (656) mmu_psram: .text xip on psram
 I (657) hex_psram: psram CS IO is dedicated
 I (657) cpu_start: Multicore app
-I (1107) esp_psram: SPI SRAM memory test OK
-I (1115) cpu_start: Pro cpu start user code
-I (1115) cpu_start: cpu freq: 360000000 Hz
-I (1116) app_init: Application information:
-I (1116) app_init: Project name:     lvgl_demo_v8
-I (1120) app_init: App version:      57cba28-dirty
-I (1125) app_init: Compile time:     Nov 10 2025 09:21:05
-I (1130) app_init: ELF file SHA256:  9b13d889f...
+I (1108) esp_psram: SPI SRAM memory test OK
+I (1117) cpu_start: Pro cpu start user code
+I (1117) cpu_start: cpu freq: 360000000 Hz
+I (1117) app_init: Application information:
+I (1118) app_init: Project name:     lvgl_demo_v8
+I (1122) app_init: App version:      db57468-dirty
+I (1126) app_init: Compile time:     Nov 10 2025 10:14:08
+I (1132) app_init: ELF file SHA256:  2acaa3451...
 --- 0x4ff10f76: esp_restart_noos at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/port/soc/esp32p4/system_internal.c:218
 --- 0x4ff08f9e: esp_cpu_wait_for_intr at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support/cpu.c:57
 --- 0x4ff29ed0: esp_bootloader_get_description at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_bootloader_format/esp_bootloader_desc.c:39
 --- 0x4ff2cbd0: esp_flash_encryption_enabled at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/flash_encrypt.c:89
 --- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
-I (1134) app_init: ESP-IDF:          v5.5.1-dirty
-I (1139) efuse_init: Min chip rev:     v0.1
-I (1142) efuse_init: Max chip rev:     v1.99
-I (1147) efuse_init: Chip rev:         v1.0
-I (1150) heap_init: Initializing. RAM available for dynamic allocation:
-I (1157) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
-I (1162) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
-I (1167) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
-I (1173) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
-I (1178) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
-I (1183) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
-I (1190) esp_psram: Adding pool of 23K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
-I (1201) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
-I (1212) spi_flash: detected chip: boya
-I (1216) spi_flash: flash io: qio
-I (1219) host_init: ESP Hosted : Host chip_ip[18]
-I (1233) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
-I (1233) H_API: ** add_esp_wifi_remote_channels **
-I (1236) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
-I (1243) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
+I (1136) app_init: ESP-IDF:          v5.5.1-dirty
+I (1140) efuse_init: Min chip rev:     v0.1
+I (1144) efuse_init: Max chip rev:     v1.99
+I (1148) efuse_init: Chip rev:         v1.0
+I (1152) heap_init: Initializing. RAM available for dynamic allocation:
+I (1159) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
+I (1164) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
+I (1169) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
+I (1175) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
+I (1180) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
+I (1185) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
+I (1192) esp_psram: Adding pool of 23K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (1203) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (1214) spi_flash: detected chip: boya
+I (1218) spi_flash: flash io: qio
+I (1221) host_init: ESP Hosted : Host chip_ip[18]
+I (1235) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
+I (1235) H_API: ** add_esp_wifi_remote_channels **
+I (1238) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
+I (1245) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
 --- 0x4800ea10: transport_drv_sta_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
 --- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
 --- 0x4800e952: transport_drv_ap_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
 --- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
 sdio_mempool_create free:31915268 min-free:31915268 lfb-def:31457280 lfb-8bit:31457280
 
-I (1259) H_SDIO_DRV: sdio_data_to_rx_buf_task started
-I (1263) main_task: Started on CPU0
-I (1267) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
-I (1274) main_task: Calling app_main()
-I (1281) WIFI_MANAGER: Initializing WiFi Manager
-I (1282) WIFI_MANAGER: WiFi Manager initialized successfully
-I (1288) LVGL: Starting LVGL task
-I (1291) ESP32_P4_EV: MIPI DSI PHY Powered on
-I (1296) ESP32_P4_EV: Install MIPI DSI LCD control panel
-I (1300) ESP32_P4_EV: Install ILI9881C LCD control panel
-I (1451) jd9365: LCD ID: 93 65 04
-I (1578) ESP32_P4_EV: Display initialized
-I (1639) gsl3680: start init
-I (1639) gsl3680: clear reg
-I (1769) gsl3680: start load fw
+I (1261) H_SDIO_DRV: sdio_data_to_rx_buf_task started
+I (1265) main_task: Started on CPU0
+I (1269) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (1276) main_task: Calling app_main()
+I (1283) WIFI_MANAGER: Initializing WiFi Manager
+I (1284) WIFI_MANAGER: WiFi Manager initialized successfully
+I (1290) LVGL: Starting LVGL task
+I (1293) ESP32_P4_EV: MIPI DSI PHY Powered on
+I (1298) ESP32_P4_EV: Install MIPI DSI LCD control panel
+I (1302) ESP32_P4_EV: Install ILI9881C LCD control panel
+I (1453) jd9365: LCD ID: 93 65 04
+I (1580) ESP32_P4_EV: Display initialized
+I (1641) gsl3680: start init
+I (1641) gsl3680: clear reg
+I (1771) gsl3680: start load fw
 
 Done
 
