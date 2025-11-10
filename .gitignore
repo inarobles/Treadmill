@@ -65,3 +65,4 @@ managed_components_temp/
 flash_project_args
 flasher_args.json
 project_description.json
+dependencies.lock
