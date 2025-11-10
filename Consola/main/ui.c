@@ -442,6 +442,10 @@ void ui_update_task(void *pvParameter) {
         }
 
         if (dist_value != prev_dist_value || is_meters != prev_dist_is_meters) {
+            // TEMPORAL: valor de prueba
+            lv_label_set_text_fmt(label_dist, "%d", 10000);
+            lv_label_set_text_fmt(label_dist_set, "%d", 10000);
+            /*
             if (is_meters) {
                 int meters = (int)(total_distance_km_copy * 1000);
                 lv_label_set_text_fmt(label_dist, "%d", meters);
@@ -452,6 +456,7 @@ void ui_update_task(void *pvParameter) {
                 lv_label_set_text_fmt(label_dist, "%d.%03d", dist_int, dist_frac);
                 lv_label_set_text_fmt(label_dist_set, "%d.%03d", dist_int, dist_frac);
             }
+            */
             prev_dist_value = dist_value;
             prev_dist_is_meters = is_meters;
         }
@@ -524,12 +529,17 @@ void ui_update_task(void *pvParameter) {
 
         // Kcal
         if (current_kcal != prev_kcal) {
+            // TEMPORAL: valor de prueba
+            lv_label_set_text_fmt(label_kcal, "%d", 1000);
+            lv_label_set_text_fmt(label_kcal_set, "%d", 1000);
+            /*
             if (weight_entered_copy || user_weight_kg_copy == 0.0f) {
                 lv_label_set_text_fmt(label_kcal, "%d", current_kcal);
             }
             if (set_mode_copy != SET_MODE_WEIGHT) {
                 lv_label_set_text_fmt(label_kcal_set, "%d", current_kcal);
             }
+            */
             prev_kcal = current_kcal;
         }
 
