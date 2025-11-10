@@ -133,6 +133,25 @@ static void wax_pump_timer_callback(void *arg) {
 }
 
 static void configure_gpios(void) {
+    // Primero, resetear y establecer todos los pines de relés en nivel bajo (0)
+    // ANTES de configurarlos como salidas, para evitar activación durante boot
+    gpio_reset_pin(HEAD_FAN_ON_OFF_PIN);
+    gpio_reset_pin(HEAD_FAN_SPEED_PIN);
+    gpio_reset_pin(CHEST_FAN_ON_OFF_PIN);
+    gpio_reset_pin(CHEST_FAN_SPEED_PIN);
+    gpio_reset_pin(INCLINE_UP_RELAY_PIN);
+    gpio_reset_pin(INCLINE_DOWN_RELAY_PIN);
+    gpio_reset_pin(WAX_PUMP_RELAY_PIN);
+
+    gpio_set_level(HEAD_FAN_ON_OFF_PIN, 0);
+    gpio_set_level(HEAD_FAN_SPEED_PIN, 0);
+    gpio_set_level(CHEST_FAN_ON_OFF_PIN, 0);
+    gpio_set_level(CHEST_FAN_SPEED_PIN, 0);
+    gpio_set_level(INCLINE_UP_RELAY_PIN, 0);
+    gpio_set_level(INCLINE_DOWN_RELAY_PIN, 0);
+    gpio_set_level(WAX_PUMP_RELAY_PIN, 0);
+
+    // Ahora configurar como salidas
     uint64_t output_pin_mask = (1ULL << HEAD_FAN_ON_OFF_PIN) | (1ULL << HEAD_FAN_SPEED_PIN) |
                                (1ULL << CHEST_FAN_ON_OFF_PIN) | (1ULL << CHEST_FAN_SPEED_PIN) |
                                (1ULL << INCLINE_UP_RELAY_PIN) | (1ULL << INCLINE_DOWN_RELAY_PIN) |
@@ -157,13 +176,6 @@ static void configure_gpios(void) {
     ESP_ERROR_CHECK(gpio_config(&io_conf_input));
     ESP_LOGI(TAG, "GPIO %d configurado con pull-up (fin de carrera anulado)", INCLINE_LIMIT_SWITCH_PIN);
 
-    gpio_set_level(HEAD_FAN_ON_OFF_PIN, 0);
-    gpio_set_level(HEAD_FAN_SPEED_PIN, 0);
-    gpio_set_level(CHEST_FAN_ON_OFF_PIN, 0);
-    gpio_set_level(CHEST_FAN_SPEED_PIN, 0);
-    gpio_set_level(INCLINE_UP_RELAY_PIN, 0);
-    gpio_set_level(INCLINE_DOWN_RELAY_PIN, 0);
-    gpio_set_level(WAX_PUMP_RELAY_PIN, 0);
     ESP_LOGI(TAG, "GPIOs configurados. Asignación v5 (Sensores en 34, 35).");
 }
 
