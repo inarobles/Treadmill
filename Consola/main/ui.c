@@ -806,15 +806,7 @@ static void create_styles(void) {
 static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     UIPanels panels;
 
-    panels.dist_label = lv_label_create(parent);
-    lv_obj_add_style(panels.dist_label, &style_value_extra_large, 0);
-    lv_obj_align(panels.dist_label, LV_ALIGN_CENTER, 0, -240);
-
-    lv_obj_t* unit_dist = lv_label_create(parent);
-    lv_obj_add_style(unit_dist, &style_unit, 0);
-    lv_label_set_text(unit_dist, "Distance");
-    lv_obj_align_to(unit_dist, panels.dist_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
-
+    // TIME (principal)
     panels.time_label = lv_label_create(parent);
     lv_obj_add_style(panels.time_label, &style_value_extra_large, 0);
     lv_obj_align(panels.time_label, LV_ALIGN_CENTER, 0, -110);
@@ -823,6 +815,33 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     lv_obj_add_style(unit_time, &style_unit, 0);
     lv_label_set_text(unit_time, "Time");
     lv_obj_align_to(unit_time, panels.time_label, LV_ALIGN_OUT_BOTTOM_MID, 0, 5);
+
+    // KCAL (izquierda, encima de las horas de Time)
+    panels.kcal_label = lv_label_create(parent);
+    lv_obj_add_style(panels.kcal_label, &style_value_main, 0);
+    lv_obj_align_to(panels.kcal_label, panels.time_label, LV_ALIGN_OUT_TOP_LEFT, 0, -40);
+
+    lv_obj_t* unit_kcal = lv_label_create(parent);
+    lv_obj_add_style(unit_kcal, &style_unit, 0);
+    lv_label_set_text(unit_kcal, "Kcal");
+    lv_obj_align_to(unit_kcal, panels.kcal_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
+
+    // Guardar referencias según la pantalla
+    if (parent == scr_main) {
+        unit_kcal_main = unit_kcal;
+    } else {
+        unit_kcal_set = unit_kcal;
+    }
+
+    // DISTANCE (derecha, encima de los segundos de Time)
+    panels.dist_label = lv_label_create(parent);
+    lv_obj_add_style(panels.dist_label, &style_value_main, 0);
+    lv_obj_align_to(panels.dist_label, panels.time_label, LV_ALIGN_OUT_TOP_RIGHT, 0, -40);
+
+    lv_obj_t* unit_dist = lv_label_create(parent);
+    lv_obj_add_style(unit_dist, &style_unit, 0);
+    lv_label_set_text(unit_dist, "Distance");
+    lv_obj_align_to(unit_dist, panels.dist_label, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 5);
 
     // --- COLUMNA DE INCLINACIÓN (CLIMB) ---
     lv_obj_t *label_climb_title = lv_label_create(parent);
@@ -906,29 +925,6 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     lv_obj_set_style_bg_opa(panels.info_label, LV_OPA_COVER, 0);
     lv_obj_set_style_border_color(panels.info_label, lv_color_hex(0xAAAAAA), 0);
     lv_obj_set_style_border_width(panels.info_label, 2, 0);
-
-    // --- KCAL ---
-    panels.kcal_label = lv_label_create(parent);
-    lv_obj_add_style(panels.kcal_label, &style_value_main, 0);
-    lv_obj_align_to(panels.kcal_label, panels.info_label, LV_ALIGN_OUT_BOTTOM_LEFT, 20, 80);
-    lv_obj_set_x(panels.kcal_label, lv_obj_get_x(panels.speed_kmh_label));
-    lv_obj_set_width(panels.kcal_label, 180);
-    lv_obj_set_style_text_align(panels.kcal_label, LV_TEXT_ALIGN_RIGHT, 0);
-
-    lv_obj_t* unit_kcal = lv_label_create(parent);
-    lv_obj_add_style(unit_kcal, &style_unit, 0);
-    lv_label_set_text(unit_kcal, "Kcal");
-    lv_obj_align_to(unit_kcal, panels.kcal_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
-    lv_obj_set_width(unit_kcal, 180);
-    lv_obj_set_style_text_align(unit_kcal, LV_TEXT_ALIGN_RIGHT, 0);
-
-    // Guardar referencias según la pantalla
-    if (parent == scr_main) {
-        unit_kcal_main = unit_kcal;
-    } else {
-        unit_kcal_set = unit_kcal;
-    }
-
     return panels;
 }
 
