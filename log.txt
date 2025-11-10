@@ -1,173 +1,238 @@
 
-C:\esp\Treadmill\Consola>idf.py -p COM4 flash monitor
-Executing action: flash
-Running ninja in directory C:\esp\Treadmill\Consola\build
-Executing "ninja flash"...
-[0/1] Re-running CMake...
--- Minimal build - OFF
--- ccache will be used for faster recompilation
--- Building ESP-IDF components for target esp32p4
-NOTICE: Using component placed at C:\esp\Treadmill\common_components\esp32_p4_function_ev_board for dependency "espressif/esp32_p4_function_ev_board"(introduced by component "bsp_extra")
-NOTICE: Using component placed at C:\esp\Treadmill\common_components\esp_lcd_jd9365 for dependency "esp_lcd_jd9365"(introduced by component "esp32_p4_function_ev_board")
-NOTICE: Using component placed at C:\esp\Treadmill\common_components\esp_lcd_touch_gsl3680 for dependency "esp_lcd_touch_gsl3680"(introduced by component "esp32_p4_function_ev_board")
-NOTICE: Using component placed at C:\esp\Treadmill\Consola\components\espressif__esp_lvgl_port for dependency "espressif/esp_lvgl_port", specified in C:\esp\Treadmill\Consola\main\idf_component.yml
-NOTICE: Using component placed at C:\esp\Treadmill\common_components\esp32_p4_function_ev_board for dependency "espressif/esp32_p4_function_ev_board", specified in C:\esp\Treadmill\common_components\bsp_extra\idf_component.yml
-NOTICE: Using component placed at C:\esp\Treadmill\common_components\esp_lcd_jd9365 for dependency "esp_lcd_jd9365"(introduced by component "espressif/esp32_p4_function_ev_board"), specified in C:\esp\Treadmill\common_components\bsp_extra\idf_component.yml
-NOTICE: Using component placed at C:\esp\Treadmill\common_components\esp_lcd_touch_gsl3680 for dependency "esp_lcd_touch_gsl3680"(introduced by component "espressif/esp32_p4_function_ev_board"), specified in C:\esp\Treadmill\common_components\bsp_extra\idf_component.yml
-NOTICE: Using component placed at C:\esp\Treadmill\Consola\components\espressif__esp_lvgl_port for dependency "espressif/esp_lvgl_port"(introduced by component "espressif/esp32_p4_function_ev_board"), specified in C:\esp\Treadmill\common_components\bsp_extra\idf_component.yml
-NOTICE: Using component placed at C:\esp\Treadmill\common_components\esp_lcd_jd9365 for dependency "esp_lcd_jd9365", specified in C:\esp\Treadmill\common_components\esp32_p4_function_ev_board\idf_component.yml
-NOTICE: Using component placed at C:\esp\Treadmill\common_components\esp_lcd_touch_gsl3680 for dependency "esp_lcd_touch_gsl3680", specified in C:\esp\Treadmill\common_components\esp32_p4_function_ev_board\idf_component.yml
-NOTICE: Using component placed at C:\esp\Treadmill\Consola\components\espressif__esp_lvgl_port for dependency "espressif/esp_lvgl_port", specified in C:\esp\Treadmill\common_components\esp32_p4_function_ev_board\idf_component.yml
-NOTICE: Processing 17 dependencies:
-NOTICE: [1/17] chmorgan/esp-audio-player (1.0.7)
-NOTICE: [2/17] chmorgan/esp-file-iterator (1.0.0)
-NOTICE: [3/17] chmorgan/esp-libhelix-mp3 (1.0.3)
-NOTICE: [4/17] espressif/cmake_utilities (0.5.3)
-NOTICE: [5/17] espressif/eppp_link (1.1.3)
-NOTICE: [6/17] espressif/esp_codec_dev (1.3.2)
-NOTICE: [7/17] espressif/esp_hosted (2.6.1)
-NOTICE: [8/17] espressif/esp_lcd_ek79007 (1.0.4)
-NOTICE: [9/17] espressif/esp_lcd_ili9881c (1.0.2)
-NOTICE: [10/17] espressif/esp_lcd_touch (1.1.2)
-NOTICE: [11/17] espressif/esp_lcd_touch_gt911 (1.1.3)
-NOTICE: [12/17] espressif/esp_lvgl_port (2.6.2) (C:\esp\Treadmill\Consola\components\espressif__esp_lvgl_port)
-NOTICE: [13/17] espressif/esp_serial_slave_link (1.1.1~1)
-NOTICE: [14/17] espressif/esp_wifi_remote (1.1.5)
-NOTICE: [15/17] espressif/wifi_remote_over_eppp (0.2.1)
-NOTICE: [16/17] lvgl/lvgl (8.4.0)
-NOTICE: [17/17] idf (5.5.1)
--- Project sdkconfig file C:/esp/Treadmill/Consola/sdkconfig
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/riscv/ld/rom.api.ld
--- USING O3
--- App "lvgl_demo_v8" version: 8c2518a
--- Adding linker script C:/esp/Treadmill/Consola/build/esp-idf/esp_system/ld/memory.ld
--- Adding linker script C:/esp/Treadmill/Consola/build/esp-idf/esp_system/ld/sections.ld.in
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.api.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.rvfp.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.wdt.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.systimer.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.version.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.libc.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.libc-suboptimal_for_misaligned_mem.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom/esp32p4/ld/esp32p4.rom.newlib.ld
--- Adding linker script C:/Espressif/frameworks/esp-idf-v5.5.1/components/soc/esp32p4/ld/esp32p4.peripherals.ld
--- Using Hosted Wi-Fi
--- ********** Configuring LWIP for network split mode with custom hook **********
--- LVGL version: 8.4.0
--- ESP_LCD_JD9365: 1.0.2
--- ESP_LCD_EK79007: 1.0.4
--- ESP_LCD_JD9165: 1.0.2
--- Component idf::espressif__esp_hosted will be linked with -Wl,--whole-archive
--- Components: app_trace app_update bootloader bootloader_support bsp_extra bt chmorgan__esp-audio-player chmorgan__esp-file-iterator chmorgan__esp-libhelix-mp3 cm_protocol cmock console cxx driver efuse esp-tls esp32_p4_function_ev_board esp_adc esp_app_format esp_bootloader_format esp_coex esp_common esp_driver_ana_cmpr esp_driver_bitscrambler esp_driver_cam esp_driver_dac esp_driver_gpio esp_driver_gptimer esp_driver_i2c esp_driver_i2s esp_driver_isp esp_driver_jpeg esp_driver_ledc esp_driver_mcpwm esp_driver_parlio esp_driver_pcnt esp_driver_ppa esp_driver_rmt esp_driver_sdio esp_driver_sdm esp_driver_sdmmc esp_driver_sdspi esp_driver_spi esp_driver_touch_sens esp_driver_tsens esp_driver_twai esp_driver_uart esp_driver_usb_serial_jtag esp_eth esp_event esp_gdbstub esp_hid esp_http_client esp_http_server esp_https_ota esp_https_server esp_hw_support esp_lcd esp_lcd_jd9365 esp_lcd_touch_gsl3680 esp_local_ctrl esp_mm esp_netif esp_netif_stack esp_partition esp_phy esp_pm esp_psram esp_ringbuf esp_rom esp_security esp_system esp_timer esp_vfs_console esp_wifi espcoredump espressif__cmake_utilities espressif__eppp_link espressif__esp_codec_dev espressif__esp_hosted espressif__esp_lcd_ek79007 espressif__esp_lcd_ili9881c espressif__esp_lcd_jd9165 espressif__esp_lcd_touch espressif__esp_lcd_touch_gt911 espressif__esp_lvgl_port espressif__esp_serial_slave_link espressif__esp_wifi_remote espressif__wifi_remote_over_eppp esptool_py fatfs freertos hal heap http_parser idf_test ieee802154 json log lvgl__lvgl lwip main mbedtls mqtt newlib nvs_flash nvs_sec_provider openthread partition_table protobuf-c protocomm pthread riscv rt sdmmc soc spi_flash spiffs tcp_transport ulp unity usb vfs wear_levelling wifi_provisioning wpa_supplicant
--- Component paths: C:/Espressif/frameworks/esp-idf-v5.5.1/components/app_trace C:/Espressif/frameworks/esp-idf-v5.5.1/components/app_update C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support C:/esp/Treadmill/common_components/bsp_extra C:/Espressif/frameworks/esp-idf-v5.5.1/components/bt C:/esp/Treadmill/Consola/managed_components/chmorgan__esp-audio-player C:/esp/Treadmill/Consola/managed_components/chmorgan__esp-file-iterator C:/esp/Treadmill/Consola/managed_components/chmorgan__esp-libhelix-mp3 C:/esp/Treadmill/common_components/cm_protocol C:/Espressif/frameworks/esp-idf-v5.5.1/components/cmock C:/Espressif/frameworks/esp-idf-v5.5.1/components/console C:/Espressif/frameworks/esp-idf-v5.5.1/components/cxx C:/Espressif/frameworks/esp-idf-v5.5.1/components/driver C:/Espressif/frameworks/esp-idf-v5.5.1/components/efuse C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp-tls C:/esp/Treadmill/common_components/esp32_p4_function_ev_board C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_adc C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_app_format C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_bootloader_format C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_coex C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_common C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_ana_cmpr C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_bitscrambler C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_cam C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_dac C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_gpio C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_gptimer C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_i2c C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_i2s C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_isp C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_jpeg C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_ledc C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_mcpwm C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_parlio C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_pcnt C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_ppa C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_rmt C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_sdio C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_sdm C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_sdmmc C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_sdspi C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_spi C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_touch_sens C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_tsens C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_twai C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_uart C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_driver_usb_serial_jtag C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_eth C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_event C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_gdbstub C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hid C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_http_client C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_http_server C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_https_ota C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_https_server C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_lcd C:/esp/Treadmill/common_components/esp_lcd_jd9365 C:/esp/Treadmill/common_components/esp_lcd_touch_gsl3680 C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_local_ctrl C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_mm C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_netif C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_netif_stack C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_partition C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_phy C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_pm C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_psram C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_ringbuf C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_rom C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_security C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_timer C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_vfs_console C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_wifi C:/Espressif/frameworks/esp-idf-v5.5.1/components/espcoredump C:/esp/Treadmill/Consola/managed_components/espressif__cmake_utilities C:/esp/Treadmill/Consola/managed_components/espressif__eppp_link C:/esp/Treadmill/Consola/managed_components/espressif__esp_codec_dev C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted C:/esp/Treadmill/Consola/managed_components/espressif__esp_lcd_ek79007 C:/esp/Treadmill/Consola/managed_components/espressif__esp_lcd_ili9881c C:/esp/Treadmill/common_components/espressif__esp_lcd_jd9165 C:/esp/Treadmill/Consola/managed_components/espressif__esp_lcd_touch C:/esp/Treadmill/Consola/managed_components/espressif__esp_lcd_touch_gt911 C:/esp/Treadmill/Consola/components/espressif__esp_lvgl_port C:/esp/Treadmill/Consola/managed_components/espressif__esp_serial_slave_link C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote C:/esp/Treadmill/Consola/managed_components/espressif__wifi_remote_over_eppp C:/Espressif/frameworks/esp-idf-v5.5.1/components/esptool_py C:/Espressif/frameworks/esp-idf-v5.5.1/components/fatfs C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos C:/Espressif/frameworks/esp-idf-v5.5.1/components/hal C:/Espressif/frameworks/esp-idf-v5.5.1/components/heap C:/Espressif/frameworks/esp-idf-v5.5.1/components/http_parser C:/Espressif/frameworks/esp-idf-v5.5.1/components/idf_test C:/Espressif/frameworks/esp-idf-v5.5.1/components/ieee802154 C:/Espressif/frameworks/esp-idf-v5.5.1/components/json C:/Espressif/frameworks/esp-idf-v5.5.1/components/log C:/esp/Treadmill/Consola/managed_components/lvgl__lvgl C:/Espressif/frameworks/esp-idf-v5.5.1/components/lwip C:/esp/Treadmill/Consola/main C:/Espressif/frameworks/esp-idf-v5.5.1/components/mbedtls C:/Espressif/frameworks/esp-idf-v5.5.1/components/mqtt C:/Espressif/frameworks/esp-idf-v5.5.1/components/newlib C:/Espressif/frameworks/esp-idf-v5.5.1/components/nvs_flash C:/Espressif/frameworks/esp-idf-v5.5.1/components/nvs_sec_provider C:/Espressif/frameworks/esp-idf-v5.5.1/components/openthread C:/Espressif/frameworks/esp-idf-v5.5.1/components/partition_table C:/Espressif/frameworks/esp-idf-v5.5.1/components/protobuf-c C:/Espressif/frameworks/esp-idf-v5.5.1/components/protocomm C:/Espressif/frameworks/esp-idf-v5.5.1/components/pthread C:/Espressif/frameworks/esp-idf-v5.5.1/components/riscv C:/Espressif/frameworks/esp-idf-v5.5.1/components/rt C:/Espressif/frameworks/esp-idf-v5.5.1/components/sdmmc C:/Espressif/frameworks/esp-idf-v5.5.1/components/soc C:/Espressif/frameworks/esp-idf-v5.5.1/components/spi_flash C:/Espressif/frameworks/esp-idf-v5.5.1/components/spiffs C:/Espressif/frameworks/esp-idf-v5.5.1/components/tcp_transport C:/Espressif/frameworks/esp-idf-v5.5.1/components/ulp C:/Espressif/frameworks/esp-idf-v5.5.1/components/unity C:/Espressif/frameworks/esp-idf-v5.5.1/components/usb C:/Espressif/frameworks/esp-idf-v5.5.1/components/vfs C:/Espressif/frameworks/esp-idf-v5.5.1/components/wear_levelling C:/Espressif/frameworks/esp-idf-v5.5.1/components/wifi_provisioning C:/Espressif/frameworks/esp-idf-v5.5.1/components/wpa_supplicant
--- Configuring done (23.1s)
--- Generating done (1.7s)
--- Build files have been written to: C:/esp/Treadmill/Consola/build
-[1/1] C:\WINDOWS\system32\cmd.exe /C...ola/build/bootloader/bootloader.bin"
-Bootloader binary size 0x5c20 bytes. 0x3e0 bytes (4%) free.
-[10/13] Generating binary image from built executable
-esptool.py v4.10.0
-Creating esp32p4 image...
-Merged 3 ELF sections
-Successfully created esp32p4 image.
-Generated C:/esp/Treadmill/Consola/build/lvgl_demo_v8.bin
-[11/13] C:\WINDOWS\system32\cmd.exe ...mill/Consola/build/lvgl_demo_v8.bin"
-lvgl_demo_v8.bin binary size 0x1cab50 bytes. Smallest app partition is 0x800000 bytes. 0x6354b0 bytes (78%) free.
-[11/13] C:\WINDOWS\system32\cmd.exe ...ts/esptool_py/run_serial_tool.cmake"
-esptool.py --chip esp32p4 -p COM4 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 80m --flash_size 16MB 0x2000 bootloader/bootloader.bin 0x10000 lvgl_demo_v8.bin 0x8000 partition_table/partition-table.bin
-esptool.py v4.10.0
-Serial port COM4
-Connecting....
-Chip is ESP32-P4 (revision v1.0)
-Features: High-Performance MCU
-Crystal is 40MHz
-MAC: 30:ed:a0:e1:9f:b7
-Uploading stub...
-Running stub...
-Stub running...
-Changing baud rate to 460800
-Changed.
-Configuring flash size...
-Flash will be erased from 0x00002000 to 0x00007fff...
-Flash will be erased from 0x00010000 to 0x001dafff...
-Flash will be erased from 0x00008000 to 0x00008fff...
-SHA digest in image updated
-Compressed 23584 bytes to 14457...
-Writing at 0x00002000... (100 %)
-Wrote 23584 bytes (14457 compressed) at 0x00002000 in 0.8 seconds (effective 235.0 kbit/s)...
-Hash of data verified.
-Compressed 1878864 bytes to 991063...
-Writing at 0x00010000... (1 %)
-Writing at 0x0001f576... (3 %)
-Writing at 0x0002bc7c... (4 %)
-Writing at 0x0003974c... (6 %)
-Writing at 0x000471bc... (8 %)
-Writing at 0x00057161... (9 %)
-Writing at 0x0005f83d... (11 %)
-Writing at 0x00068bad... (13 %)
-Writing at 0x00075046... (14 %)
-Writing at 0x0008220c... (16 %)
-Writing at 0x00090263... (18 %)
-Writing at 0x0009fdc1... (19 %)
-Writing at 0x000a9009... (21 %)
-Writing at 0x000b0cca... (22 %)
-Writing at 0x000b6ce5... (24 %)
-Writing at 0x000bd344... (26 %)
-Writing at 0x000c569d... (27 %)
-Writing at 0x000cd2fd... (29 %)
-Writing at 0x000d5201... (31 %)
-Writing at 0x000dc049... (32 %)
-Writing at 0x000e2b90... (34 %)
-Writing at 0x000e89bf... (36 %)
-Writing at 0x000ee4be... (37 %)
-Writing at 0x000f3b28... (39 %)
-Writing at 0x000f91d1... (40 %)
-Writing at 0x000fec10... (42 %)
-Writing at 0x00105a45... (44 %)
-Writing at 0x0010bda4... (45 %)
-Writing at 0x00111268... (47 %)
-Writing at 0x00116b0f... (49 %)
-Writing at 0x0011c5e7... (50 %)
-Writing at 0x00123468... (52 %)
-Writing at 0x00128d4b... (54 %)
-Writing at 0x0012ecab... (55 %)
-Writing at 0x00134df4... (57 %)
-Writing at 0x0013a7a1... (59 %)
-Writing at 0x00140d48... (60 %)
-Writing at 0x00146cc2... (62 %)
-Writing at 0x0014da3c... (63 %)
-Writing at 0x00153b86... (65 %)
-Writing at 0x00159b04... (67 %)
-Writing at 0x00160fd5... (68 %)
-Writing at 0x001677a6... (70 %)
-Writing at 0x0016dba1... (72 %)
-Writing at 0x00173618... (73 %)
-Writing at 0x0017906d... (75 %)
-Writing at 0x0017ec07... (77 %)
-Writing at 0x00184718... (78 %)
-Writing at 0x0018b274... (80 %)
-Writing at 0x00190886... (81 %)
-Writing at 0x001960e4... (83 %)
-Writing at 0x0019bc40... (85 %)
-Writing at 0x001a2b74... (86 %)
-Writing at 0x001a9237... (88 %)
-Writing at 0x001b027d... (90 %)
-Writing at 0x001b6d7e... (91 %)
-Writing at 0x001bceaa... (93 %)
-Writing at 0x001c2597... (95 %)
-Writing at 0x001c8636... (96 %)
-Writing at 0x001ceb29... (98 %)
-Writing at 0x001d4f61... (100 %)
-Wrote 1878864 bytes (991063 compressed) at 0x00010000 in 29.8 seconds (effective 504.4 kbit/s)...
-Hash of data verified.
-Compressed 3072 bytes to 120...
-Writing at 0x00008000... (100 %)
-Wrote 3072 bytes (120 compressed) at 0x00008000 in 0.1 seconds (effective 306.6 kbit/s)...
-Hash of data verified.
+C:\esp\Treadmill\Base>idf.py -p COM3 monitor
+Executing action: monitor
+Running idf_monitor in directory C:\esp\Treadmill\Base
+Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM3 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 C:\esp\Treadmill\Base\build\sala_maquinas.elf C:\esp\Treadmill\Base\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM3'"...
+--- Warning: GDB cannot open serial ports accessed as COMx
+--- Using \\.\COM3 instead...
+--- esp-idf-monitor 1.8.0 on \\.\COM3 115200
+--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
+cline: 0.0/0.0 %
+ets Jul 29 2019 12:21:46
 
-Leaving...
-Hard resetting via RTS pin...
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+con ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6380
+ho 0 tail 12 room 4
+load:0x40078000,len:15916
+load:0x40080400,len:3860
+--- 0x40080400: _invalid_pc_placeholder at C:/Espressif/frameworks/esp-idf-v5.5.1/components/xtensa/xtensa_vectors.S:2235
+entry 0x40080638
+--- 0x40080638: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
+I (29) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader
+I (29) boot: compile time Nov 10 2025 09:23:01
+I (29) boot: Multicore bootloader
+I (31) boot: chip revision: v3.1
+I (34) boot.esp32: SPI Speed      : 40MHz
+I (38) boot.esp32: SPI Mode       : DIO
+I (41) boot.esp32: SPI Flash Size : 4MB
+I (45) boot: Enabling RNG early entropy source...
+I (49) boot: Partition Table:
+I (52) boot: ## Label            Usage          Type ST Offset   Length
+I (58) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (65) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (71) boot:  2 factory          factory app      00 00 00010000 00100000
+I (78) boot: End of partition table
+I (81) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=103d4h ( 66516) map
+I (111) esp_image: segment 1: paddr=000203fc vaddr=3ffb0000 size=023d8h (  9176) load
+I (115) esp_image: segment 2: paddr=000227dc vaddr=40080000 size=0d7c0h ( 55232) load
+I (137) esp_image: segment 3: paddr=0002ffa4 vaddr=50000000 size=00020h (    32) load
+I (137) esp_image: segment 4: paddr=0002ffcc vaddr=00000000 size=0004ch (    76)
+I (140) esp_image: segment 5: paddr=00030020 vaddr=400d0020 size=2386ch (145516) map
+I (204) boot: Loaded app from partition at offset 0x10000
+I (204) boot: Disabling RNG early entropy source...
+I (214) cpu_start: Multicore app
+I (223) cpu_start: Pro cpu start user code
+I (223) cpu_start: cpu freq: 160000000 Hz
+I (223) app_init: Application information:
+I (226) app_init: Project name:     sala_maquinas
+I (231) app_init: App version:      8898ce4
+I (236) app_init: Compile time:     Nov 10 2025 13:12:18
+I (242) app_init: ELF file SHA256:  29661a8f2...
+I (247) app_init: ESP-IDF:          v5.5.1-dirty
+I (253) efuse_init: Min chip rev:     v0.0
+I (257) efuse_init: Max chip rev:     v3.99
+I (262) efuse_init: Chip rev:         v3.1
+I (267) heap_init: Initializing. RAM available for dynamic allocation:
+I (274) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (280) heap_init: At 3FFB2D40 len 0002D2C0 (180 KiB): DRAM
+I (287) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (293) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (299) heap_init: At 4008D7C0 len 00012840 (74 KiB): IRAM
+W (307) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
+I (320) spi_flash: detected chip: generic
+I (324) spi_flash: flash io: dio
+I (329) main_task: Started on CPU0
+I (333) main_task: Calling app_main()
+I (336) SLAVE: ==============================================
+I (343) SLAVE:   Sala de Maquinas - Sistema Esclavo
+I (348) SLAVE:   PROTOCOLO: ASCII Simple (UART Direct)
+I (354) SLAVE: ==============================================
+E (369) gpio: gpio_pullup_en(78): GPIO number error (input-only pad has no internal PU)
+I (370) SLAVE: GPIO 35 configurado con pull-up (fin de carrera anulado)
+I (376) SLAVE: GPIOs configurados. Asignación v5 (Sensores en 34, 35).
+I (384) SLAVE: Temporizador de bomba de cera creado.
+I (389) SPEED_SENSOR: Inicializando sensor de velocidad (PCNT) en GPIO 15
+I (397) SPEED_SENSOR: GPIO 15 configurado con pull-down para evitar ruido
+I (405) SPEED_SENSOR: Sensor de velocidad (PCNT) inicializado y contando.
+I (412) SLAVE: Configurando UART para RS485...
+I (418) SLAVE: UART1 configurado: 115200 baud, TX=17, RX=16
+I (423) SLAVE: Tarea UART RX iniciada (modo ASCII). Escuchando en UART1...
+I (431) SLAVE: Tarea UART RX creada
+I (435) VFD_DRIVER_MODBUS: Inicializando driver Modbus Master...
+I (443) uart: queue free spaces: 20
+I (446) mb_port.serial: mbm_rtu@0x3ffb8038, suspend port from task.
+I (553) VFD_DRIVER_MODBUS: Modbus Master inicializado en UART2 (TX:19, RX:18, 9600 bps)
+I (553) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+I (559) VFD_DRIVER_MODBUS: VFD Driver (Modbus Real) inicializado. Tarea creada.
+I (566) SLAVE: Controlador VFD (real) inicializado
+I (572) SLAVE: Tarea de actualización de velocidad iniciada
+I (578) SLAVE: Tarea de actualización de velocidad creada
+I (584) SLAVE: Tarea de control de inclinación iniciada
+I (590) SLAVE: Tarea de control de inclinación creada
+I (596) SLAVE: Tarea de watchdog iniciada (Timeout: 0 ms)
+I (602) SLAVE: Tarea de watchdog creada (timeout: 1000ms)
+I (608) SLAVE: Sistema iniciado correctamente
+I (613) SLAVE: Esperando comandos del Maestro...
+I (640) SLAVE: Homing de inclinación completado (sin sensor).
+E (1567) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (1569) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (1577) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (1584) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+E (3802) SLAVE: ¡WATCHDOG TIMEOUT! No se recibió comando en 0 ms
+W (3802) SLAVE: ⚠️ ENTERING SAFE STATE - Communication lost or emergency stop
+I (6592) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+E (7600) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (7601) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (7609) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (7617) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+I (9436) SLAVE: ✅ SAFE STATE reset. Communication restored.
+W (9436) SLAVE: Comando desconocido: "b@P# @SET_SPEED=0.00
+I (9438) SLAVE: SET_INCLINE: 0.0%
+I (10619) SLAVE: Heartbeat #0 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %
+I (12624) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+E (13632) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (13633) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (13642) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (13649) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+I (18656) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+E (19664) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (19665) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (19674) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (19681) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+I (20619) SLAVE: Heartbeat #1 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %
+I (23934) SLAVE: SET_INCLINE: 0.1%
+I (24688) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+I (24734) SLAVE: SET_INCLINE: 0.2%
+I (25483) SLAVE: SET_INCLINE: 0.3%
+E (25696) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (25697) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (25706) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (25713) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+I (26183) SLAVE: SET_INCLINE: 0.4%
+I (30619) SLAVE: Heartbeat #2 - Speed: 0.00/0.00 km/h, Incline: 0.3/0.4 %
+I (30720) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+E (31729) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (31729) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (31738) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (31745) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+
+
+C:\esp\Treadmill\Base>
+
+
+
+
+
+
+C:\esp\Treadmill\Consola>idf.py -p COM4 monitor
 Executing action: monitor
 Running idf_monitor in directory C:\esp\Treadmill\Consola
 Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM4 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 1 --decode-panic backtrace C:\esp\Treadmill\Consola\build\lvgl_demo_v8.elf C:\esp\Treadmill\Consola\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM4'"...
@@ -187,7 +252,7 @@ load:0x4ff2cbd0,len:0x345c
 entry 0x4ff29eda
 --- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
 I (25) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader
-I (26) boot: compile time Nov 10 2025 11:06:29
+I (26) boot: compile time Nov 10 2025 13:07:30
 I (26) boot: Multicore bootloader
 I (28) boot: chip revision: v1.0
 I (29) boot: efuse block revision: v0.3
@@ -232,15 +297,15 @@ I (674) mmu_psram: .rodata xip on psram
 I (726) mmu_psram: .text xip on psram
 I (727) hex_psram: psram CS IO is dedicated
 I (727) cpu_start: Multicore app
-I (1179) esp_psram: SPI SRAM memory test OK
+I (1178) esp_psram: SPI SRAM memory test OK
 I (1187) cpu_start: Pro cpu start user code
 I (1187) cpu_start: cpu freq: 360000000 Hz
-I (1188) app_init: Application information:
+I (1187) app_init: Application information:
 I (1188) app_init: Project name:     lvgl_demo_v8
-I (1192) app_init: App version:      8c2518a
-I (1196) app_init: Compile time:     Nov 10 2025 12:59:20
-I (1201) app_init: ELF file SHA256:  c79b9e111...
-I (1206) app_init: ESP-IDF:          v5.5.1-dirty
+I (1192) app_init: App version:      8898ce4
+I (1196) app_init: Compile time:     Nov 10 2025 13:07:15
+I (1201) app_init: ELF file SHA256:  c1a8ca06c...
+I (1205) app_init: ESP-IDF:          v5.5.1-dirty
 I (1210) efuse_init: Min chip rev:     v0.1
 I (1214) efuse_init: Max chip rev:     v1.99
 I (1218) efuse_init: Chip rev:         v1.0
@@ -288,21 +353,21 @@ I (2770) gsl3680: enter
 I (2780) gsl_point_id: gsl_DataInit
 I (2780) ESP32_P4_EV: Setting LCD backlight: 100%
 I (2780) UI: Loaded wax counter from NVS: 6540 seconds
-I (2906) Audio: Inicializando altavoz...
+I (2905) Audio: Inicializando altavoz...
 I (2911) ES8311: Work in Slave mode
-I (3024) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
+I (3023) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
 I (3024) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
-I (3057) Adev_Codec: Open codec device OK
-I (3080) Audio: Buffer de pitido generado (4410 bytes)
-I (3080) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
-I (3081) NIMBLE_BLE_CLIENT: Initializing BLE Client for ESP-Hosted...
-I (3081) ButtonHandler: MCP23017 configurado para los botones.
-I (3091) transport: Attempt connection with slave: retry[0]
-W (3097) H_SDIO_DRV: Reset slave using GPIO[54]
-I (3101) os_wrapper_esp: GPIO [54] configured
-I (4307) sdio_wrapper: SDIO master: Slot 1, Data-Lines: 4-bit Freq(KHz)[20000 KHz]
-I (4307) sdio_wrapper: GPIOs: CLK[18] CMD[19] D0[14] D1[15] D2[16] D3[17] Slave_Reset[54]
-I (4311) sdio_wrapper: Queues: Tx[20] Rx[20] SDIO-Rx-Mode[1]
+I (3055) Adev_Codec: Open codec device OK
+I (3078) Audio: Buffer de pitido generado (4410 bytes)
+I (3078) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
+I (3079) NIMBLE_BLE_CLIENT: Initializing BLE Client for ESP-Hosted...
+I (3080) ButtonHandler: MCP23017 configurado para los botones.
+I (3090) transport: Attempt connection with slave: retry[0]
+W (3095) H_SDIO_DRV: Reset slave using GPIO[54]
+I (3099) os_wrapper_esp: GPIO [54] configured
+I (4305) sdio_wrapper: SDIO master: Slot 1, Data-Lines: 4-bit Freq(KHz)[20000 KHz]
+I (4305) sdio_wrapper: GPIOs: CLK[18] CMD[19] D0[14] D1[15] D2[16] D3[17] Slave_Reset[54]
+I (4309) sdio_wrapper: Queues: Tx[20] Rx[20] SDIO-Rx-Mode[1]
 Name:
 Type: SDIO
 Speed: 20.00 MHz (limit: 20.00 MHz)
@@ -322,15 +387,15 @@ TUPLE: CFTABLE_ENTRY, size: 8
   IR: 30, mask: 1,   IRQ: FF FF
   LEN: FFFF
 TUPLE: END
-I (4388) sdio_wrapper: Function 0 Blocksize: 512
-I (4393) sdio_wrapper: Function 1 Blocksize: 512
-I (4397) H_SDIO_DRV: Card init success, TRANSPORT_RX_ACTIVE
-I (4402) transport: set_transport_state: 1
-I (4406) transport: Waiting for esp_hosted slave to be ready
+I (4392) sdio_wrapper: Function 0 Blocksize: 512
+I (4397) sdio_wrapper: Function 1 Blocksize: 512
+I (4401) H_SDIO_DRV: Card init success, TRANSPORT_RX_ACTIVE
+I (4406) transport: set_transport_state: 1
+I (4410) transport: Waiting for esp_hosted slave to be ready
 I (4431) H_SDIO_DRV: SDIO Host operating in STREAMING MODE
 I (4431) H_SDIO_DRV: Open data path at slave
 I (4431) H_SDIO_DRV: Starting SDIO process rx task
-I (4436) H_SDIO_DRV: Received ESP_PRIV_IF type message
+I (4434) H_SDIO_DRV: Received ESP_PRIV_IF type message
 I (4438) transport: Received INIT event from ESP32 peripheral
 I (4444) transport: EVENT: 12
 I (4446) transport: Identified slave [esp32c6]
@@ -368,117 +433,100 @@ I (4573) vhci_drv:      BT Transport Type: VHCI
 I (4576) H_SDIO_DRV: Received INIT event
 I (4580) H_SDIO_DRV: Event type: 0x22
 I (4583) H_SDIO_DRV: Write thread started
-I (4611) NIMBLE_BLE_CLIENT: BLE Host Task Started
-I (4611) NIMBLE_BLE_CLIENT: BLE Client initialization complete.
-I (4611) WIFI_CLIENT: Initializing WiFi Client...
-I (4617) transport: Attempt connection with slave: retry[0]
-I (4620) transport: Transport is already up
-I (4621) NimBLE: GAP procedure initiated: stop advertising.
+I (4615) NIMBLE_BLE_CLIENT: BLE Host Task Started
+I (4615) NIMBLE_BLE_CLIENT: BLE Client initialization complete.
+I (4615) WIFI_CLIENT: Initializing WiFi Client...
+I (4621) transport: Attempt connection with slave: retry[0]
+I (4624) transport: Transport is already up
+I (4625) NimBLE: GAP procedure initiated: stop advertising.
 
-I (4631) NimBLE: Failed to restore IRKs from store; status=8
+I (4635) NimBLE: Failed to restore IRKs from store; status=8
 
-I (4634) NIMBLE_BLE_CLIENT: BLE Host synced.
-I (4639) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
-I (4645) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-I (4653) NimBLE: GAP procedure initiated: connect;
-I (4658) NimBLE: peer_addr_type=1 peer_addr=
-I (4662) NimBLE: ed:67:b1:95:9b:28
-I (4665) NimBLE:  scan_itvl=16 scan_window=16 itvl_min=24 itvl_max=40 latency=0 supervision_timeout=256 min_ce_len=0 max_ce_len=0 own_addr_type=0
-I (4678) NimBLE:
+I (4638) NIMBLE_BLE_CLIENT: BLE Host synced.
+I (4643) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
+I (4649) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
+I (4657) NimBLE: GAP procedure initiated: connect;
+I (4662) NimBLE: peer_addr_type=1 peer_addr=
+I (4666) NimBLE: ed:67:b1:95:9b:28
+I (4669) NimBLE:  scan_itvl=16 scan_window=16 itvl_min=24 itvl_max=40 latency=0 supervision_timeout=256 min_ce_len=0 max_ce_len=0 own_addr_type=0
+I (4682) NimBLE:
 
-I (4682) NIMBLE_BLE_CLIENT: BLE reconnect task started
-I (4682) NIMBLE_BLE_CLIENT: Reconnect task started
-I (4963) NIMBLE_BLE_CLIENT: Connection established; conn_handle=0
-I (4963) NIMBLE_BLE_CLIENT: Saved device address to NVS.
-I (4963) NimBLE: GATT procedure initiated: discover all services
-
-I (5064) NIMBLE_BLE_CLIENT: Found Heart Rate Service. Discovering characteristics...
-I (5064) NimBLE: GATT procedure initiated: discover all characteristics;
-I (5067) NimBLE: start_handle=11 end_handle=16
-
-I (5114) NIMBLE_BLE_CLIENT: Found Heart Rate Measurement characteristic.
-I (5114) NimBLE: GATT procedure initiated: discover all descriptors;
-I (5116) NimBLE: chr_val_handle=13 end_handle=65535
-
-I (5214) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
-I (5214) NimBLE: GATT procedure initiated: write;
-I (5215) NimBLE: att_handle=14 len=2
-
+I (4686) NIMBLE_BLE_CLIENT: BLE reconnect task started
+I (4686) NIMBLE_BLE_CLIENT: Reconnect task started
 I (5331) RPC_WRAP: --- ESP Event: Slave ESP Init ---
-I (5538) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
-I (5538) NimBLE: GATT procedure initiated: write;
-I (5539) NimBLE: att_handle=20 len=2
-
-I (5543) WIFI_CLIENT: wifi_init_sta finished.
+I (5539) WIFI_CLIENT: wifi_init_sta finished.
+I (5539) CM_MASTER: Inicializando CM Master (Protocolo ASCII)...
+I (5539) CM_MASTER: UART1 configurado: 115200 baud, TX=4, RX=5
+I (5543) CM_MASTER: Iniciando tareas del maestro...
 I (5546) RPC_WRAP: ESP Event: wifi station started
-I (5551) CM_MASTER: Inicializando CM Master (Protocolo ASCII)...
-I (5557) CM_MASTER: UART1 configurado: 115200 baud, TX=4, RX=5
-I (5562) CM_MASTER: Iniciando tareas del maestro...
-I (5567) CM_MASTER: Tarea UART RX iniciada (modo ASCII)
-I (5572) CM_MASTER: Tarea maestro iniciada
-I (5576) CM_MASTER: Tareas del maestro creadas correctamente
-I (5581) MainApp: Inicialización completa.
-I (5585) main_task: Returned from app_main()
-I (5771) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
-I (5771) NimBLE: GATT procedure initiated: write;
-I (5771) NimBLE: att_handle=23 len=2
+I (5552) CM_MASTER: Tarea UART RX iniciada (modo ASCII)
+I (5557) CM_MASTER: Tarea maestro iniciada
+I (5561) CM_MASTER: Tareas del maestro creadas correctamente
+I (5566) MainApp: Inicialización completa.
+I (5570) main_task: Returned from app_main()
+I (5671) WIFI_CLIENT: WIFI_EVENT_STA_START: Initializing connection process.
+I (5671) WIFI_MANAGER: Found 2 saved SSIDs in order
+I (5671) WIFI_CLIENT: Attempting to connect to MOVISTAR_4B85 (1/2)
+I (5677) WIFI_MANAGER: Credentials loaded for SSID: MOVISTAR_4B85
+I (5828) H_API: esp_wifi_remote_connect
+W (5845) rpc_rsp: Hosted RPC_Resp [0x21a], uid [7], resp code [12295]
+W (6621) CM_MASTER: ACK recibido: ERROR,UNKNOWN_CMD
+I (8024) NIMBLE_BLE_CLIENT: Connection established; conn_handle=0
+I (8024) NIMBLE_BLE_CLIENT: Saved device address to NVS.
+I (8025) NimBLE: GATT procedure initiated: discover all services
 
-I (5775) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
-I (5782) NimBLE: GATT procedure initiated: write;
-I (5787) NimBLE: att_handle=27 len=2
+I (8225) NIMBLE_BLE_CLIENT: Found Heart Rate Service. Discovering characteristics...
+I (8225) NimBLE: GATT procedure initiated: discover all characteristics;
+I (8228) NimBLE: start_handle=11 end_handle=16
 
-I (5790) WIFI_CLIENT: WIFI_EVENT_STA_START: Initializing connection process.
-I (5797) WIFI_MANAGER: Found 2 saved SSIDs in order
-I (5802) WIFI_CLIENT: Attempting to connect to MOVISTAR_4B85 (1/2)
-I (5808) WIFI_MANAGER: Credentials loaded for SSID: MOVISTAR_4B85
-I (5841) H_API: esp_wifi_remote_connect
-W (5858) rpc_rsp: Hosted RPC_Resp [0x21a], uid [7], resp code [12295]
-W (6637) CM_MASTER: ACK recibido: ERROR,UNKNOWN_CMD
-I (9713) NimBLE: GAP procedure initiated:
-I (9713) NimBLE: connection parameter update; conn_handle=0 itvl_min=200 itvl_max=400 latency=0 supervision_timeout=400 min_ce_len=0 max_ce_len=0
-I (9718) NimBLE:
+I (8276) NIMBLE_BLE_CLIENT: Found Heart Rate Measurement characteristic.
+I (8276) NimBLE: GATT procedure initiated: discover all descriptors;
+I (8277) NimBLE: chr_val_handle=13 end_handle=65535
 
-I (11123) RPC_WRAP: ESP Event: Station mode: Connected
-I (11123) esp_wifi_remote: esp_wifi_internal_reg_rxcb: sta: 0x480bbd0e
+I (8476) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
+I (8476) NimBLE: GATT procedure initiated: write;
+I (8476) NimBLE: att_handle=14 len=2
+
+I (8875) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
+I (8876) NimBLE: GATT procedure initiated: write;
+I (8876) NimBLE: att_handle=20 len=2
+
+I (9226) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
+I (9226) NimBLE: GATT procedure initiated: write;
+I (9227) NimBLE: att_handle=23 len=2
+
+I (9231) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
+I (9238) NimBLE: GATT procedure initiated: write;
+I (9242) NimBLE: att_handle=27 len=2
+
+I (11097) RPC_WRAP: ESP Event: Station mode: Connected
+I (11097) esp_wifi_remote: esp_wifi_internal_reg_rxcb: sta: 0x480bbd0e
 --- 0x480bbd0e: wifi_sta_receive at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_wifi/src/wifi_netif.c:39
-I (14450) esp_netif_handlers: sta ip: 192.168.1.134, mask: 255.255.255.0, gw: 192.168.1.1
-I (14450) WIFI_CLIENT: Got IP address: 192.168.1.134
-I (14451) WIFI_CLIENT: wifi_connect_task: WiFi Connected
-I (14454) WIFI_MANAGER: Updated SSID order: MOVISTAR_4B85,SPOOFER
-I (14462) WIFI_CLIENT: Manually set DNS server to 8.8.8.8
-I (22956) WIFI_CONNECTIVITY: Internet connectivity confirmed.
-I (28439) ButtonHandler: Botón físico 1 pulsado
-I (28440) CM_MASTER: Inclinación objetivo: 0.0%
-I (28443) UI: Entrenamiento libre seleccionado (botón físico)
-I (31896) ButtonHandler: Botón físico 1 pulsado
-I (31896) CM_MASTER: Inclinación objetivo: 0.1%
-I (32738) ButtonHandler: Botón físico 1 pulsado
-I (32738) CM_MASTER: Inclinación objetivo: 0.2%
-I (33516) ButtonHandler: Botón físico 1 pulsado
-I (33516) CM_MASTER: Inclinación objetivo: 0.3%
-I (34251) ButtonHandler: Botón físico 1 pulsado
-I (34251) CM_MASTER: Inclinación objetivo: 0.4%
-I (35681) ButtonHandler: Botón físico 1 pulsado
-I (35681) CM_MASTER: Inclinación objetivo: 0.5%
-I (37112) ButtonHandler: Botón físico 1 pulsado
-I (37112) CM_MASTER: Inclinación objetivo: 0.6%
-I (38017) ButtonHandler: Botón físico 1 pulsado
-I (38017) CM_MASTER: Inclinación objetivo: 0.7%
-I (39174) ButtonHandler: Botón físico 1 pulsado
-I (39174) CM_MASTER: Inclinación objetivo: 0.8%
-I (40458) ButtonHandler: Botón físico 1 pulsado
-I (40458) CM_MASTER: Inclinación objetivo: 0.9%
-I (41698) ButtonHandler: Botón físico 1 pulsado
-I (41698) CM_MASTER: Inclinación objetivo: 1.0%
-I (42812) ButtonHandler: Botón físico 1 pulsado
-I (42812) CM_MASTER: Inclinación objetivo: 1.1%
-I (43864) ButtonHandler: Botón físico 1 pulsado
-I (43864) CM_MASTER: Inclinación objetivo: 1.2%
-I (44790) ButtonHandler: Botón físico 1 pulsado
-I (44790) CM_MASTER: Inclinación objetivo: 1.3%
-I (46031) ButtonHandler: Botón físico 1 pulsado
-I (46031) CM_MASTER: Inclinación objetivo: 1.4%
+I (12775) NimBLE: GAP procedure initiated:
+I (12776) NimBLE: connection parameter update; conn_handle=0 itvl_min=200 itvl_max=400 latency=0 supervision_timeout=400 min_ce_len=0 max_ce_len=0
+I (12781) NimBLE:
 
-Done
+I (14332) esp_netif_handlers: sta ip: 192.168.1.134, mask: 255.255.255.0, gw: 192.168.1.1
+I (14332) WIFI_CLIENT: Got IP address: 192.168.1.134
+I (14333) WIFI_CLIENT: wifi_connect_task: WiFi Connected
+I (14337) WIFI_MANAGER: Updated SSID order: MOVISTAR_4B85,SPOOFER
+I (14344) WIFI_CLIENT: Manually set DNS server to 8.8.8.8
+I (14452) WIFI_CONNECTIVITY: Internet connectivity confirmed.
+I (18536) ButtonHandler: Botón físico 1 pulsado
+I (18537) CM_MASTER: Inclinación objetivo: 0.0%
+I (18537) UI: Entrenamiento libre seleccionado (botón físico)
+I (21060) ButtonHandler: Botón físico 1 pulsado
+I (21061) CM_MASTER: Inclinación objetivo: 0.1%
+I (21864) ButtonHandler: Botón físico 1 pulsado
+I (21865) CM_MASTER: Inclinación objetivo: 0.2%
+I (22626) ButtonHandler: Botón físico 1 pulsado
+I (22627) CM_MASTER: Inclinación objetivo: 0.3%
+I (23347) ButtonHandler: Botón físico 1 pulsado
+I (23348) CM_MASTER: Inclinación objetivo: 0.4%
+
 
 C:\esp\Treadmill\Consola>
+
+
+
+
