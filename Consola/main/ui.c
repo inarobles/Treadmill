@@ -842,7 +842,7 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     panels.dist_label = lv_label_create(parent);
     lv_obj_add_style(panels.dist_label, &style_value_main, 0);
     lv_label_set_text(panels.dist_label, "0");
-    lv_obj_align_to(panels.dist_label, panels.time_label, LV_ALIGN_OUT_TOP_RIGHT, 7, -40);
+    lv_obj_align_to(panels.dist_label, panels.time_label, LV_ALIGN_OUT_TOP_RIGHT, -47, -40);
     lv_obj_set_width(panels.dist_label, 250);
     lv_obj_set_style_text_align(panels.dist_label, LV_TEXT_ALIGN_RIGHT, 0);
 
