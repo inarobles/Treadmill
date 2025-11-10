@@ -333,6 +333,9 @@ esp_err_t cm_master_start(void) {
 }
 
 esp_err_t cm_master_set_speed(float speed_kmh) {
+    if (g_master_mutex == NULL) {
+        return ESP_ERR_INVALID_STATE;  // No inicializado aún
+    }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     g_target_speed_kmh = speed_kmh;
     xSemaphoreGive(g_master_mutex);
@@ -342,6 +345,9 @@ esp_err_t cm_master_set_speed(float speed_kmh) {
 }
 
 esp_err_t cm_master_set_incline(float incline_pct) {
+    if (g_master_mutex == NULL) {
+        return ESP_ERR_INVALID_STATE;  // No inicializado aún
+    }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     g_target_incline_pct = incline_pct;
     xSemaphoreGive(g_master_mutex);
@@ -356,6 +362,9 @@ esp_err_t cm_master_calibrate_incline(void) {
 }
 
 bool cm_master_is_connected(void) {
+    if (g_master_mutex == NULL) {
+        return false;  // No inicializado aún
+    }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     bool connected = g_connected;
     xSemaphoreGive(g_master_mutex);
@@ -363,6 +372,9 @@ bool cm_master_is_connected(void) {
 }
 
 float cm_master_get_real_speed(void) {
+    if (g_master_mutex == NULL) {
+        return 0.0f;  // No inicializado aún
+    }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     float speed = g_real_speed_kmh;
     xSemaphoreGive(g_master_mutex);
@@ -370,6 +382,9 @@ float cm_master_get_real_speed(void) {
 }
 
 float cm_master_get_current_incline(void) {
+    if (g_master_mutex == NULL) {
+        return 0.0f;  // No inicializado aún
+    }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     float incline = g_current_incline_pct;
     xSemaphoreGive(g_master_mutex);
@@ -388,6 +403,9 @@ esp_err_t cm_master_set_fan(uint8_t fan_id, uint8_t state) {
 }
 
 uint8_t cm_master_get_head_fan_state(void) {
+    if (g_master_mutex == NULL) {
+        return 0;  // No inicializado aún
+    }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     uint8_t state = g_head_fan_state;
     xSemaphoreGive(g_master_mutex);
@@ -395,6 +413,9 @@ uint8_t cm_master_get_head_fan_state(void) {
 }
 
 uint8_t cm_master_get_chest_fan_state(void) {
+    if (g_master_mutex == NULL) {
+        return 0;  // No inicializado aún
+    }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     uint8_t state = g_chest_fan_state;
     xSemaphoreGive(g_master_mutex);
