@@ -515,8 +515,8 @@ void ui_update_task(void *pvParameter) {
                 lv_label_set_text_fmt(label_pulse, "%d", real_pulse_copy);
                 lv_label_set_text_fmt(label_pulse_set, "%d", real_pulse_copy);
             } else {
-                lv_label_set_text(label_pulse, "---");
-                lv_label_set_text(label_pulse_set, "---");
+                lv_label_set_text(label_pulse, "--");
+                lv_label_set_text(label_pulse_set, "--");
             }
             prev_pulse = current_pulse_copy;
             prev_pulse_connected = pulse_connected_copy;
@@ -877,7 +877,7 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     
     panels.pulse_label = lv_label_create(parent);
     lv_obj_add_style(panels.pulse_label, &style_value_main, 0);
-    lv_label_set_text(panels.pulse_label, "---");  // Texto inicial cuando no hay sensor
+    lv_label_set_text(panels.pulse_label, "--");  // Texto inicial cuando no hay sensor
     lv_obj_align_to(panels.pulse_label, unit_percent, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 20);
     lv_obj_set_width(panels.pulse_label, 180);
     lv_obj_set_style_text_align(panels.pulse_label, LV_TEXT_ALIGN_RIGHT, 0);
