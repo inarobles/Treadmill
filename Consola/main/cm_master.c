@@ -24,7 +24,7 @@ static const char *TAG = "CM_MASTER";
 
 #define UART_BUF_SIZE            512
 #define LINE_BUFFER_SIZE         128
-#define HEARTBEAT_INTERVAL_MS    500  // GET_DATA cada 500ms
+#define HEARTBEAT_INTERVAL_MS    200  // GET_DATA cada 200ms
 #define CONNECTION_TIMEOUT_MS    1000 // Sin respuesta en 1s = desconectado
 
 // ============================================================================
@@ -210,6 +210,9 @@ static void uart_rx_task(void *pvParameters) {
 static void master_task(void *pvParameters) {
     ESP_LOGI(TAG, "Tarea maestro iniciada");
 
+    // Esperar 1 segundo para que el esclavo esté completamente inicializado
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     float last_sent_speed = -1.0f;
     float last_sent_incline = -1.0f;
     int64_t last_heartbeat_us = 0;
@@ -250,7 +253,7 @@ static void master_task(void *pvParameters) {
             last_sent_incline = target_incline;
         }
 
-        // 4. Enviar heartbeat GET_DATA cada 500ms
+        // 4. Enviar heartbeat GET_DATA cada 200ms
         if ((now_us - last_heartbeat_us) >= (HEARTBEAT_INTERVAL_MS * 1000)) {
             send_command_int("GET_DATA", 1);
             last_heartbeat_us = now_us;
