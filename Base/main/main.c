@@ -87,8 +87,8 @@ static esp_timer_handle_t wax_pump_timer_handle;
 // TAREAS Y FUNCIONES DE BAJO NIVEL
 // ===========================================================================
 static void stop_incline_motor(void) {
-    gpio_set_level(INCLINE_UP_RELAY_PIN, 0);
-    gpio_set_level(INCLINE_DOWN_RELAY_PIN, 0);
+    gpio_set_level(INCLINE_UP_RELAY_PIN, 1);   // 1 = relé OFF (lógica invertida)
+    gpio_set_level(INCLINE_DOWN_RELAY_PIN, 1); // 1 = relé OFF (lógica invertida)
     g_incline_motor_state = INCLINE_MOTOR_STOPPED;
 }
 
@@ -104,11 +104,11 @@ static void enter_safe_state(void) {
     g_head_fan_state = 0;
     g_chest_fan_state = 0;
     g_wax_pump_relay_state = 0;
-    gpio_set_level(HEAD_FAN_ON_OFF_PIN, 0);
-    gpio_set_level(HEAD_FAN_SPEED_PIN, 0);
-    gpio_set_level(CHEST_FAN_ON_OFF_PIN, 0);
-    gpio_set_level(CHEST_FAN_SPEED_PIN, 0);
-    gpio_set_level(WAX_PUMP_RELAY_PIN, 0);
+    gpio_set_level(HEAD_FAN_ON_OFF_PIN, 1);      // 1 = OFF (lógica invertida)
+    gpio_set_level(HEAD_FAN_SPEED_PIN, 1);       // 1 = OFF (lógica invertida)
+    gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);     // 1 = OFF (lógica invertida)
+    gpio_set_level(CHEST_FAN_SPEED_PIN, 1);      // 1 = OFF (lógica invertida)
+    gpio_set_level(WAX_PUMP_RELAY_PIN, 1);       // 1 = OFF (lógica invertida)
     stop_incline_motor();
     if (esp_timer_is_active(wax_pump_timer_handle)) {
         ESP_ERROR_CHECK(esp_timer_stop(wax_pump_timer_handle));
@@ -127,12 +127,32 @@ static void reset_safe_state(void) {
 static void wax_pump_timer_callback(void *arg) {
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
     ESP_LOGI(TAG, "Temporizador de bomba de cera finalizado, apagando relé.");
-    gpio_set_level(WAX_PUMP_RELAY_PIN, 0);
+    gpio_set_level(WAX_PUMP_RELAY_PIN, 1);  // 1 = OFF (lógica invertida)
     g_wax_pump_relay_state = 0;
     xSemaphoreGive(g_speed_mutex);
 }
 
 static void configure_gpios(void) {
+    // Primero, resetear y establecer todos los pines de relés en nivel alto (1 = OFF)
+    // ANTES de configurarlos como salidas, para evitar activación durante boot
+    // Los relés tienen lógica invertida: 1 = OFF, 0 = ON
+    gpio_reset_pin(HEAD_FAN_ON_OFF_PIN);
+    gpio_reset_pin(HEAD_FAN_SPEED_PIN);
+    gpio_reset_pin(CHEST_FAN_ON_OFF_PIN);
+    gpio_reset_pin(CHEST_FAN_SPEED_PIN);
+    gpio_reset_pin(INCLINE_UP_RELAY_PIN);
+    gpio_reset_pin(INCLINE_DOWN_RELAY_PIN);
+    gpio_reset_pin(WAX_PUMP_RELAY_PIN);
+
+    gpio_set_level(HEAD_FAN_ON_OFF_PIN, 1);     // 1 = OFF (lógica invertida)
+    gpio_set_level(HEAD_FAN_SPEED_PIN, 1);      // 1 = OFF (lógica invertida)
+    gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);    // 1 = OFF (lógica invertida)
+    gpio_set_level(CHEST_FAN_SPEED_PIN, 1);     // 1 = OFF (lógica invertida)
+    gpio_set_level(INCLINE_UP_RELAY_PIN, 1);    // 1 = OFF (lógica invertida)
+    gpio_set_level(INCLINE_DOWN_RELAY_PIN, 1);  // 1 = OFF (lógica invertida)
+    gpio_set_level(WAX_PUMP_RELAY_PIN, 1);      // 1 = OFF (lógica invertida)
+
+    // Ahora configurar como salidas
     uint64_t output_pin_mask = (1ULL << HEAD_FAN_ON_OFF_PIN) | (1ULL << HEAD_FAN_SPEED_PIN) |
                                (1ULL << CHEST_FAN_ON_OFF_PIN) | (1ULL << CHEST_FAN_SPEED_PIN) |
                                (1ULL << INCLINE_UP_RELAY_PIN) | (1ULL << INCLINE_DOWN_RELAY_PIN) |
@@ -157,13 +177,6 @@ static void configure_gpios(void) {
     ESP_ERROR_CHECK(gpio_config(&io_conf_input));
     ESP_LOGI(TAG, "GPIO %d configurado con pull-up (fin de carrera anulado)", INCLINE_LIMIT_SWITCH_PIN);
 
-    gpio_set_level(HEAD_FAN_ON_OFF_PIN, 0);
-    gpio_set_level(HEAD_FAN_SPEED_PIN, 0);
-    gpio_set_level(CHEST_FAN_ON_OFF_PIN, 0);
-    gpio_set_level(CHEST_FAN_SPEED_PIN, 0);
-    gpio_set_level(INCLINE_UP_RELAY_PIN, 0);
-    gpio_set_level(INCLINE_DOWN_RELAY_PIN, 0);
-    gpio_set_level(WAX_PUMP_RELAY_PIN, 0);
     ESP_LOGI(TAG, "GPIOs configurados. Asignación v5 (Sensores en 34, 35).");
 }
 
@@ -304,8 +317,9 @@ static void update_head_fan(int fan_state) {
     g_head_fan_state = fan_state;
     xSemaphoreGive(g_speed_mutex);
 
-    gpio_set_level(HEAD_FAN_ON_OFF_PIN, (fan_state > 0) ? 1 : 0);
-    gpio_set_level(HEAD_FAN_SPEED_PIN, (fan_state == 2) ? 1 : 0);
+    // Lógica invertida: 0 = ON, 1 = OFF
+    gpio_set_level(HEAD_FAN_ON_OFF_PIN, (fan_state > 0) ? 0 : 1);
+    gpio_set_level(HEAD_FAN_SPEED_PIN, (fan_state == 2) ? 0 : 1);
 
     ESP_LOGD(TAG, "Ventilador cabeza: %d", fan_state);
 }
@@ -320,8 +334,9 @@ static void update_chest_fan(int fan_state) {
     g_chest_fan_state = fan_state;
     xSemaphoreGive(g_speed_mutex);
 
-    gpio_set_level(CHEST_FAN_ON_OFF_PIN, (fan_state > 0) ? 1 : 0);
-    gpio_set_level(CHEST_FAN_SPEED_PIN, (fan_state == 2) ? 1 : 0);
+    // Lógica invertida: 0 = ON, 1 = OFF
+    gpio_set_level(CHEST_FAN_ON_OFF_PIN, (fan_state > 0) ? 0 : 1);
+    gpio_set_level(CHEST_FAN_SPEED_PIN, (fan_state == 2) ? 0 : 1);
 
     ESP_LOGD(TAG, "Ventilador pecho: %d", fan_state);
 }
@@ -334,7 +349,7 @@ static void update_wax_pump(int state) {
         ESP_LOGI(TAG, "Activando bomba de cera por 5 segundos");
 
         xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
-        gpio_set_level(WAX_PUMP_RELAY_PIN, 1);
+        gpio_set_level(WAX_PUMP_RELAY_PIN, 0);  // 0 = ON (lógica invertida)
         g_wax_pump_relay_state = 1;
         xSemaphoreGive(g_speed_mutex);
 
@@ -496,10 +511,10 @@ static void incline_control_task(void *pvParameters) {
                     if (fabs(error) > 0.1) {
                         if (error > 0) {
                             g_incline_motor_state = INCLINE_MOTOR_UP;
-                            gpio_set_level(INCLINE_UP_RELAY_PIN, 1);
+                            gpio_set_level(INCLINE_UP_RELAY_PIN, 0);  // 0 = ON (lógica invertida)
                         } else {
                             g_incline_motor_state = INCLINE_MOTOR_DOWN;
-                            gpio_set_level(INCLINE_DOWN_RELAY_PIN, 1);
+                            gpio_set_level(INCLINE_DOWN_RELAY_PIN, 0);  // 0 = ON (lógica invertida)
                         }
                     }
                 }
