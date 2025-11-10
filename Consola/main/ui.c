@@ -819,12 +819,16 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     // KCAL (izquierda, encima de las horas de Time)
     panels.kcal_label = lv_label_create(parent);
     lv_obj_add_style(panels.kcal_label, &style_value_main, 0);
-    lv_obj_align_to(panels.kcal_label, panels.time_label, LV_ALIGN_OUT_TOP_LEFT, -200, -40);
+    lv_obj_align_to(panels.kcal_label, panels.time_label, LV_ALIGN_OUT_TOP_LEFT, -160, -40);
+    lv_obj_set_width(panels.kcal_label, 120);
+    lv_obj_set_style_text_align(panels.kcal_label, LV_TEXT_ALIGN_RIGHT, 0);
 
     lv_obj_t* unit_kcal = lv_label_create(parent);
     lv_obj_add_style(unit_kcal, &style_unit, 0);
     lv_label_set_text(unit_kcal, "Kcal");
     lv_obj_align_to(unit_kcal, panels.kcal_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
+    lv_obj_set_width(unit_kcal, 120);
+    lv_obj_set_style_text_align(unit_kcal, LV_TEXT_ALIGN_RIGHT, 0);
 
     // Guardar referencias según la pantalla
     if (parent == scr_main) {
@@ -836,12 +840,16 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     // DISTANCE (derecha, encima de los segundos de Time)
     panels.dist_label = lv_label_create(parent);
     lv_obj_add_style(panels.dist_label, &style_value_main, 0);
-    lv_obj_align_to(panels.dist_label, panels.time_label, LV_ALIGN_OUT_TOP_RIGHT, 200, -40);
+    lv_obj_align_to(panels.dist_label, panels.time_label, LV_ALIGN_OUT_TOP_RIGHT, 215, -40);
+    lv_obj_set_width(panels.dist_label, 150);
+    lv_obj_set_style_text_align(panels.dist_label, LV_TEXT_ALIGN_RIGHT, 0);
 
     lv_obj_t* unit_dist = lv_label_create(parent);
     lv_obj_add_style(unit_dist, &style_unit, 0);
     lv_label_set_text(unit_dist, "Distance");
-    lv_obj_align_to(unit_dist, panels.dist_label, LV_ALIGN_OUT_BOTTOM_RIGHT, 0, 5);
+    lv_obj_align_to(unit_dist, panels.dist_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
+    lv_obj_set_width(unit_dist, 150);
+    lv_obj_set_style_text_align(unit_dist, LV_TEXT_ALIGN_RIGHT, 0);
 
     // --- COLUMNA DE INCLINACIÓN (CLIMB) ---
     lv_obj_t *label_climb_title = lv_label_create(parent);
