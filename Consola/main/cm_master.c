@@ -24,7 +24,7 @@ static const char *TAG = "CM_MASTER";
 
 #define UART_BUF_SIZE            512
 #define LINE_BUFFER_SIZE         128
-#define HEARTBEAT_INTERVAL_MS    200  // GET_DATA cada 200ms
+#define SYNC_INTERVAL_MS         100  // SYNC cada 100ms
 #define CONNECTION_TIMEOUT_MS    1000 // Sin respuesta en 1s = desconectado
 
 // ============================================================================
@@ -51,6 +51,9 @@ static uint8_t g_chest_fan_state = 0;
 /** Variables de control (targets) */
 static float g_target_speed_kmh = 0.0f;
 static float g_target_incline_pct = 0.0f;
+static uint8_t g_target_head_fan = 0;
+static uint8_t g_target_chest_fan = 0;
+static uint8_t g_target_wax_pump = 0;
 
 /** Handles de tareas */
 static TaskHandle_t g_master_task_handle = NULL;
@@ -92,25 +95,19 @@ static esp_err_t send_command_int(const char *cmd, int value) {
     return send_line(buffer);
 }
 
+/**
+ * @brief Envía SYNC con todos los objetivos: SYNC=speed,incline,fan_head,fan_chest,wax
+ */
+static esp_err_t send_sync(float speed, float incline, uint8_t fan_head, uint8_t fan_chest, uint8_t wax) {
+    char buffer[128];
+    snprintf(buffer, sizeof(buffer), "SYNC=%.2f,%.2f,%d,%d,%d\n",
+             speed, incline, fan_head, fan_chest, wax);
+    return send_line(buffer);
+}
+
 // ============================================================================
 // FUNCIONES PRIVADAS - RECEPCIÓN Y PARSING
 // ============================================================================
-
-/**
- * @brief Procesa respuesta ACK=OK o ACK=ERROR,<motivo>
- */
-static void process_ack_response(const char *line) {
-    xSemaphoreTake(g_master_mutex, portMAX_DELAY);
-    g_last_response_us = esp_timer_get_time();
-    g_connected = true;
-    xSemaphoreGive(g_master_mutex);
-
-    if (strcmp(line, "ACK=OK") == 0) {
-        ESP_LOGD(TAG, "ACK recibido: OK");
-    } else if (strncmp(line, "ACK=ERROR,", 10) == 0) {
-        ESP_LOGW(TAG, "ACK recibido: %s", line + 4);
-    }
-}
 
 /**
  * @brief Procesa respuesta DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>
@@ -148,10 +145,7 @@ static void process_data_response(const char *line) {
 static void process_response(const char *line) {
     ESP_LOGD(TAG, "Recibido: %s", line);
 
-    if (strncmp(line, "ACK=", 4) == 0) {
-        process_ack_response(line);
-    }
-    else if (strncmp(line, "DATA=", 5) == 0) {
+    if (strncmp(line, "DATA=", 5) == 0) {
         process_data_response(line);
     }
     else {
@@ -202,23 +196,20 @@ static void uart_rx_task(void *pvParameters) {
 /**
  * @brief Tarea principal del maestro
  *
- * - Envía GET_DATA cada 500ms (heartbeat)
- * - Envía SET_SPEED cuando cambia el target
- * - Envía SET_INCLINE cuando cambia el target
+ * - Envía SYNC cada 100ms con todos los objetivos
+ * - Recibe DATA con todos los valores reales
  * - Monitorea timeout de conexión
  */
 static void master_task(void *pvParameters) {
-    ESP_LOGI(TAG, "Tarea maestro iniciada");
+    ESP_LOGI(TAG, "Tarea maestro iniciada (protocolo SYNC simplificado)");
 
     // Esperar 1 segundo para que el esclavo esté completamente inicializado
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-    float last_sent_speed = -1.0f;
-    float last_sent_incline = -1.0f;
-    int64_t last_heartbeat_us = 0;
+    int64_t last_sync_us = 0;
 
     while (1) {
-        vTaskDelay(pdMS_TO_TICKS(50));  // Ciclo de 50ms
+        vTaskDelay(pdMS_TO_TICKS(SYNC_INTERVAL_MS));  // Ciclo de 100ms
 
         int64_t now_us = esp_timer_get_time();
 
@@ -231,32 +222,19 @@ static void master_task(void *pvParameters) {
                 g_connected = false;
             }
         }
-        xSemaphoreGive(g_master_mutex);
 
-        // 2. Enviar SET_SPEED si cambió el target
-        xSemaphoreTake(g_master_mutex, portMAX_DELAY);
+        // 2. Leer todos los objetivos actuales
         float target_speed = g_target_speed_kmh;
-        xSemaphoreGive(g_master_mutex);
-
-        if (target_speed != last_sent_speed) {
-            send_command("SET_SPEED", target_speed);
-            last_sent_speed = target_speed;
-        }
-
-        // 3. Enviar SET_INCLINE si cambió el target
-        xSemaphoreTake(g_master_mutex, portMAX_DELAY);
         float target_incline = g_target_incline_pct;
+        uint8_t target_fan_head = g_target_head_fan;
+        uint8_t target_fan_chest = g_target_chest_fan;
+        uint8_t target_wax = g_target_wax_pump;
         xSemaphoreGive(g_master_mutex);
 
-        if (target_incline != last_sent_incline) {
-            send_command("SET_INCLINE", target_incline);
-            last_sent_incline = target_incline;
-        }
-
-        // 4. Enviar heartbeat GET_DATA cada 200ms
-        if ((now_us - last_heartbeat_us) >= (HEARTBEAT_INTERVAL_MS * 1000)) {
-            send_command_int("GET_DATA", 1);
-            last_heartbeat_us = now_us;
+        // 3. Enviar SYNC cada 100ms (siempre, haya cambios o no)
+        if ((now_us - last_sync_us) >= (SYNC_INTERVAL_MS * 1000)) {
+            send_sync(target_speed, target_incline, target_fan_head, target_fan_chest, target_wax);
+            last_sync_us = now_us;
         }
     }
 }
@@ -396,14 +374,25 @@ float cm_master_get_current_incline(void) {
 }
 
 esp_err_t cm_master_set_fan(uint8_t fan_id, uint8_t state) {
+    if (g_master_mutex == NULL) {
+        return ESP_ERR_INVALID_STATE;
+    }
     if (state > 2) {
         ESP_LOGW(TAG, "Estado de ventilador inválido: %d", state);
         return ESP_ERR_INVALID_ARG;
     }
 
-    const char *cmd = (fan_id == 0x01) ? "SET_FAN_HEAD" : "SET_FAN_CHEST";
-    ESP_LOGI(TAG, "%s=%d", cmd, state);
-    return send_command_int(cmd, state);
+    xSemaphoreTake(g_master_mutex, portMAX_DELAY);
+    if (fan_id == 0x01) {  // FAN_HEAD
+        g_target_head_fan = state;
+        ESP_LOGI(TAG, "Ventilador cabeza objetivo: %d", state);
+    } else {  // FAN_CHEST
+        g_target_chest_fan = state;
+        ESP_LOGI(TAG, "Ventilador pecho objetivo: %d", state);
+    }
+    xSemaphoreGive(g_master_mutex);
+
+    return ESP_OK;
 }
 
 uint8_t cm_master_get_head_fan_state(void) {
@@ -427,9 +416,15 @@ uint8_t cm_master_get_chest_fan_state(void) {
 }
 
 esp_err_t cm_master_set_relay(uint8_t relay_id, uint8_t state) {
+    if (g_master_mutex == NULL) {
+        return ESP_ERR_INVALID_STATE;
+    }
     if (relay_id == 0x01) {  // WAX_PUMP
-        ESP_LOGI(TAG, "CMD_WAX=%d", state);
-        return send_command_int("CMD_WAX", state);
+        xSemaphoreTake(g_master_mutex, portMAX_DELAY);
+        g_target_wax_pump = state;
+        xSemaphoreGive(g_master_mutex);
+        ESP_LOGI(TAG, "Bomba cera objetivo: %d", state);
+        return ESP_OK;
     }
     ESP_LOGW(TAG, "ID de relé desconocido: 0x%02X", relay_id);
     return ESP_ERR_INVALID_ARG;
