@@ -121,7 +121,6 @@ static lv_obj_t *scr_main;
 static lv_obj_t *label_dist;
 static lv_obj_t *label_time;
 static lv_obj_t *label_climb_percent;
-static lv_obj_t *label_climb_deg;
 static lv_obj_t *label_speed_kmh;
 static lv_obj_t *label_speed_pace;
 static lv_obj_t *label_pulse;
@@ -159,7 +158,6 @@ static lv_obj_t *btn_wax_back;
 static lv_obj_t *label_dist_set;
 static lv_obj_t *label_time_set;
 static lv_obj_t *label_climb_percent_set;
-static lv_obj_t *label_climb_deg_set;
 static lv_obj_t *label_speed_kmh_set;
 static lv_obj_t *label_speed_pace_set;
 static lv_obj_t *label_pulse_set;
@@ -175,7 +173,6 @@ typedef struct {
     lv_obj_t *dist_label;
     lv_obj_t *time_label;
     lv_obj_t *climb_percent_label;
-    lv_obj_t *climb_deg_label;
     lv_obj_t *speed_kmh_label;
     lv_obj_t *speed_pace_label;
     lv_obj_t *pulse_label;
@@ -280,7 +277,6 @@ void ui_update_task(void *pvParameter) {
     static bool prev_dist_is_meters = true;
     static int prev_pace_int = -1;
     static int prev_pace_frac = -1;
-    static int prev_deg_int = -1;
     static int prev_pulse = -1;
     static bool prev_pulse_connected = false;
     static int prev_kcal = -1;
@@ -508,17 +504,6 @@ void ui_update_task(void *pvParameter) {
             }
             prev_pace_int = pace_int;
             prev_pace_frac = pace_frac;
-        }
-
-        // Climb degrees
-        float degrees = atan(climb_percent_copy / 100.0) * (180.0 / M_PI);
-        int deg_int = (int)roundf(degrees);
-        if (deg_int != prev_deg_int) {
-            lv_label_set_text_fmt(label_climb_deg, "%d", deg_int);
-            if (set_mode_copy != SET_MODE_CLIMB) {
-                lv_label_set_text_fmt(label_climb_deg_set, "%d", deg_int);
-            }
-            prev_deg_int = deg_int;
         }
 
         // Pulse
@@ -861,18 +846,19 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     lv_obj_set_width(unit_percent, 180);
     lv_obj_set_style_text_align(unit_percent, LV_TEXT_ALIGN_RIGHT, 0);
     
-    panels.climb_deg_label = lv_label_create(parent);
-    lv_obj_add_style(panels.climb_deg_label, &style_value_main, 0);
-    lv_obj_align_to(panels.climb_deg_label, unit_percent, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 20);
-    lv_obj_set_width(panels.climb_deg_label, 180);
-    lv_obj_set_style_text_align(panels.climb_deg_label, LV_TEXT_ALIGN_RIGHT, 0);
+    panels.pulse_label = lv_label_create(parent);
+    lv_obj_add_style(panels.pulse_label, &style_value_main, 0);
+    lv_label_set_text(panels.pulse_label, "---");  // Texto inicial cuando no hay sensor
+    lv_obj_align_to(panels.pulse_label, unit_percent, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 20);
+    lv_obj_set_width(panels.pulse_label, 180);
+    lv_obj_set_style_text_align(panels.pulse_label, LV_TEXT_ALIGN_RIGHT, 0);
 
-    lv_obj_t* unit_deg = lv_label_create(parent);
-    lv_obj_add_style(unit_deg, &style_unit, 0);
-    lv_label_set_text(unit_deg, "Degrees");
-    lv_obj_align_to(unit_deg, panels.climb_deg_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
-    lv_obj_set_width(unit_deg, 180);
-    lv_obj_set_style_text_align(unit_deg, LV_TEXT_ALIGN_RIGHT, 0);
+    lv_obj_t* unit_pulse = lv_label_create(parent);
+    lv_obj_add_style(unit_pulse, &style_unit, 0);
+    lv_label_set_text(unit_pulse, "Pulse");
+    lv_obj_align_to(unit_pulse, panels.pulse_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
+    lv_obj_set_width(unit_pulse, 180);
+    lv_obj_set_style_text_align(unit_pulse, LV_TEXT_ALIGN_RIGHT, 0);
 
     // --- COLUMNA DE VELOCIDAD (SPEED) ---
     lv_obj_t *label_speed_title = lv_label_create(parent);
@@ -921,27 +907,11 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     lv_obj_set_style_border_color(panels.info_label, lv_color_hex(0xAAAAAA), 0);
     lv_obj_set_style_border_width(panels.info_label, 2, 0);
 
-    // --- PULSE (MODIFIED) ---
-    panels.pulse_label = lv_label_create(parent);
-    lv_obj_add_style(panels.pulse_label, &style_value_main, 0);
-    lv_label_set_text(panels.pulse_label, "---");  // Initial text when no heart rate detected
-    lv_obj_align_to(panels.pulse_label, panels.info_label, LV_ALIGN_OUT_BOTTOM_LEFT, 20, 80);
-    lv_obj_set_x(panels.pulse_label, 150);
-    lv_obj_set_width(panels.pulse_label, 180);
-    lv_obj_set_style_text_align(panels.pulse_label, LV_TEXT_ALIGN_RIGHT, 0);
-
-    lv_obj_t* unit_pulse = lv_label_create(parent);
-    lv_obj_add_style(unit_pulse, &style_unit, 0);
-    lv_label_set_text(unit_pulse, "Pulse");
-    lv_obj_align_to(unit_pulse, panels.pulse_label, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
-    lv_obj_set_width(unit_pulse, 180);
-    lv_obj_set_style_text_align(unit_pulse, LV_TEXT_ALIGN_RIGHT, 0);
-
-    // --- KCAL (MODIFIED) ---
+    // --- KCAL ---
     panels.kcal_label = lv_label_create(parent);
     lv_obj_add_style(panels.kcal_label, &style_value_main, 0);
-    lv_obj_align_to(panels.kcal_label, panels.speed_kmh_label, LV_ALIGN_TOP_LEFT, 0, 0);
-    lv_obj_set_y(panels.kcal_label, lv_obj_get_y(panels.pulse_label));
+    lv_obj_align_to(panels.kcal_label, panels.info_label, LV_ALIGN_OUT_BOTTOM_LEFT, 20, 80);
+    lv_obj_set_x(panels.kcal_label, lv_obj_get_x(panels.speed_kmh_label));
     lv_obj_set_width(panels.kcal_label, 180);
     lv_obj_set_style_text_align(panels.kcal_label, LV_TEXT_ALIGN_RIGHT, 0);
 
@@ -1435,7 +1405,6 @@ static void create_main_screen(void) {
     label_dist = panels.dist_label;
     label_time = panels.time_label;
     label_climb_percent = panels.climb_percent_label;
-    label_climb_deg = panels.climb_deg_label;
     label_speed_kmh = panels.speed_kmh_label;
     label_speed_pace = panels.speed_pace_label;
     label_pulse = panels.pulse_label;
@@ -1541,7 +1510,6 @@ static void create_set_screen(void) {
     label_dist_set = panels.dist_label;
     label_time_set = panels.time_label;
     label_climb_percent_set = panels.climb_percent_label;
-    label_climb_deg_set = panels.climb_deg_label;
     label_speed_kmh_set = panels.speed_kmh_label;
     label_speed_pace_set = panels.speed_pace_label;
     label_pulse_set = panels.pulse_label;
@@ -2239,11 +2207,6 @@ void ui_confirm_set_value(void) {
             // Actualizar pendiente (sin decimales)
             int climb_int = (int)roundf(final_value);
             lv_label_set_text_fmt(label_climb_percent, "%d", climb_int);
-
-            // Actualizar grados (sin decimales)
-            float deg = atanf(final_value / 100.0f) * 180.0f / 3.14159f;
-            int deg_int = (int)roundf(deg);
-            lv_label_set_text_fmt(label_climb_deg, "%d", deg_int);
         }
         bsp_display_unlock();
 
