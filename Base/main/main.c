@@ -17,7 +17,7 @@
 #include <math.h>
 
 // ===========================================================================
-// PROTOCOLO ASCII SIMPLE
+// PROTOCOLO SYNC SIMPLIFICADO
 // ===========================================================================
 
 // Definición de estado de inclinación
@@ -27,14 +27,6 @@ typedef enum {
     INCLINE_MOTOR_DOWN,
     INCLINE_MOTOR_HOMING
 } incline_motor_state_t;
-
-// Códigos de error para ACK
-#define ACK_OK              "OK"
-#define ACK_ERROR_VFD_FAULT "VFD_FAULT"
-#define ACK_ERROR_OUT_OF_RANGE "OUT_OF_RANGE"
-#define ACK_ERROR_NOT_CALIBRATED "NOT_CALIBRATED"
-#define ACK_ERROR_UNKNOWN_CMD "UNKNOWN_CMD"
-#define ACK_ERROR_RELAY_FAULT "RELAY_FAULT"
 
 // Buffer para líneas UART
 #define UART_LINE_BUFFER_SIZE 128
@@ -194,22 +186,6 @@ static esp_err_t send_line(const char *line) {
 }
 
 /**
- * @brief Envía ACK=OK
- */
-static void send_ack_ok(void) {
-    send_line("ACK=OK\n");
-}
-
-/**
- * @brief Envía ACK=ERROR,<motivo>
- */
-static void send_ack_error(const char *error_code) {
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "ACK=ERROR,%s\n", error_code);
-    send_line(buffer);
-}
-
-/**
  * @brief Envía respuesta DATA consolidada
  * Formato: DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>
  */
@@ -257,50 +233,46 @@ static int extract_int_value(const char *cmd_line) {
 }
 
 /**
- * @brief Procesa SET_SPEED=<kph>
+ * @brief Actualiza objetivo de velocidad y actúa si es necesario
  */
-static void process_set_speed(float target_speed) {
+static void update_speed_target(float target_speed) {
     // Verificar estado del VFD
     vfd_status_t vfd_status = vfd_driver_get_status();
-    if (vfd_status == VFD_STATUS_FAULT) {
-        ESP_LOGE(TAG, "Rechazando SET_SPEED: VFD en FALLO");
-        send_ack_error(ACK_ERROR_VFD_FAULT);
-        return;
-    }
-    if (vfd_status == VFD_STATUS_DISCONNECTED) {
-        ESP_LOGE(TAG, "Rechazando SET_SPEED: VFD desconectado");
-        send_ack_error(ACK_ERROR_VFD_FAULT);
+    if (vfd_status == VFD_STATUS_FAULT || vfd_status == VFD_STATUS_DISCONNECTED) {
+        ESP_LOGE(TAG, "No se puede actualizar velocidad: VFD no disponible");
         return;
     }
 
     // Validar rango
     if (target_speed < 0 || target_speed > 20.0f) {
-        ESP_LOGE(TAG, "Velocidad fuera de rango: %.2f km/h", target_speed);
-        send_ack_error(ACK_ERROR_OUT_OF_RANGE);
+        ESP_LOGW(TAG, "Velocidad fuera de rango: %.2f km/h (ignorando)", target_speed);
         return;
     }
 
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+    float old_target = g_target_speed_kmh;
     g_target_speed_kmh = target_speed;
     xSemaphoreGive(g_speed_mutex);
 
-    vfd_driver_set_speed(target_speed);
-    send_ack_ok();
-    ESP_LOGI(TAG, "SET_SPEED: %.2f km/h", target_speed);
+    // Actualizar VFD si cambió el objetivo
+    if (fabsf(target_speed - old_target) > 0.05f) {
+        vfd_driver_set_speed(target_speed);
+        ESP_LOGI(TAG, "Velocidad objetivo actualizada: %.2f km/h", target_speed);
+    }
 }
 
 /**
- * @brief Procesa SET_INCLINE=<pct>
+ * @brief Actualiza objetivo de inclinación
  */
-static void process_set_incline(float target_incline) {
+static void update_incline_target(float target_incline) {
     if (!g_incline_is_calibrated) {
-        send_ack_error(ACK_ERROR_NOT_CALIBRATED);
+        ESP_LOGW(TAG, "Inclinación no calibrada, ignorando objetivo");
         return;
     }
 
     // Validar rango
     if (target_incline < 0 || target_incline > 15.0f) {
-        send_ack_error(ACK_ERROR_OUT_OF_RANGE);
+        ESP_LOGW(TAG, "Inclinación fuera de rango: %.1f%% (ignorando)", target_incline);
         return;
     }
 
@@ -308,27 +280,24 @@ static void process_set_incline(float target_incline) {
     g_target_incline_pct = target_incline;
     xSemaphoreGive(g_speed_mutex);
 
-    send_ack_ok();
-    ESP_LOGI(TAG, "SET_INCLINE: %.1f%%", target_incline);
+    ESP_LOGD(TAG, "Inclinación objetivo actualizada: %.1f%%", target_incline);
 }
 
 /**
- * @brief Procesa CALIBRATE_INCLINE=1
+ * @brief Inicia calibración de inclinación (homing)
  */
-static void process_calibrate_incline(void) {
+static void start_incline_calibration(void) {
     ESP_LOGI(TAG, "CALIBRATE_INCLINE: Iniciando rutina de homing");
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
     g_incline_motor_state = INCLINE_MOTOR_HOMING;
     g_incline_is_calibrated = false;
     xSemaphoreGive(g_speed_mutex);
-    send_ack_ok();
 }
 
 /**
- * @brief Procesa SET_FAN_HEAD=<state> (0=off, 1=low, 2=high)
- * No envía ACK, el P4 verificará el estado con GET_DATA
+ * @brief Actualiza estado del ventilador de cabeza
  */
-static void process_set_fan_head(int fan_state) {
+static void update_head_fan(int fan_state) {
     if (fan_state < 0 || fan_state > 2) return;
 
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
@@ -338,14 +307,13 @@ static void process_set_fan_head(int fan_state) {
     gpio_set_level(HEAD_FAN_ON_OFF_PIN, (fan_state > 0) ? 1 : 0);
     gpio_set_level(HEAD_FAN_SPEED_PIN, (fan_state == 2) ? 1 : 0);
 
-    ESP_LOGI(TAG, "SET_FAN_HEAD: %d", fan_state);
+    ESP_LOGD(TAG, "Ventilador cabeza: %d", fan_state);
 }
 
 /**
- * @brief Procesa SET_FAN_CHEST=<state>
- * No envía ACK, el P4 verificará el estado con GET_DATA
+ * @brief Actualiza estado del ventilador de pecho
  */
-static void process_set_fan_chest(int fan_state) {
+static void update_chest_fan(int fan_state) {
     if (fan_state < 0 || fan_state > 2) return;
 
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
@@ -355,43 +323,58 @@ static void process_set_fan_chest(int fan_state) {
     gpio_set_level(CHEST_FAN_ON_OFF_PIN, (fan_state > 0) ? 1 : 0);
     gpio_set_level(CHEST_FAN_SPEED_PIN, (fan_state == 2) ? 1 : 0);
 
-    ESP_LOGI(TAG, "SET_FAN_CHEST: %d", fan_state);
+    ESP_LOGD(TAG, "Ventilador pecho: %d", fan_state);
 }
 
 /**
- * @brief Procesa CMD_WAX=1 (activar bomba de cera por 5 segundos)
+ * @brief Actualiza estado de la bomba de cera
  */
-static void process_cmd_wax(void) {
-    ESP_LOGI(TAG, "CMD_WAX: Activando bomba de cera por 5 segundos");
+static void update_wax_pump(int state) {
+    if (state == 1) {
+        ESP_LOGI(TAG, "Activando bomba de cera por 5 segundos");
 
-    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
-    gpio_set_level(WAX_PUMP_RELAY_PIN, 1);
-    g_wax_pump_relay_state = 1;
-    xSemaphoreGive(g_speed_mutex);
+        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+        gpio_set_level(WAX_PUMP_RELAY_PIN, 1);
+        g_wax_pump_relay_state = 1;
+        xSemaphoreGive(g_speed_mutex);
 
-    esp_err_t err = esp_timer_start_once(wax_pump_timer_handle, WAX_PUMP_ACTIVATION_DURATION_MS * 1000);
-    if (err == ESP_OK) {
-        send_ack_ok();
-    } else {
-        ESP_LOGE(TAG, "Error al iniciar timer de bomba de cera");
-        send_ack_error(ACK_ERROR_RELAY_FAULT);
+        esp_err_t err = esp_timer_start_once(wax_pump_timer_handle, WAX_PUMP_ACTIVATION_DURATION_MS * 1000);
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "Error al iniciar timer de bomba de cera");
+        }
     }
 }
 
 /**
- * @brief Procesa CMD_STOP=1
+ * @brief Procesa comando SYNC con todos los objetivos
+ * Formato: SYNC=speed,incline,fan_head,fan_chest,wax
+ * Responde automáticamente con DATA
  */
-static void process_cmd_stop(void) {
-    ESP_LOGW(TAG, "🚨 CMD_STOP received!");
-    enter_safe_state();
-    send_ack_ok();
-}
+static void process_sync(const char *cmd_line) {
+    float target_speed, target_incline;
+    int fan_head, fan_chest, wax;
 
-/**
- * @brief Procesa GET_DATA=1
- * Envía respuesta DATA consolidada
- */
-static void process_get_data(void) {
+    // Parsear: SYNC=6.0,5.0,1,0,0
+    int parsed = sscanf(cmd_line, "SYNC=%f,%f,%d,%d,%d",
+                        &target_speed, &target_incline,
+                        &fan_head, &fan_chest, &wax);
+
+    if (parsed != 5) {
+        ESP_LOGW(TAG, "Error al parsear SYNC: %s", cmd_line);
+        return;
+    }
+
+    ESP_LOGD(TAG, "SYNC recibido: speed=%.2f incline=%.1f fans=%d,%d wax=%d",
+             target_speed, target_incline, fan_head, fan_chest, wax);
+
+    // Actualizar todos los objetivos
+    update_speed_target(target_speed);
+    update_incline_target(target_incline);
+    update_head_fan(fan_head);
+    update_chest_fan(fan_chest);
+    update_wax_pump(wax);
+
+    // Responder siempre con DATA (valores reales)
     send_data_response();
 }
 
@@ -403,40 +386,18 @@ static void process_command(const char *cmd_line) {
 
     ESP_LOGD(TAG, "Comando recibido: %s", cmd_line);
 
-    // Comandos con ACK
-    if (strncmp(cmd_line, "SET_SPEED=", 10) == 0) {
-        float speed = extract_float_value(cmd_line);
-        process_set_speed(speed);
+    // Protocolo SYNC simplificado
+    if (strncmp(cmd_line, "SYNC=", 5) == 0) {
+        process_sync(cmd_line);
     }
-    else if (strncmp(cmd_line, "SET_INCLINE=", 12) == 0) {
-        float incline = extract_float_value(cmd_line);
-        process_set_incline(incline);
-    }
+    // Comando de calibración (se mantiene para compatibilidad)
     else if (strncmp(cmd_line, "CALIBRATE_INCLINE=", 18) == 0) {
-        process_calibrate_incline();
-    }
-    else if (strncmp(cmd_line, "CMD_WAX=", 8) == 0) {
-        process_cmd_wax();
-    }
-    else if (strncmp(cmd_line, "CMD_STOP=", 9) == 0) {
-        process_cmd_stop();
-    }
-    // Comandos sin ACK
-    else if (strncmp(cmd_line, "SET_FAN_HEAD=", 13) == 0) {
-        int state = extract_int_value(cmd_line);
-        process_set_fan_head(state);
-    }
-    else if (strncmp(cmd_line, "SET_FAN_CHEST=", 14) == 0) {
-        int state = extract_int_value(cmd_line);
-        process_set_fan_chest(state);
-    }
-    // Comando de lectura
-    else if (strncmp(cmd_line, "GET_DATA=", 9) == 0) {
-        process_get_data();
+        start_incline_calibration();
+        send_data_response();  // Responder con estado actual
     }
     else {
-        ESP_LOGW(TAG, "Comando desconocido: %s", cmd_line);
-        send_ack_error(ACK_ERROR_UNKNOWN_CMD);
+        ESP_LOGW(TAG, "Comando desconocido o no soportado: %s", cmd_line);
+        // No enviamos ACK de error, simplemente ignoramos
     }
 }
 
