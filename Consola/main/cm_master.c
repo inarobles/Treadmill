@@ -54,6 +54,7 @@ static float g_target_incline_pct = 0.0f;
 static uint8_t g_target_head_fan = 0;
 static uint8_t g_target_chest_fan = 0;
 static uint8_t g_target_wax_pump = 0;
+static bool g_training_mode = false;  // false = pantalla inicial, true = entrenando
 
 /** Handles de tareas */
 static TaskHandle_t g_master_task_handle = NULL;
@@ -96,12 +97,12 @@ static esp_err_t send_command_int(const char *cmd, int value) {
 }
 
 /**
- * @brief Envía SYNC con todos los objetivos: SYNC=speed,incline,fan_head,fan_chest,wax
+ * @brief Envía SYNC con todos los objetivos: SYNC=speed,incline,fan_head,fan_chest,wax,training_mode
  */
-static esp_err_t send_sync(float speed, float incline, uint8_t fan_head, uint8_t fan_chest, uint8_t wax) {
+static esp_err_t send_sync(float speed, float incline, uint8_t fan_head, uint8_t fan_chest, uint8_t wax, bool training_mode) {
     char buffer[128];
-    snprintf(buffer, sizeof(buffer), "SYNC=%.2f,%.2f,%d,%d,%d\n",
-             speed, incline, fan_head, fan_chest, wax);
+    snprintf(buffer, sizeof(buffer), "SYNC=%.2f,%.2f,%d,%d,%d,%d\n",
+             speed, incline, fan_head, fan_chest, wax, training_mode ? 1 : 0);
     return send_line(buffer);
 }
 
@@ -229,11 +230,12 @@ static void master_task(void *pvParameters) {
         uint8_t target_fan_head = g_target_head_fan;
         uint8_t target_fan_chest = g_target_chest_fan;
         uint8_t target_wax = g_target_wax_pump;
+        bool training_mode = g_training_mode;
         xSemaphoreGive(g_master_mutex);
 
         // 3. Enviar SYNC cada 100ms (siempre, haya cambios o no)
         if ((now_us - last_sync_us) >= (SYNC_INTERVAL_MS * 1000)) {
-            send_sync(target_speed, target_incline, target_fan_head, target_fan_chest, target_wax);
+            send_sync(target_speed, target_incline, target_fan_head, target_fan_chest, target_wax, training_mode);
             last_sync_us = now_us;
         }
     }
@@ -428,4 +430,15 @@ esp_err_t cm_master_set_relay(uint8_t relay_id, uint8_t state) {
     }
     ESP_LOGW(TAG, "ID de relé desconocido: 0x%02X", relay_id);
     return ESP_ERR_INVALID_ARG;
+}
+
+esp_err_t cm_master_set_training_mode(bool enabled) {
+    if (g_master_mutex == NULL) {
+        return ESP_ERR_INVALID_STATE;
+    }
+    xSemaphoreTake(g_master_mutex, portMAX_DELAY);
+    g_training_mode = enabled;
+    xSemaphoreGive(g_master_mutex);
+    ESP_LOGI(TAG, "Training mode: %s", enabled ? "ACTIVADO (entrenando)" : "DESACTIVADO (pantalla inicial)");
+    return ESP_OK;
 }

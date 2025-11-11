@@ -1095,6 +1095,11 @@ static void weight_event_cb(lv_event_t *e) {
 
 static void back_to_training_select_event_cb(lv_event_t *e) {
     audio_play_beep();
+
+    // DESACTIVAR TRAINING MODE (saliendo de pantalla principal)
+    cm_master_set_training_mode(false);
+    ESP_LOGI(TAG, "Saliendo de pantalla principal - Training mode desactivado");
+
     // Limpiar timer de WiFi si existe
     if (wifi_check_timer) {
         lv_timer_del(wifi_check_timer);
@@ -1139,6 +1144,11 @@ static void training_free_event_cb(lv_event_t *e) {
     g_treadmill_state.has_shown_welcome_message = false;
     xSemaphoreGive(g_state_mutex);
     lv_scr_load(scr_main);
+
+    // ACTIVAR TRAINING MODE (entrando a pantalla principal)
+    cm_master_set_training_mode(true);
+    ESP_LOGI(TAG, "Entrando a pantalla principal - Training mode activado");
+
     set_info_text_persistent("Selecciona una velocidad para comenzar");
 }
 
@@ -1199,6 +1209,11 @@ static void training_alain_event_cb(lv_event_t *e) {
     g_treadmill_state.has_shown_welcome_message = false;
     xSemaphoreGive(g_state_mutex);
     lv_scr_load(scr_main);
+
+    // ACTIVAR TRAINING MODE (entrando a pantalla principal)
+    cm_master_set_training_mode(true);
+    ESP_LOGI(TAG, "Entrando a pantalla principal - Training mode activado");
+
     set_info_text_persistent("Los enanos tienen que usar esta cinta con supervision de aita o ama.");
 }
 
@@ -1219,6 +1234,11 @@ static void training_urko_event_cb(lv_event_t *e) {
     g_treadmill_state.has_shown_welcome_message = false;
     xSemaphoreGive(g_state_mutex);
     lv_scr_load(scr_main);
+
+    // ACTIVAR TRAINING MODE (entrando a pantalla principal)
+    cm_master_set_training_mode(true);
+    ESP_LOGI(TAG, "Entrando a pantalla principal - Training mode activado");
+
     set_info_text_persistent("Los enanos tienen que usar esta cinta con supervision de aita o ama.");
 }
 
@@ -2267,6 +2287,10 @@ void ui_loading_complete(void) {
     }
 
     lv_scr_load(scr_main);
+
+    // ACTIVAR TRAINING MODE (entrando a pantalla principal después de descarga)
+    cm_master_set_training_mode(true);
+    ESP_LOGI(TAG, "Entrando a pantalla principal - Training mode activado");
 }
 
 void ui_upload_complete(bool success) {
@@ -2429,6 +2453,8 @@ void ui_select_training(int training_number) {
             ESP_LOGI(TAG, "Entrenamiento libre seleccionado (botón físico)");
             bsp_display_lock(0);
             lv_scr_load(scr_main);
+            cm_master_set_training_mode(true);  // ACTIVAR TRAINING MODE
+            ESP_LOGI(TAG, "Training mode activado (botón físico)");
             set_info_text_persistent("Selecciona una velocidad para comenzar");
             bsp_display_unlock();
             break;
@@ -2450,6 +2476,8 @@ void ui_select_training(int training_number) {
             ESP_LOGI(TAG, "Entrenamiento Alain seleccionado (botón físico)");
             bsp_display_lock(0);
             lv_scr_load(scr_main);
+            cm_master_set_training_mode(true);  // ACTIVAR TRAINING MODE
+            ESP_LOGI(TAG, "Training mode activado (botón físico)");
             set_info_text_persistent("Los enanos tienen que usar esta cinta con supervision de aita o ama.");
             bsp_display_unlock();
             break;
@@ -2457,6 +2485,8 @@ void ui_select_training(int training_number) {
             ESP_LOGI(TAG, "Entrenamiento Urko seleccionado (botón físico)");
             bsp_display_lock(0);
             lv_scr_load(scr_main);
+            cm_master_set_training_mode(true);  // ACTIVAR TRAINING MODE
+            ESP_LOGI(TAG, "Training mode activado (botón físico)");
             set_info_text_persistent("Los enanos tienen que usar esta cinta con supervision de aita o ama.");
             bsp_display_unlock();
             break;

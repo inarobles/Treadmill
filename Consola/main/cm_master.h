@@ -135,6 +135,14 @@ uint8_t cm_master_get_chest_fan_state(void);
  */
 esp_err_t cm_master_set_relay(uint8_t relay_id, uint8_t state);
 
+/**
+ * @brief Establece el modo de entrenamiento (training mode)
+ *
+ * @param enabled true = en pantalla principal (entrenando), false = pantalla inicial u otras
+ * @return ESP_OK si éxito, error en caso contrario
+ */
+esp_err_t cm_master_set_training_mode(bool enabled);
+
 #ifdef __cplusplus
 }
 #endif

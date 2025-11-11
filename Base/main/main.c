@@ -80,6 +80,7 @@ static incline_motor_state_t g_incline_motor_state = INCLINE_MOTOR_STOPPED;
 static uint8_t g_head_fan_state = 0;
 static uint8_t g_chest_fan_state = 0;
 static uint8_t g_wax_pump_relay_state = 0;
+static bool g_training_mode = false;  // false = pantalla inicial, true = entrenando
 static esp_timer_handle_t wax_pump_timer_handle;
 #define WAX_PUMP_ACTIVATION_DURATION_MS 5000
 
@@ -384,25 +385,43 @@ static void update_wax_pump(int state) {
 
 /**
  * @brief Procesa comando SYNC con todos los objetivos
- * Formato: SYNC=speed,incline,fan_head,fan_chest,wax
+ * Formato: SYNC=speed,incline,fan_head,fan_chest,wax,training_mode
  * Responde automáticamente con DATA
  */
 static void process_sync(const char *cmd_line) {
     float target_speed, target_incline;
-    int fan_head, fan_chest, wax;
+    int fan_head, fan_chest, wax, training_mode;
 
-    // Parsear: SYNC=6.0,5.0,1,0,0
-    int parsed = sscanf(cmd_line, "SYNC=%f,%f,%d,%d,%d",
+    // Parsear: SYNC=6.0,5.0,1,0,0,1
+    int parsed = sscanf(cmd_line, "SYNC=%f,%f,%d,%d,%d,%d",
                         &target_speed, &target_incline,
-                        &fan_head, &fan_chest, &wax);
+                        &fan_head, &fan_chest, &wax, &training_mode);
 
-    if (parsed != 5) {
+    if (parsed != 6) {
         ESP_LOGW(TAG, "Error al parsear SYNC: %s", cmd_line);
         return;
     }
 
-    ESP_LOGD(TAG, "SYNC recibido: speed=%.2f incline=%.1f fans=%d,%d wax=%d",
-             target_speed, target_incline, fan_head, fan_chest, wax);
+    ESP_LOGD(TAG, "SYNC recibido: speed=%.2f incline=%.1f fans=%d,%d wax=%d training=%d",
+             target_speed, target_incline, fan_head, fan_chest, wax, training_mode);
+
+    // Actualizar training mode
+    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+    bool prev_training_mode = g_training_mode;
+    g_training_mode = (training_mode != 0);
+
+    // SEGURIDAD: Si no estamos en training mode, forzar velocidad a 0
+    if (!g_training_mode && target_speed != 0.0f) {
+        ESP_LOGW(TAG, "⚠️ Training mode desactivado - Forzando velocidad a 0");
+        target_speed = 0.0f;
+    }
+
+    // Si salimos de training mode, forzar homing para volver a 0%
+    if (prev_training_mode && !g_training_mode) {
+        ESP_LOGI(TAG, "Saliendo de training mode - Forzando homing de inclinación");
+        g_incline_is_calibrated = false;  // Forzar recalibración
+    }
+    xSemaphoreGive(g_speed_mutex);
 
     // Actualizar todos los objetivos
     update_speed_target(target_speed);
