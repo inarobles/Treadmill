@@ -1,3 +1,5 @@
+						LOG 1
+
 
 C:\esp\Treadmill\Consola>idf.py -p COM4 monitor
 Executing action: monitor
@@ -640,6 +642,3 @@ E (27318) SLAVE: No se puede actualizar velocidad: VFD no disponible
 
 
 C:\esp\Treadmill\Base>
-
-
-
