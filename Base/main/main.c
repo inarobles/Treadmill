@@ -87,8 +87,8 @@ static esp_timer_handle_t wax_pump_timer_handle;
 // TAREAS Y FUNCIONES DE BAJO NIVEL
 // ===========================================================================
 static void stop_incline_motor(void) {
-    gpio_set_level(INCLINE_ON_OFF_PIN, 1);  // 1 = OFF - Apaga el actuador
-    // INCLINE_DIRECTION_PIN no importa cuando está apagado
+    gpio_set_level(INCLINE_ON_OFF_PIN, 1);       // 1 = OFF - Apaga el actuador
+    gpio_set_level(INCLINE_DIRECTION_PIN, 1);    // Resetear selector a NC (arriba) por defecto
     g_incline_motor_state = INCLINE_MOTOR_STOPPED;
 }
 
@@ -321,6 +321,7 @@ static void update_head_fan(int fan_state) {
     if (fan_state == 0) {
         // OFF
         gpio_set_level(HEAD_FAN_ON_OFF_PIN, 1);  // 1 = OFF
+        gpio_set_level(HEAD_FAN_SPEED_PIN, 1);   // Resetear selector a NC (normal) por defecto
     } else if (fan_state == 1) {
         // Normal: selector NC, activar
         gpio_set_level(HEAD_FAN_SPEED_PIN, 1);   // 1 = NC = normal
@@ -348,6 +349,7 @@ static void update_chest_fan(int fan_state) {
     if (fan_state == 0) {
         // OFF
         gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);  // 1 = OFF
+        gpio_set_level(CHEST_FAN_SPEED_PIN, 1);   // Resetear selector a NC (normal) por defecto
     } else if (fan_state == 1) {
         // Normal: selector NC, activar
         gpio_set_level(CHEST_FAN_SPEED_PIN, 1);   // 1 = NC = normal
