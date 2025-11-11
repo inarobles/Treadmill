@@ -321,7 +321,7 @@ esp_err_t cm_master_set_speed(float speed_kmh) {
     }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     g_target_speed_kmh = speed_kmh;
-    g_real_speed_kmh = speed_kmh;  // Actualizar UI inmediatamente (optimistic update)
+    // g_real_speed_kmh = speed_kmh;  // REMOVED: Optimistic update causaba oscilación cuando sensor=0
     xSemaphoreGive(g_master_mutex);
 
     ESP_LOGI(TAG, "Velocidad objetivo: %.2f km/h", speed_kmh);
