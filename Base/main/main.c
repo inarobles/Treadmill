@@ -166,16 +166,16 @@ static void configure_gpios(void) {
     };
     ESP_ERROR_CHECK(gpio_config(&io_conf_output));
 
-    // Configurar GPIO 35 con pull-up para anular sensor desconectado
+    // Configurar GPIO 35 como entrada para fin de carrera de inclinación
     gpio_config_t io_conf_input = {
         .pin_bit_mask = (1ULL << INCLINE_LIMIT_SWITCH_PIN),
         .mode = GPIO_MODE_INPUT,
-        .pull_up_en = GPIO_PULLUP_ENABLE,  // Pull-up para leer 1 cuando no está conectado
+        .pull_up_en = GPIO_PULLUP_ENABLE,  // Pull-up: lee 1 cuando no presionado, 0 cuando activado
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = GPIO_INTR_DISABLE
     };
     ESP_ERROR_CHECK(gpio_config(&io_conf_input));
-    ESP_LOGI(TAG, "GPIO %d configurado con pull-up (fin de carrera anulado)", INCLINE_LIMIT_SWITCH_PIN);
+    ESP_LOGI(TAG, "GPIO %d configurado para fin de carrera de inclinación", INCLINE_LIMIT_SWITCH_PIN);
 
     ESP_LOGI(TAG, "GPIOs configurados. Asignación v5 (Sensores en 34, 35).");
 }
@@ -544,23 +544,19 @@ static void incline_control_task(void *pvParameters) {
                 }
                 break;
             case INCLINE_MOTOR_HOMING:
-                // TEMPORAL: Sensor de fin de carrera desconectado - anular homing
-                // if (gpio_get_level(INCLINE_LIMIT_SWITCH_PIN) == 0) {
-                //     ESP_LOGI(TAG, "Homing de inclinación completado.");
-                //     stop_incline_motor();
-                //     g_real_incline_pct = 0.0f;
-                //     g_target_incline_pct = 0.0f;
-                //     g_incline_is_calibrated = true;
-                // } else {
-                //     gpio_set_level(INCLINE_UP_RELAY_PIN, 0);
-                //     gpio_set_level(INCLINE_DOWN_RELAY_PIN, 1);
-                // }
-                // Completar homing inmediatamente sin sensor
-                ESP_LOGI(TAG, "Homing de inclinación completado (sin sensor).");
-                stop_incline_motor();
-                g_real_incline_pct = 0.0f;
-                g_target_incline_pct = 0.0f;
-                g_incline_is_calibrated = true;
+                // Bajar hasta detectar fin de carrera
+                if (gpio_get_level(INCLINE_LIMIT_SWITCH_PIN) == 0) {
+                    // Fin de carrera activado - calibración completada
+                    ESP_LOGI(TAG, "✓ Homing de inclinación completado - Fin de carrera detectado");
+                    stop_incline_motor();
+                    g_real_incline_pct = 0.0f;
+                    g_target_incline_pct = 0.0f;
+                    g_incline_is_calibrated = true;
+                } else {
+                    // Continuar bajando para buscar fin de carrera
+                    gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // 0 = NO = abajo
+                    gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
+                }
                 break;
             case INCLINE_MOTOR_UP:
                 g_real_incline_pct += (delta_ms * INCLINE_SPEED_PCT_PER_MS);
@@ -570,16 +566,21 @@ static void incline_control_task(void *pvParameters) {
                 }
                 break;
             case INCLINE_MOTOR_DOWN:
-                g_real_incline_pct -= (delta_ms * INCLINE_SPEED_PCT_PER_MS);
-                // TEMPORAL: Sensor de fin de carrera desconectado - solo usar objetivo
-                // if (gpio_get_level(INCLINE_LIMIT_SWITCH_PIN) == 0) {
-                //     stop_incline_motor();
-                //     g_real_incline_pct = 0.0f;
-                //     g_incline_is_calibrated = true;
-                // } else
-                if (g_real_incline_pct <= g_target_incline_pct) {
+                // Verificar fin de carrera primero (seguridad y recalibración)
+                if (gpio_get_level(INCLINE_LIMIT_SWITCH_PIN) == 0) {
+                    // Fin de carrera detectado - recalibrar a 0%
+                    ESP_LOGI(TAG, "⚠ Fin de carrera detectado durante descenso - Recalibrando a 0%%");
                     stop_incline_motor();
-                    g_real_incline_pct = g_target_incline_pct;
+                    g_real_incline_pct = 0.0f;
+                    g_target_incline_pct = 0.0f;
+                    g_incline_is_calibrated = true;
+                } else {
+                    // Continuar bajando normalmente
+                    g_real_incline_pct -= (delta_ms * INCLINE_SPEED_PCT_PER_MS);
+                    if (g_real_incline_pct <= g_target_incline_pct) {
+                        stop_incline_motor();
+                        g_real_incline_pct = g_target_incline_pct;
+                    }
                 }
                 break;
         }
