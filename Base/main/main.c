@@ -56,12 +56,12 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 #define SENSOR_SPEED_PIN        15 // (PCNT) - Sensor Hall con corona de 12 dientes
 #define INCLINE_LIMIT_SWITCH_PIN 35 // (Entrada)
 #define HEAD_FAN_ON_OFF_PIN     26 // Relé 6 - ON/OFF del ventilador
-#define HEAD_FAN_SPEED_PIN      25 // Relé 7 - Selector velocidad (NC=normal, NO=fuerte)
+#define HEAD_FAN_SPEED_PIN      27 // Relé 7 - Selector velocidad (NC=normal, NO=fuerte)
 #define CHEST_FAN_ON_OFF_PIN    14 // Relé 2 - ON/OFF del ventilador
-#define CHEST_FAN_SPEED_PIN     27 // Relé 1 - Selector velocidad (NC=normal, NO=fuerte)
+#define CHEST_FAN_SPEED_PIN     13 // Relé 1 - Selector velocidad (NC=normal, NO=fuerte)
 #define INCLINE_ON_OFF_PIN      33 // Relé 4 - ON/OFF del actuador
 #define INCLINE_DIRECTION_PIN   32 // Relé 5 - Selector dirección (NC=arriba, NO=abajo)
-#define WAX_PUMP_RELAY_PIN      13 // Relé 3
+#define WAX_PUMP_RELAY_PIN      25 // Relé 3
 
 // ===========================================================================
 // GLOBALES DE ESTADO
