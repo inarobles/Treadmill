@@ -55,12 +55,12 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 // ===========================================================================
 #define SENSOR_SPEED_PIN        15 // (PCNT) - Sensor Hall con corona de 12 dientes
 #define INCLINE_LIMIT_SWITCH_PIN 35 // (Entrada)
-#define HEAD_FAN_ON_OFF_PIN     26 // Relé 6
-#define HEAD_FAN_SPEED_PIN      25 // Relé 7
-#define CHEST_FAN_ON_OFF_PIN    33 // Relé 4
-#define CHEST_FAN_SPEED_PIN     32 // Relé 5
-#define INCLINE_UP_RELAY_PIN    27 // Relé 1
-#define INCLINE_DOWN_RELAY_PIN  14 // Relé 2
+#define HEAD_FAN_ON_OFF_PIN     25 // Relé 7 - ON/OFF del ventilador
+#define HEAD_FAN_SPEED_PIN      26 // Relé 6 - Selector velocidad (NC=normal, NO=fuerte)
+#define CHEST_FAN_ON_OFF_PIN    32 // Relé 5 - ON/OFF del ventilador
+#define CHEST_FAN_SPEED_PIN     33 // Relé 4 - Selector velocidad (NC=normal, NO=fuerte)
+#define INCLINE_ON_OFF_PIN      27 // Relé 1 - ON/OFF del actuador
+#define INCLINE_DIRECTION_PIN   14 // Relé 2 - Selector dirección (NC=arriba, NO=abajo)
 #define WAX_PUMP_RELAY_PIN      13 // Relé 3
 
 // ===========================================================================
@@ -87,8 +87,8 @@ static esp_timer_handle_t wax_pump_timer_handle;
 // TAREAS Y FUNCIONES DE BAJO NIVEL
 // ===========================================================================
 static void stop_incline_motor(void) {
-    gpio_set_level(INCLINE_UP_RELAY_PIN, 1);   // 1 = relé OFF (lógica invertida)
-    gpio_set_level(INCLINE_DOWN_RELAY_PIN, 1); // 1 = relé OFF (lógica invertida)
+    gpio_set_level(INCLINE_ON_OFF_PIN, 1);  // 1 = OFF - Apaga el actuador
+    // INCLINE_DIRECTION_PIN no importa cuando está apagado
     g_incline_motor_state = INCLINE_MOTOR_STOPPED;
 }
 
@@ -140,22 +140,22 @@ static void configure_gpios(void) {
     gpio_reset_pin(HEAD_FAN_SPEED_PIN);
     gpio_reset_pin(CHEST_FAN_ON_OFF_PIN);
     gpio_reset_pin(CHEST_FAN_SPEED_PIN);
-    gpio_reset_pin(INCLINE_UP_RELAY_PIN);
-    gpio_reset_pin(INCLINE_DOWN_RELAY_PIN);
+    gpio_reset_pin(INCLINE_ON_OFF_PIN);
+    gpio_reset_pin(INCLINE_DIRECTION_PIN);
     gpio_reset_pin(WAX_PUMP_RELAY_PIN);
 
-    gpio_set_level(HEAD_FAN_ON_OFF_PIN, 1);     // 1 = OFF (lógica invertida)
-    gpio_set_level(HEAD_FAN_SPEED_PIN, 1);      // 1 = OFF (lógica invertida)
-    gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);    // 1 = OFF (lógica invertida)
-    gpio_set_level(CHEST_FAN_SPEED_PIN, 1);     // 1 = OFF (lógica invertida)
-    gpio_set_level(INCLINE_UP_RELAY_PIN, 1);    // 1 = OFF (lógica invertida)
-    gpio_set_level(INCLINE_DOWN_RELAY_PIN, 1);  // 1 = OFF (lógica invertida)
-    gpio_set_level(WAX_PUMP_RELAY_PIN, 1);      // 1 = OFF (lógica invertida)
+    gpio_set_level(HEAD_FAN_ON_OFF_PIN, 1);      // 1 = OFF (lógica invertida)
+    gpio_set_level(HEAD_FAN_SPEED_PIN, 1);       // 1 = NC (selector velocidad normal por defecto)
+    gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);     // 1 = OFF (lógica invertida)
+    gpio_set_level(CHEST_FAN_SPEED_PIN, 1);      // 1 = NC (selector velocidad normal por defecto)
+    gpio_set_level(INCLINE_ON_OFF_PIN, 1);       // 1 = OFF (lógica invertida)
+    gpio_set_level(INCLINE_DIRECTION_PIN, 1);    // 1 = NC (selector dirección arriba por defecto)
+    gpio_set_level(WAX_PUMP_RELAY_PIN, 1);       // 1 = OFF (lógica invertida)
 
     // Ahora configurar como salidas
     uint64_t output_pin_mask = (1ULL << HEAD_FAN_ON_OFF_PIN) | (1ULL << HEAD_FAN_SPEED_PIN) |
                                (1ULL << CHEST_FAN_ON_OFF_PIN) | (1ULL << CHEST_FAN_SPEED_PIN) |
-                               (1ULL << INCLINE_UP_RELAY_PIN) | (1ULL << INCLINE_DOWN_RELAY_PIN) |
+                               (1ULL << INCLINE_ON_OFF_PIN) | (1ULL << INCLINE_DIRECTION_PIN) |
                                (1ULL << WAX_PUMP_RELAY_PIN);
     gpio_config_t io_conf_output = {
         .pin_bit_mask = output_pin_mask,
@@ -317,9 +317,19 @@ static void update_head_fan(int fan_state) {
     g_head_fan_state = fan_state;
     xSemaphoreGive(g_speed_mutex);
 
-    // Lógica invertida: 0 = ON, 1 = OFF
-    gpio_set_level(HEAD_FAN_ON_OFF_PIN, (fan_state > 0) ? 0 : 1);
-    gpio_set_level(HEAD_FAN_SPEED_PIN, (fan_state == 2) ? 0 : 1);
+    // Patrón selector + ON/OFF (lógica invertida: 0 = ON, 1 = OFF)
+    if (fan_state == 0) {
+        // OFF
+        gpio_set_level(HEAD_FAN_ON_OFF_PIN, 1);  // 1 = OFF
+    } else if (fan_state == 1) {
+        // Normal: selector NC, activar
+        gpio_set_level(HEAD_FAN_SPEED_PIN, 1);   // 1 = NC = normal
+        gpio_set_level(HEAD_FAN_ON_OFF_PIN, 0);  // 0 = ON
+    } else {
+        // Fuerte: selector NO, activar
+        gpio_set_level(HEAD_FAN_SPEED_PIN, 0);   // 0 = NO = fuerte
+        gpio_set_level(HEAD_FAN_ON_OFF_PIN, 0);  // 0 = ON
+    }
 
     ESP_LOGD(TAG, "Ventilador cabeza: %d", fan_state);
 }
@@ -334,9 +344,19 @@ static void update_chest_fan(int fan_state) {
     g_chest_fan_state = fan_state;
     xSemaphoreGive(g_speed_mutex);
 
-    // Lógica invertida: 0 = ON, 1 = OFF
-    gpio_set_level(CHEST_FAN_ON_OFF_PIN, (fan_state > 0) ? 0 : 1);
-    gpio_set_level(CHEST_FAN_SPEED_PIN, (fan_state == 2) ? 0 : 1);
+    // Patrón selector + ON/OFF (lógica invertida: 0 = ON, 1 = OFF)
+    if (fan_state == 0) {
+        // OFF
+        gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);  // 1 = OFF
+    } else if (fan_state == 1) {
+        // Normal: selector NC, activar
+        gpio_set_level(CHEST_FAN_SPEED_PIN, 1);   // 1 = NC = normal
+        gpio_set_level(CHEST_FAN_ON_OFF_PIN, 0);  // 0 = ON
+    } else {
+        // Fuerte: selector NO, activar
+        gpio_set_level(CHEST_FAN_SPEED_PIN, 0);   // 0 = NO = fuerte
+        gpio_set_level(CHEST_FAN_ON_OFF_PIN, 0);  // 0 = ON
+    }
 
     ESP_LOGD(TAG, "Ventilador pecho: %d", fan_state);
 }
@@ -511,10 +531,12 @@ static void incline_control_task(void *pvParameters) {
                     if (fabs(error) > 0.1) {
                         if (error > 0) {
                             g_incline_motor_state = INCLINE_MOTOR_UP;
-                            gpio_set_level(INCLINE_UP_RELAY_PIN, 0);  // 0 = ON (lógica invertida)
+                            gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // 1 = NC = arriba
+                            gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                         } else {
                             g_incline_motor_state = INCLINE_MOTOR_DOWN;
-                            gpio_set_level(INCLINE_DOWN_RELAY_PIN, 0);  // 0 = ON (lógica invertida)
+                            gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // 0 = NO = abajo
+                            gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                         }
                     }
                 }
