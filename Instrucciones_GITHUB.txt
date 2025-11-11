@@ -1,0 +1,32 @@
+BAJAR:
+
+Descargar los últimos cambios hechos en Github:
+   cd C:\esp\Treadmill
+   git pull origin main
+   cd C:\esp\Treadmill\consola
+
+
+Lo que está en .gitignore no se actualiza en ningún sentido.
+
+
+
+
+SUBIR:
+
+Subir log.txt:
+   cd C:\esp\Treadmill
+   git add log.txt
+   git commit -m "Subir archivo log.txt para su análisis"
+   git push origin main
+   cd C:\esp\Treadmill\consola
+
+
+
+Subir log.txt:
+   cd C:\esp\Treadmill
+   git add .
+   git commit -m "Subir todos los cambios del proyecto"
+   git push origin main
+   cd C:\esp\Treadmill\consola
+
+
