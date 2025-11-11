@@ -121,6 +121,9 @@ static void reset_safe_state(void) {
     if (g_emergency_state) {
         ESP_LOGI(TAG, "✅ SAFE STATE reset. Communication restored.");
         g_emergency_state = false;
+        // Limpiar buffer UART para eliminar basura acumulada durante el timeout
+        uart_flush(UART_PORT_NUM);
+        ESP_LOGD(TAG, "Buffer UART limpiado");
     }
     g_last_command_time_us = esp_timer_get_time();
 }
