@@ -57,8 +57,8 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 #define INCLINE_LIMIT_SWITCH_PIN 35 // (Entrada)
 #define HEAD_FAN_ON_OFF_PIN     25 // Relé 7 - ON/OFF del ventilador
 #define HEAD_FAN_SPEED_PIN      26 // Relé 6 - Selector velocidad (NC=normal, NO=fuerte)
-#define CHEST_FAN_ON_OFF_PIN    33 // Relé 4
-#define CHEST_FAN_SPEED_PIN     32 // Relé 5
+#define CHEST_FAN_ON_OFF_PIN    32 // Relé 5 - ON/OFF del ventilador
+#define CHEST_FAN_SPEED_PIN     33 // Relé 4 - Selector velocidad (NC=normal, NO=fuerte)
 #define INCLINE_ON_OFF_PIN      27 // Relé 1 - ON/OFF del actuador
 #define INCLINE_DIRECTION_PIN   14 // Relé 2 - Selector dirección (NC=arriba, NO=abajo)
 #define WAX_PUMP_RELAY_PIN      13 // Relé 3
@@ -147,7 +147,7 @@ static void configure_gpios(void) {
     gpio_set_level(HEAD_FAN_ON_OFF_PIN, 1);      // 1 = OFF (lógica invertida)
     gpio_set_level(HEAD_FAN_SPEED_PIN, 1);       // 1 = NC (selector velocidad normal por defecto)
     gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);     // 1 = OFF (lógica invertida)
-    gpio_set_level(CHEST_FAN_SPEED_PIN, 1);      // 1 = OFF (lógica invertida)
+    gpio_set_level(CHEST_FAN_SPEED_PIN, 1);      // 1 = NC (selector velocidad normal por defecto)
     gpio_set_level(INCLINE_ON_OFF_PIN, 1);       // 1 = OFF (lógica invertida)
     gpio_set_level(INCLINE_DIRECTION_PIN, 1);    // 1 = NC (selector dirección arriba por defecto)
     gpio_set_level(WAX_PUMP_RELAY_PIN, 1);       // 1 = OFF (lógica invertida)
@@ -344,9 +344,19 @@ static void update_chest_fan(int fan_state) {
     g_chest_fan_state = fan_state;
     xSemaphoreGive(g_speed_mutex);
 
-    // Lógica invertida: 0 = ON, 1 = OFF
-    gpio_set_level(CHEST_FAN_ON_OFF_PIN, (fan_state > 0) ? 0 : 1);
-    gpio_set_level(CHEST_FAN_SPEED_PIN, (fan_state == 2) ? 0 : 1);
+    // Patrón selector + ON/OFF (lógica invertida: 0 = ON, 1 = OFF)
+    if (fan_state == 0) {
+        // OFF
+        gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);  // 1 = OFF
+    } else if (fan_state == 1) {
+        // Normal: selector NC, activar
+        gpio_set_level(CHEST_FAN_SPEED_PIN, 1);   // 1 = NC = normal
+        gpio_set_level(CHEST_FAN_ON_OFF_PIN, 0);  // 0 = ON
+    } else {
+        // Fuerte: selector NO, activar
+        gpio_set_level(CHEST_FAN_SPEED_PIN, 0);   // 0 = NO = fuerte
+        gpio_set_level(CHEST_FAN_ON_OFF_PIN, 0);  // 0 = ON
+    }
 
     ESP_LOGD(TAG, "Ventilador pecho: %d", fan_state);
 }
