@@ -1,6 +1,6 @@
 /**
  * Test simple del relé en GPIO 32 (INCLINE_DIRECTION_PIN)
- * Alterna el relé cada 2 segundos entre NC y NO
+ * Mantiene el relé activado permanentemente en LOW (NO)
  */
 
 #define RELE_PIN_32 32
@@ -12,25 +12,20 @@ void setup() {
   // Configurar GPIO 32 como salida
   pinMode(RELE_PIN_32, OUTPUT);
 
+  // Activar relé en LOW (NO)
+  digitalWrite(RELE_PIN_32, LOW);
+
   Serial.println("========================================");
   Serial.println("  Test Relé GPIO 32 - Dirección Motor");
   Serial.println("========================================");
   Serial.println("");
-  Serial.println("Alternando cada 2 segundos:");
-  Serial.println("  HIGH (1) = NC");
-  Serial.println("  LOW  (0) = NO");
+  Serial.println("GPIO 32: LOW (0) -> Relé ACTIVADO (NO)");
+  Serial.println("Manteniendo activado permanentemente...");
   Serial.println("========================================");
   Serial.println("");
 }
 
 void loop() {
-  // Activar NC (HIGH)
-  digitalWrite(RELE_PIN_32, HIGH);
-  Serial.println("GPIO 32: HIGH (1) -> Relé en posición NC");
-  delay(2000);
-
-  // Activar NO (LOW)
-  digitalWrite(RELE_PIN_32, LOW);
-  Serial.println("GPIO 32: LOW  (0) -> Relé en posición NO");
-  delay(2000);
+  // No hacer nada - mantener el estado
+  delay(1000);
 }
