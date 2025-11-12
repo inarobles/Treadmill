@@ -60,7 +60,7 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 #define CHEST_FAN_ON_OFF_PIN    14 // Relé 2 - ON/OFF del ventilador
 #define CHEST_FAN_SPEED_PIN     13 // Relé 1 - Selector velocidad (NC=normal, NO=fuerte)
 #define INCLINE_ON_OFF_PIN      33 // Relé 4 - ON/OFF del actuador
-#define INCLINE_DIRECTION_PIN   32 // Relé 5 - Selector dirección (NC=arriba, NO=abajo)
+#define INCLINE_DIRECTION_PIN   32 // Relé 5 - Selector dirección (GPIO 0=arriba, GPIO 1=abajo - evidencia empírica)
 #define WAX_PUMP_RELAY_PIN      25 // Relé 3
 
 // ===========================================================================
@@ -136,7 +136,7 @@ static float load_incline_position_from_nvs(void) {
 
 static void stop_incline_motor(void) {
     gpio_set_level(INCLINE_ON_OFF_PIN, 1);       // 1 = OFF - Apaga el actuador
-    gpio_set_level(INCLINE_DIRECTION_PIN, 1);    // Resetear selector a NC (arriba) por defecto
+    gpio_set_level(INCLINE_DIRECTION_PIN, 0);    // 0 = arriba por defecto (evidencia empírica)
     g_incline_motor_state = INCLINE_MOTOR_STOPPED;
 
     // Guardar posición actual en NVS para protección de homing en próximo arranque
@@ -242,7 +242,7 @@ static void configure_gpios(void) {
     gpio_set_level(CHEST_FAN_ON_OFF_PIN, 1);     // 1 = OFF (lógica invertida)
     gpio_set_level(CHEST_FAN_SPEED_PIN, 1);      // 1 = NC (selector velocidad normal por defecto)
     gpio_set_level(INCLINE_ON_OFF_PIN, 1);       // 1 = OFF (lógica invertida)
-    gpio_set_level(INCLINE_DIRECTION_PIN, 1);    // 1 = NC (selector dirección arriba por defecto)
+    gpio_set_level(INCLINE_DIRECTION_PIN, 0);    // 0 = arriba por defecto (evidencia empírica)
     gpio_set_level(WAX_PUMP_RELAY_PIN, 1);       // 1 = OFF (lógica invertida)
 
     // Ahora configurar como salidas
@@ -673,11 +673,11 @@ static void incline_control_task(void *pvParameters) {
                     if (fabs(error) > 0.1) {
                         if (error > 0) {
                             g_incline_motor_state = INCLINE_MOTOR_UP;
-                            gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // 1 = NC = arriba
+                            gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // 0 = arriba (evidencia empírica)
                             gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                         } else {
                             g_incline_motor_state = INCLINE_MOTOR_DOWN;
-                            gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // 0 = NO = abajo
+                            gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // 1 = abajo (evidencia empírica)
                             gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                         }
                     }
@@ -708,7 +708,7 @@ static void incline_control_task(void *pvParameters) {
                     g_incline_is_calibrated = true;
                 } else {
                     // Continuar bajando para buscar fin de carrera
-                    gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // 0 = NO = abajo
+                    gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // 1 = abajo (evidencia empírica)
                     gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                 }
                 break;
