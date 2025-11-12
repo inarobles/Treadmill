@@ -303,6 +303,49 @@ void ui_update_task(void *pvParameter) {
         head_value = head_fan_from_slave;
         chest_value = chest_fan_from_slave;
 
+        // --- PROTECCIÓN CRÍTICA: Verificar fallo del sensor de fin de carrera ---
+        static bool system_locked_due_to_sensor_fault = false;
+        bool incline_sensor_fault = cm_master_get_incline_sensor_fault();
+
+        if (incline_sensor_fault && !system_locked_due_to_sensor_fault) {
+            system_locked_due_to_sensor_fault = true;
+
+            // Detener la cinta inmediatamente
+            g_treadmill_state.target_speed = 0.0f;
+            cm_master_set_speed(0.0f);
+
+            // Mostrar mensaje de error crítico
+            bsp_display_lock(0);
+            set_info_text_persistent("ERROR CRITICO: Sensor de inclinacion averiado. Contacte servicio tecnico.");
+
+            // Desactivar todos los botones de control
+            lv_obj_add_state(btn_speed_inc, LV_STATE_DISABLED);
+            lv_obj_add_state(btn_speed_dec, LV_STATE_DISABLED);
+            lv_obj_add_state(btn_speed_set, LV_STATE_DISABLED);
+            lv_obj_add_state(btn_climb_inc, LV_STATE_DISABLED);
+            lv_obj_add_state(btn_climb_dec, LV_STATE_DISABLED);
+            lv_obj_add_state(btn_climb_set, LV_STATE_DISABLED);
+            lv_obj_add_state(btn_stop, LV_STATE_DISABLED);
+            lv_obj_add_state(btn_cooldown, LV_STATE_DISABLED);
+
+            bsp_display_unlock();
+
+            ESP_LOGE("UI", "═══════════════════════════════════════════════════");
+            ESP_LOGE("UI", "  SISTEMA BLOQUEADO POR ERROR CRÍTICO");
+            ESP_LOGE("UI", "  Sensor de fin de carrera de inclinación falló");
+            ESP_LOGE("UI", "  Todos los controles desactivados");
+            ESP_LOGE("UI", "═══════════════════════════════════════════════════");
+        }
+
+        // Si el sistema está bloqueado, forzar velocidad a 0 siempre
+        if (system_locked_due_to_sensor_fault) {
+            g_treadmill_state.target_speed = 0.0f;
+            g_treadmill_state.speed_kmh = 0.0f;
+            xSemaphoreGive(g_state_mutex);
+            vTaskDelay(pdMS_TO_TICKS(UI_UPDATE_INTERVAL_MS));
+            continue;  // Saltar el resto de la lógica de actualización
+        }
+
         // Detectar cambio de modo de rampa si alcanzamos target
         float speed_diff = g_treadmill_state.target_speed - g_treadmill_state.speed_kmh;
         if (fabs(speed_diff) < 0.05f) {
