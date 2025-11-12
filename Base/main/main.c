@@ -51,10 +51,10 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 #define UART_BUF_SIZE 512
 
 // ===========================================================================
-// ASIGNACIÓN DE PINES (v5)
+// ASIGNACIÓN DE PINES (v6)
 // ===========================================================================
 #define SENSOR_SPEED_PIN        15 // (PCNT) - Sensor Hall con corona de 12 dientes
-#define INCLINE_LIMIT_SWITCH_PIN 35 // (Entrada)
+#define INCLINE_LIMIT_SWITCH_PIN 21 // (Entrada con pull-up interno)
 #define HEAD_FAN_ON_OFF_PIN     26 // Relé 6 - ON/OFF del ventilador
 #define HEAD_FAN_SPEED_PIN      27 // Relé 7 - Selector velocidad (NC=normal, NO=fuerte)
 #define CHEST_FAN_ON_OFF_PIN    14 // Relé 2 - ON/OFF del ventilador
@@ -268,9 +268,9 @@ static void configure_gpios(void) {
         .intr_type = GPIO_INTR_DISABLE
     };
     ESP_ERROR_CHECK(gpio_config(&io_conf_input));
-    ESP_LOGI(TAG, "GPIO %d configurado para fin de carrera de inclinación", INCLINE_LIMIT_SWITCH_PIN);
+    ESP_LOGI(TAG, "GPIO %d configurado para fin de carrera de inclinación (pull-up interno)", INCLINE_LIMIT_SWITCH_PIN);
 
-    ESP_LOGI(TAG, "GPIOs configurados. Asignación v5 (Sensores en 34, 35).");
+    ESP_LOGI(TAG, "GPIOs configurados. Asignación v6 (Fin de carrera en GPIO 21 con pull-up interno).");
 }
 
 // ===========================================================================
