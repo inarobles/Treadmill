@@ -77,6 +77,8 @@ static float g_target_incline_pct = 0.0f;
 static bool g_incline_is_calibrated = false;
 static incline_motor_state_t g_incline_motor_state = INCLINE_MOTOR_STOPPED;
 #define INCLINE_SPEED_PCT_PER_MS (0.375f / 1000.0f)  // 0-15% en 40 segundos (0.375%/segundo)
+#define INCLINE_SAFETY_THRESHOLD_PCT -2.0f  // Si baja más de -2%, el fin de carrera falló
+static bool g_incline_sensor_fault = false;  // Error crítico: fin de carrera no funciona
 static uint8_t g_head_fan_state = 0;
 static uint8_t g_chest_fan_state = 0;
 static uint8_t g_wax_pump_relay_state = 0;
@@ -126,6 +128,45 @@ static void reset_safe_state(void) {
         ESP_LOGD(TAG, "Buffer UART limpiado");
     }
     g_last_command_time_us = esp_timer_get_time();
+}
+
+/**
+ * @brief Maneja fallo crítico del sensor de fin de carrera
+ *
+ * Se activa cuando el motor baja más allá del umbral de seguridad sin detectar
+ * el fin de carrera, indicando que el sensor está desconectado o averiado.
+ * Este es un error CRÍTICO que requiere intervención técnica.
+ */
+static void handle_incline_sensor_fault(void) {
+    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+
+    if (!g_incline_sensor_fault) {  // Solo registrar la primera vez
+        g_incline_sensor_fault = true;
+
+        ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+        ESP_LOGE(TAG, "  ERROR CRÍTICO: FIN DE CARRERA NO DETECTADO");
+        ESP_LOGE(TAG, "  Inclinación: %.2f%% (umbral: %.2f%%)",
+                 g_real_incline_pct, INCLINE_SAFETY_THRESHOLD_PCT);
+        ESP_LOGE(TAG, "  El sensor está desconectado o averiado");
+        ESP_LOGE(TAG, "  SISTEMA BLOQUEADO - Requiere servicio técnico");
+        ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+
+        // Guardar error en NVS para persistencia
+        nvs_handle_t nvs_handle;
+        esp_err_t err = nvs_open("storage", NVS_READWRITE, &nvs_handle);
+        if (err == ESP_OK) {
+            nvs_set_u8(nvs_handle, "incline_fault", 1);
+            nvs_commit(nvs_handle);
+            nvs_close(nvs_handle);
+            ESP_LOGI(TAG, "Error guardado en NVS");
+        }
+    }
+
+    xSemaphoreGive(g_speed_mutex);
+
+    // Detener todo y entrar en safe state
+    stop_incline_motor();
+    enter_safe_state();
 }
 
 static void wax_pump_timer_callback(void *arg) {
@@ -204,7 +245,7 @@ static esp_err_t send_line(const char *line) {
 
 /**
  * @brief Envía respuesta DATA consolidada
- * Formato: DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>
+ * Formato: DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>,<incline_fault>
  */
 static void send_data_response(void) {
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
@@ -212,6 +253,7 @@ static void send_data_response(void) {
     float real_incline = g_real_incline_pct;
     uint8_t head_fan = g_head_fan_state;
     uint8_t chest_fan = g_chest_fan_state;
+    uint8_t incline_fault = g_incline_sensor_fault ? 1 : 0;
     xSemaphoreGive(g_speed_mutex);
 
     // Obtener frecuencia real del VFD
@@ -221,9 +263,9 @@ static void send_data_response(void) {
     vfd_status_t vfd_status = vfd_driver_get_status();
     uint8_t vfd_fault = (vfd_status == VFD_STATUS_OK) ? 0 : 1;
 
-    char buffer[96];
-    snprintf(buffer, sizeof(buffer), "DATA=%.2f,%.1f,%.2f,%d,%d,%d\n",
-             real_speed, real_incline, vfd_freq, vfd_fault, head_fan, chest_fan);
+    char buffer[128];
+    snprintf(buffer, sizeof(buffer), "DATA=%.2f,%.1f,%.2f,%d,%d,%d,%d\n",
+             real_speed, real_incline, vfd_freq, vfd_fault, head_fan, chest_fan, incline_fault);
     send_line(buffer);
 }
 
@@ -392,6 +434,13 @@ static void update_wax_pump(int state) {
  * Responde automáticamente con DATA
  */
 static void process_sync(const char *cmd_line) {
+    // BLOQUEO CRÍTICO: Si hay fallo del sensor, solo responder con DATA de error
+    if (g_incline_sensor_fault) {
+        ESP_LOGW(TAG, "Sistema BLOQUEADO por fallo crítico - Rechazando comandos");
+        send_data_response();  // Enviar estado con incline_fault=1
+        return;
+    }
+
     float target_speed, target_incline;
     int fan_head, fan_chest, wax, training_mode;
 
@@ -599,6 +648,15 @@ static void incline_control_task(void *pvParameters) {
                 } else {
                     // Continuar bajando normalmente
                     g_real_incline_pct -= (delta_ms * INCLINE_SPEED_PCT_PER_MS);
+
+                    // PROTECCIÓN CRÍTICA: Si bajó más allá del umbral, el sensor falló
+                    if (g_real_incline_pct < INCLINE_SAFETY_THRESHOLD_PCT) {
+                        xSemaphoreGive(g_speed_mutex);  // Liberar antes de llamar handle_incline_sensor_fault
+                        handle_incline_sensor_fault();
+                        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);  // Re-tomar para mantener consistencia
+                        break;  // Salir del switch, el sistema está bloqueado
+                    }
+
                     if (g_real_incline_pct <= g_target_incline_pct) {
                         stop_incline_motor();
                         g_real_incline_pct = g_target_incline_pct;
@@ -646,6 +704,24 @@ void app_main(void) {
     if (g_speed_mutex == NULL) {
         ESP_LOGE(TAG, "Failed to create mutex");
         return;
+    }
+
+    // Verificar si hay un error crítico guardado de sesión anterior
+    nvs_handle_t nvs_handle;
+    ret = nvs_open("storage", NVS_READWRITE, &nvs_handle);
+    if (ret == ESP_OK) {
+        uint8_t fault_flag = 0;
+        ret = nvs_get_u8(nvs_handle, "incline_fault", &fault_flag);
+        if (ret == ESP_OK && fault_flag == 1) {
+            g_incline_sensor_fault = true;
+            ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+            ESP_LOGE(TAG, "  ERROR CRÍTICO PERSISTENTE DETECTADO");
+            ESP_LOGE(TAG, "  Fallo del sensor de fin de carrera registrado");
+            ESP_LOGE(TAG, "  El sistema permanecerá BLOQUEADO hasta reparación");
+            ESP_LOGE(TAG, "  Para resetear: Borrar NVS y verificar sensor");
+            ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+        }
+        nvs_close(nvs_handle);
     }
 
     configure_gpios();

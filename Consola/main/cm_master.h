@@ -143,6 +143,13 @@ esp_err_t cm_master_set_relay(uint8_t relay_id, uint8_t state);
  */
 esp_err_t cm_master_set_training_mode(bool enabled);
 
+/**
+ * @brief Obtiene el estado del sensor de fin de carrera de inclinación
+ *
+ * @return true si hay un error crítico del sensor (sistema bloqueado), false si está OK
+ */
+bool cm_master_get_incline_sensor_fault(void);
+
 #ifdef __cplusplus
 }
 #endif
