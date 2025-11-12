@@ -79,6 +79,9 @@ static incline_motor_state_t g_incline_motor_state = INCLINE_MOTOR_STOPPED;
 #define INCLINE_SPEED_PCT_PER_MS (0.375f / 1000.0f)  // 0-15% en 40 segundos (0.375%/segundo)
 #define INCLINE_SAFETY_THRESHOLD_PCT -2.0f  // Si baja más de -2%, el fin de carrera falló
 static bool g_incline_sensor_fault = false;  // Error crítico: fin de carrera no funciona
+static float g_last_saved_incline_pct = 0.0f;  // Última posición guardada en NVS
+static uint32_t g_homing_timeout_ms = 5000;    // Timeout dinámico para homing (calculado desde NVS)
+static uint64_t g_homing_start_time_us = 0;    // Timestamp de inicio del homing
 static uint8_t g_head_fan_state = 0;
 static uint8_t g_chest_fan_state = 0;
 static uint8_t g_wax_pump_relay_state = 0;
@@ -89,10 +92,55 @@ static esp_timer_handle_t wax_pump_timer_handle;
 // ===========================================================================
 // TAREAS Y FUNCIONES DE BAJO NIVEL
 // ===========================================================================
+
+/**
+ * @brief Guarda la posición actual de inclinación en NVS
+ *
+ * Se guarda multiplicada por 100 como entero para evitar problemas de precisión float.
+ * Esta posición se usa para calcular el timeout dinámico de homing en el próximo arranque.
+ */
+static void save_incline_position_to_nvs(float position_pct) {
+    nvs_handle_t nvs_handle;
+    esp_err_t err = nvs_open("storage", NVS_READWRITE, &nvs_handle);
+    if (err == ESP_OK) {
+        int32_t position_x100 = (int32_t)(position_pct * 100.0f);  // Guardar como entero
+        nvs_set_i32(nvs_handle, "incline_pos", position_x100);
+        nvs_commit(nvs_handle);
+        nvs_close(nvs_handle);
+        ESP_LOGD(TAG, "Posición de inclinación guardada en NVS: %.1f%%", position_pct);
+    }
+}
+
+/**
+ * @brief Carga la posición de inclinación guardada desde NVS
+ *
+ * @return Posición en %, o 0.0 si no hay datos guardados
+ */
+static float load_incline_position_from_nvs(void) {
+    nvs_handle_t nvs_handle;
+    float position_pct = 0.0f;
+
+    esp_err_t err = nvs_open("storage", NVS_READONLY, &nvs_handle);
+    if (err == ESP_OK) {
+        int32_t position_x100 = 0;
+        err = nvs_get_i32(nvs_handle, "incline_pos", &position_x100);
+        if (err == ESP_OK) {
+            position_pct = (float)position_x100 / 100.0f;
+            ESP_LOGI(TAG, "Posición de inclinación cargada desde NVS: %.1f%%", position_pct);
+        }
+        nvs_close(nvs_handle);
+    }
+
+    return position_pct;
+}
+
 static void stop_incline_motor(void) {
     gpio_set_level(INCLINE_ON_OFF_PIN, 1);       // 1 = OFF - Apaga el actuador
     gpio_set_level(INCLINE_DIRECTION_PIN, 1);    // Resetear selector a NC (arriba) por defecto
     g_incline_motor_state = INCLINE_MOTOR_STOPPED;
+
+    // Guardar posición actual en NVS para protección de homing en próximo arranque
+    save_incline_position_to_nvs(g_real_incline_pct);
 }
 
 static void enter_safe_state(void) {
@@ -577,8 +625,19 @@ static void speed_update_task(void *pvParameters) {
 
 static void incline_control_task(void *pvParameters) {
     ESP_LOGI(TAG, "Tarea de control de inclinación iniciada");
+
+    // Cargar posición guardada desde NVS y calcular timeout dinámico
+    g_last_saved_incline_pct = load_incline_position_from_nvs();
+
+    // Calcular timeout dinámico: tiempo estimado para bajar desde posición guardada + 5s margen
+    // Fórmula: (posición_pct / 0.375%/s) * 1000ms + 5000ms
+    g_homing_timeout_ms = (uint32_t)((g_last_saved_incline_pct / 0.375f) * 1000.0f) + 5000;
+    ESP_LOGI(TAG, "Timeout dinámico de homing calculado: %lu ms (basado en posición guardada: %.1f%%)",
+             g_homing_timeout_ms, g_last_saved_incline_pct);
+
     g_incline_is_calibrated = false;
     g_incline_motor_state = INCLINE_MOTOR_HOMING;
+    g_homing_start_time_us = esp_timer_get_time();  // Registrar inicio de homing
     uint64_t last_update_time_us = esp_timer_get_time();
 
     for(;;) {
@@ -599,6 +658,7 @@ static void incline_control_task(void *pvParameters) {
             case INCLINE_MOTOR_STOPPED:
                 if (!g_incline_is_calibrated) {
                     g_incline_motor_state = INCLINE_MOTOR_HOMING;
+                    g_homing_start_time_us = now_us;  // Registrar inicio de homing
                 } else {
                     float error = g_target_incline_pct - g_real_incline_pct;
                     if (fabs(error) > 0.1) {
@@ -615,6 +675,20 @@ static void incline_control_task(void *pvParameters) {
                 }
                 break;
             case INCLINE_MOTOR_HOMING:
+                // PROTECCIÓN CRÍTICA: Verificar timeout de homing
+                {
+                    uint64_t homing_elapsed_ms = (now_us - g_homing_start_time_us) / 1000;
+                    if (homing_elapsed_ms > g_homing_timeout_ms) {
+                        ESP_LOGE(TAG, "⚠️ TIMEOUT DE HOMING EXCEDIDO: %llu ms > %lu ms",
+                                 homing_elapsed_ms, g_homing_timeout_ms);
+                        ESP_LOGE(TAG, "El fin de carrera no se detectó en el tiempo esperado");
+                        xSemaphoreGive(g_speed_mutex);
+                        handle_incline_sensor_fault();
+                        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+                        break;
+                    }
+                }
+
                 // Bajar hasta detectar fin de carrera
                 if (gpio_get_level(INCLINE_LIMIT_SWITCH_PIN) == 0) {
                     // Fin de carrera activado - calibración completada
