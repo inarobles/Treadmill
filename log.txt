@@ -1,4 +1,4 @@
-						LOG 1
+						LOG 2
 
 
 C:\Esp\Treadmill\Base>idf.py -p COM3 monitor
