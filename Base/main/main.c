@@ -635,9 +635,17 @@ static void incline_control_task(void *pvParameters) {
     ESP_LOGI(TAG, "Timeout dinámico de homing calculado: %lu ms (basado en posición guardada: %.1f%%)",
              g_homing_timeout_ms, g_last_saved_incline_pct);
 
-    g_incline_is_calibrated = false;
-    g_incline_motor_state = INCLINE_MOTOR_HOMING;
-    g_homing_start_time_us = esp_timer_get_time();  // Registrar inicio de homing
+    // PROTECCIÓN CRÍTICA: Si hay fallo persistente del sensor, NO hacer homing
+    if (g_incline_sensor_fault) {
+        ESP_LOGE(TAG, "Sistema bloqueado por fallo del sensor - Homing desactivado");
+        g_incline_is_calibrated = false;
+        g_incline_motor_state = INCLINE_MOTOR_STOPPED;
+    } else {
+        g_incline_is_calibrated = false;
+        g_incline_motor_state = INCLINE_MOTOR_HOMING;
+        g_homing_start_time_us = esp_timer_get_time();  // Registrar inicio de homing
+    }
+
     uint64_t last_update_time_us = esp_timer_get_time();
 
     for(;;) {
@@ -649,7 +657,8 @@ static void incline_control_task(void *pvParameters) {
 
         xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
 
-        if (g_emergency_state) {
+        // PROTECCIÓN CRÍTICA: Si hay fallo del sensor, no hacer nada
+        if (g_incline_sensor_fault || g_emergency_state) {
             xSemaphoreGive(g_speed_mutex);
             continue;
         }
