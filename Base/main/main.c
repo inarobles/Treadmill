@@ -76,7 +76,7 @@ static float g_real_incline_pct = 0.0f;
 static float g_target_incline_pct = 0.0f;
 static bool g_incline_is_calibrated = false;
 static incline_motor_state_t g_incline_motor_state = INCLINE_MOTOR_STOPPED;
-#define INCLINE_SPEED_PCT_PER_MS (1.5f / 1000.0f)  // 0-15% en 10 segundos (1.5%/segundo)
+#define INCLINE_SPEED_PCT_PER_MS (0.375f / 1000.0f)  // 0-15% en 40 segundos (0.375%/segundo)
 static uint8_t g_head_fan_state = 0;
 static uint8_t g_chest_fan_state = 0;
 static uint8_t g_wax_pump_relay_state = 0;
