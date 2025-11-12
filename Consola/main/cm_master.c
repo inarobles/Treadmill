@@ -47,6 +47,7 @@ static float g_vfd_freq_hz = 0.0f;
 static uint8_t g_vfd_fault = 0;
 static uint8_t g_head_fan_state = 0;
 static uint8_t g_chest_fan_state = 0;
+static uint8_t g_incline_sensor_fault = 0;  // Error crítico del sensor de fin de carrera
 
 /** Variables de control (targets) */
 static float g_target_speed_kmh = 0.0f;
@@ -111,32 +112,44 @@ static esp_err_t send_sync(float speed, float incline, uint8_t fan_head, uint8_t
 // ============================================================================
 
 /**
- * @brief Procesa respuesta DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>
+ * @brief Procesa respuesta DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>,<incline_fault>
  */
 static void process_data_response(const char *line) {
     float speed, incline, vfd_freq;
-    int vfd_fault, fan_head, fan_chest;
+    int vfd_fault, fan_head, fan_chest, incline_fault = 0;
 
-    int parsed = sscanf(line, "DATA=%f,%f,%f,%d,%d,%d",
+    // Intentar parsear formato nuevo (7 campos)
+    int parsed = sscanf(line, "DATA=%f,%f,%f,%d,%d,%d,%d",
                         &speed, &incline, &vfd_freq,
-                        &vfd_fault, &fan_head, &fan_chest);
+                        &vfd_fault, &fan_head, &fan_chest, &incline_fault);
 
-    if (parsed == 6) {
-        xSemaphoreTake(g_master_mutex, portMAX_DELAY);
-        g_real_speed_kmh = speed;
-        g_current_incline_pct = incline;
-        g_vfd_freq_hz = vfd_freq;
-        g_vfd_fault = (uint8_t)vfd_fault;
-        g_head_fan_state = (uint8_t)fan_head;
-        g_chest_fan_state = (uint8_t)fan_chest;
-        g_last_response_us = esp_timer_get_time();
-        g_connected = true;
-        xSemaphoreGive(g_master_mutex);
-
-        ESP_LOGD(TAG, "DATA: speed=%.2f incline=%.1f vfd_freq=%.2f fault=%d fans=%d,%d",
-                 speed, incline, vfd_freq, vfd_fault, fan_head, fan_chest);
-    } else {
+    // Compatibilidad con formato antiguo (6 campos)
+    if (parsed < 6) {
         ESP_LOGW(TAG, "Error al parsear DATA: %s", line);
+        return;
+    }
+
+    xSemaphoreTake(g_master_mutex, portMAX_DELAY);
+    g_real_speed_kmh = speed;
+    g_current_incline_pct = incline;
+    g_vfd_freq_hz = vfd_freq;
+    g_vfd_fault = (uint8_t)vfd_fault;
+    g_head_fan_state = (uint8_t)fan_head;
+    g_chest_fan_state = (uint8_t)fan_chest;
+    g_incline_sensor_fault = (uint8_t)incline_fault;
+    g_last_response_us = esp_timer_get_time();
+    g_connected = true;
+    xSemaphoreGive(g_master_mutex);
+
+    ESP_LOGD(TAG, "DATA: speed=%.2f incline=%.1f vfd_freq=%.2f vfd_fault=%d fans=%d,%d incline_fault=%d",
+             speed, incline, vfd_freq, vfd_fault, fan_head, fan_chest, incline_fault);
+
+    // Alerta crítica si se detecta fallo del sensor
+    if (incline_fault != 0) {
+        ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+        ESP_LOGE(TAG, "  ALERTA CRÍTICA: Fallo del sensor de inclinación");
+        ESP_LOGE(TAG, "  Sistema bloqueado - Requiere servicio técnico");
+        ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
     }
 }
 
@@ -441,4 +454,14 @@ esp_err_t cm_master_set_training_mode(bool enabled) {
     xSemaphoreGive(g_master_mutex);
     ESP_LOGI(TAG, "Training mode: %s", enabled ? "ACTIVADO (entrenando)" : "DESACTIVADO (pantalla inicial)");
     return ESP_OK;
+}
+
+bool cm_master_get_incline_sensor_fault(void) {
+    if (g_master_mutex == NULL) {
+        return false;  // No inicializado aún
+    }
+    xSemaphoreTake(g_master_mutex, portMAX_DELAY);
+    bool fault = (g_incline_sensor_fault != 0);
+    xSemaphoreGive(g_master_mutex);
+    return fault;
 }

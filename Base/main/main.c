@@ -51,10 +51,10 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 #define UART_BUF_SIZE 512
 
 // ===========================================================================
-// ASIGNACIÓN DE PINES (v5)
+// ASIGNACIÓN DE PINES (v6)
 // ===========================================================================
 #define SENSOR_SPEED_PIN        15 // (PCNT) - Sensor Hall con corona de 12 dientes
-#define INCLINE_LIMIT_SWITCH_PIN 35 // (Entrada)
+#define INCLINE_LIMIT_SWITCH_PIN 21 // (Entrada con pull-up interno)
 #define HEAD_FAN_ON_OFF_PIN     26 // Relé 6 - ON/OFF del ventilador
 #define HEAD_FAN_SPEED_PIN      27 // Relé 7 - Selector velocidad (NC=normal, NO=fuerte)
 #define CHEST_FAN_ON_OFF_PIN    14 // Relé 2 - ON/OFF del ventilador
@@ -77,6 +77,11 @@ static float g_target_incline_pct = 0.0f;
 static bool g_incline_is_calibrated = false;
 static incline_motor_state_t g_incline_motor_state = INCLINE_MOTOR_STOPPED;
 #define INCLINE_SPEED_PCT_PER_MS (0.375f / 1000.0f)  // 0-15% en 40 segundos (0.375%/segundo)
+#define INCLINE_SAFETY_THRESHOLD_PCT -2.0f  // Si baja más de -2%, el fin de carrera falló
+static bool g_incline_sensor_fault = false;  // Error crítico: fin de carrera no funciona
+static float g_last_saved_incline_pct = 0.0f;  // Última posición guardada en NVS
+static uint32_t g_homing_timeout_ms = 5000;    // Timeout dinámico para homing (calculado desde NVS)
+static uint64_t g_homing_start_time_us = 0;    // Timestamp de inicio del homing
 static uint8_t g_head_fan_state = 0;
 static uint8_t g_chest_fan_state = 0;
 static uint8_t g_wax_pump_relay_state = 0;
@@ -87,10 +92,55 @@ static esp_timer_handle_t wax_pump_timer_handle;
 // ===========================================================================
 // TAREAS Y FUNCIONES DE BAJO NIVEL
 // ===========================================================================
+
+/**
+ * @brief Guarda la posición actual de inclinación en NVS
+ *
+ * Se guarda multiplicada por 100 como entero para evitar problemas de precisión float.
+ * Esta posición se usa para calcular el timeout dinámico de homing en el próximo arranque.
+ */
+static void save_incline_position_to_nvs(float position_pct) {
+    nvs_handle_t nvs_handle;
+    esp_err_t err = nvs_open("storage", NVS_READWRITE, &nvs_handle);
+    if (err == ESP_OK) {
+        int32_t position_x100 = (int32_t)(position_pct * 100.0f);  // Guardar como entero
+        nvs_set_i32(nvs_handle, "incline_pos", position_x100);
+        nvs_commit(nvs_handle);
+        nvs_close(nvs_handle);
+        ESP_LOGD(TAG, "Posición de inclinación guardada en NVS: %.1f%%", position_pct);
+    }
+}
+
+/**
+ * @brief Carga la posición de inclinación guardada desde NVS
+ *
+ * @return Posición en %, o 0.0 si no hay datos guardados
+ */
+static float load_incline_position_from_nvs(void) {
+    nvs_handle_t nvs_handle;
+    float position_pct = 0.0f;
+
+    esp_err_t err = nvs_open("storage", NVS_READONLY, &nvs_handle);
+    if (err == ESP_OK) {
+        int32_t position_x100 = 0;
+        err = nvs_get_i32(nvs_handle, "incline_pos", &position_x100);
+        if (err == ESP_OK) {
+            position_pct = (float)position_x100 / 100.0f;
+            ESP_LOGI(TAG, "Posición de inclinación cargada desde NVS: %.1f%%", position_pct);
+        }
+        nvs_close(nvs_handle);
+    }
+
+    return position_pct;
+}
+
 static void stop_incline_motor(void) {
     gpio_set_level(INCLINE_ON_OFF_PIN, 1);       // 1 = OFF - Apaga el actuador
     gpio_set_level(INCLINE_DIRECTION_PIN, 1);    // Resetear selector a NC (arriba) por defecto
     g_incline_motor_state = INCLINE_MOTOR_STOPPED;
+
+    // Guardar posición actual en NVS para protección de homing en próximo arranque
+    save_incline_position_to_nvs(g_real_incline_pct);
 }
 
 static void enter_safe_state(void) {
@@ -126,6 +176,45 @@ static void reset_safe_state(void) {
         ESP_LOGD(TAG, "Buffer UART limpiado");
     }
     g_last_command_time_us = esp_timer_get_time();
+}
+
+/**
+ * @brief Maneja fallo crítico del sensor de fin de carrera
+ *
+ * Se activa cuando el motor baja más allá del umbral de seguridad sin detectar
+ * el fin de carrera, indicando que el sensor está desconectado o averiado.
+ * Este es un error CRÍTICO que requiere intervención técnica.
+ */
+static void handle_incline_sensor_fault(void) {
+    xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+
+    if (!g_incline_sensor_fault) {  // Solo registrar la primera vez
+        g_incline_sensor_fault = true;
+
+        ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+        ESP_LOGE(TAG, "  ERROR CRÍTICO: FIN DE CARRERA NO DETECTADO");
+        ESP_LOGE(TAG, "  Inclinación: %.2f%% (umbral: %.2f%%)",
+                 g_real_incline_pct, INCLINE_SAFETY_THRESHOLD_PCT);
+        ESP_LOGE(TAG, "  El sensor está desconectado o averiado");
+        ESP_LOGE(TAG, "  SISTEMA BLOQUEADO - Requiere servicio técnico");
+        ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+
+        // Guardar error en NVS para persistencia
+        nvs_handle_t nvs_handle;
+        esp_err_t err = nvs_open("storage", NVS_READWRITE, &nvs_handle);
+        if (err == ESP_OK) {
+            nvs_set_u8(nvs_handle, "incline_fault", 1);
+            nvs_commit(nvs_handle);
+            nvs_close(nvs_handle);
+            ESP_LOGI(TAG, "Error guardado en NVS");
+        }
+    }
+
+    xSemaphoreGive(g_speed_mutex);
+
+    // Detener todo y entrar en safe state
+    stop_incline_motor();
+    enter_safe_state();
 }
 
 static void wax_pump_timer_callback(void *arg) {
@@ -179,9 +268,9 @@ static void configure_gpios(void) {
         .intr_type = GPIO_INTR_DISABLE
     };
     ESP_ERROR_CHECK(gpio_config(&io_conf_input));
-    ESP_LOGI(TAG, "GPIO %d configurado para fin de carrera de inclinación", INCLINE_LIMIT_SWITCH_PIN);
+    ESP_LOGI(TAG, "GPIO %d configurado para fin de carrera de inclinación (pull-up interno)", INCLINE_LIMIT_SWITCH_PIN);
 
-    ESP_LOGI(TAG, "GPIOs configurados. Asignación v5 (Sensores en 34, 35).");
+    ESP_LOGI(TAG, "GPIOs configurados. Asignación v6 (Fin de carrera en GPIO 21 con pull-up interno).");
 }
 
 // ===========================================================================
@@ -204,7 +293,7 @@ static esp_err_t send_line(const char *line) {
 
 /**
  * @brief Envía respuesta DATA consolidada
- * Formato: DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>
+ * Formato: DATA=<speed>,<incline>,<vfd_freq>,<vfd_fault>,<fan_head>,<fan_chest>,<incline_fault>
  */
 static void send_data_response(void) {
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
@@ -212,6 +301,7 @@ static void send_data_response(void) {
     float real_incline = g_real_incline_pct;
     uint8_t head_fan = g_head_fan_state;
     uint8_t chest_fan = g_chest_fan_state;
+    uint8_t incline_fault = g_incline_sensor_fault ? 1 : 0;
     xSemaphoreGive(g_speed_mutex);
 
     // Obtener frecuencia real del VFD
@@ -221,9 +311,9 @@ static void send_data_response(void) {
     vfd_status_t vfd_status = vfd_driver_get_status();
     uint8_t vfd_fault = (vfd_status == VFD_STATUS_OK) ? 0 : 1;
 
-    char buffer[96];
-    snprintf(buffer, sizeof(buffer), "DATA=%.2f,%.1f,%.2f,%d,%d,%d\n",
-             real_speed, real_incline, vfd_freq, vfd_fault, head_fan, chest_fan);
+    char buffer[128];
+    snprintf(buffer, sizeof(buffer), "DATA=%.2f,%.1f,%.2f,%d,%d,%d,%d\n",
+             real_speed, real_incline, vfd_freq, vfd_fault, head_fan, chest_fan, incline_fault);
     send_line(buffer);
 }
 
@@ -392,6 +482,13 @@ static void update_wax_pump(int state) {
  * Responde automáticamente con DATA
  */
 static void process_sync(const char *cmd_line) {
+    // BLOQUEO CRÍTICO: Si hay fallo del sensor, solo responder con DATA de error
+    if (g_incline_sensor_fault) {
+        ESP_LOGW(TAG, "Sistema BLOQUEADO por fallo crítico - Rechazando comandos");
+        send_data_response();  // Enviar estado con incline_fault=1
+        return;
+    }
+
     float target_speed, target_incline;
     int fan_head, fan_chest, wax, training_mode;
 
@@ -528,8 +625,19 @@ static void speed_update_task(void *pvParameters) {
 
 static void incline_control_task(void *pvParameters) {
     ESP_LOGI(TAG, "Tarea de control de inclinación iniciada");
+
+    // Cargar posición guardada desde NVS y calcular timeout dinámico
+    g_last_saved_incline_pct = load_incline_position_from_nvs();
+
+    // Calcular timeout dinámico: tiempo estimado para bajar desde posición guardada + 5s margen
+    // Fórmula: (posición_pct / 0.375%/s) * 1000ms + 5000ms
+    g_homing_timeout_ms = (uint32_t)((g_last_saved_incline_pct / 0.375f) * 1000.0f) + 5000;
+    ESP_LOGI(TAG, "Timeout dinámico de homing calculado: %lu ms (basado en posición guardada: %.1f%%)",
+             g_homing_timeout_ms, g_last_saved_incline_pct);
+
     g_incline_is_calibrated = false;
     g_incline_motor_state = INCLINE_MOTOR_HOMING;
+    g_homing_start_time_us = esp_timer_get_time();  // Registrar inicio de homing
     uint64_t last_update_time_us = esp_timer_get_time();
 
     for(;;) {
@@ -550,6 +658,7 @@ static void incline_control_task(void *pvParameters) {
             case INCLINE_MOTOR_STOPPED:
                 if (!g_incline_is_calibrated) {
                     g_incline_motor_state = INCLINE_MOTOR_HOMING;
+                    g_homing_start_time_us = now_us;  // Registrar inicio de homing
                 } else {
                     float error = g_target_incline_pct - g_real_incline_pct;
                     if (fabs(error) > 0.1) {
@@ -566,6 +675,20 @@ static void incline_control_task(void *pvParameters) {
                 }
                 break;
             case INCLINE_MOTOR_HOMING:
+                // PROTECCIÓN CRÍTICA: Verificar timeout de homing
+                {
+                    uint64_t homing_elapsed_ms = (now_us - g_homing_start_time_us) / 1000;
+                    if (homing_elapsed_ms > g_homing_timeout_ms) {
+                        ESP_LOGE(TAG, "⚠️ TIMEOUT DE HOMING EXCEDIDO: %llu ms > %lu ms",
+                                 homing_elapsed_ms, g_homing_timeout_ms);
+                        ESP_LOGE(TAG, "El fin de carrera no se detectó en el tiempo esperado");
+                        xSemaphoreGive(g_speed_mutex);
+                        handle_incline_sensor_fault();
+                        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+                        break;
+                    }
+                }
+
                 // Bajar hasta detectar fin de carrera
                 if (gpio_get_level(INCLINE_LIMIT_SWITCH_PIN) == 0) {
                     // Fin de carrera activado - calibración completada
@@ -599,6 +722,15 @@ static void incline_control_task(void *pvParameters) {
                 } else {
                     // Continuar bajando normalmente
                     g_real_incline_pct -= (delta_ms * INCLINE_SPEED_PCT_PER_MS);
+
+                    // PROTECCIÓN CRÍTICA: Si bajó más allá del umbral, el sensor falló
+                    if (g_real_incline_pct < INCLINE_SAFETY_THRESHOLD_PCT) {
+                        xSemaphoreGive(g_speed_mutex);  // Liberar antes de llamar handle_incline_sensor_fault
+                        handle_incline_sensor_fault();
+                        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);  // Re-tomar para mantener consistencia
+                        break;  // Salir del switch, el sistema está bloqueado
+                    }
+
                     if (g_real_incline_pct <= g_target_incline_pct) {
                         stop_incline_motor();
                         g_real_incline_pct = g_target_incline_pct;
@@ -646,6 +778,24 @@ void app_main(void) {
     if (g_speed_mutex == NULL) {
         ESP_LOGE(TAG, "Failed to create mutex");
         return;
+    }
+
+    // Verificar si hay un error crítico guardado de sesión anterior
+    nvs_handle_t nvs_handle;
+    ret = nvs_open("storage", NVS_READWRITE, &nvs_handle);
+    if (ret == ESP_OK) {
+        uint8_t fault_flag = 0;
+        ret = nvs_get_u8(nvs_handle, "incline_fault", &fault_flag);
+        if (ret == ESP_OK && fault_flag == 1) {
+            g_incline_sensor_fault = true;
+            ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+            ESP_LOGE(TAG, "  ERROR CRÍTICO PERSISTENTE DETECTADO");
+            ESP_LOGE(TAG, "  Fallo del sensor de fin de carrera registrado");
+            ESP_LOGE(TAG, "  El sistema permanecerá BLOQUEADO hasta reparación");
+            ESP_LOGE(TAG, "  Para resetear: Borrar NVS y verificar sensor");
+            ESP_LOGE(TAG, "═══════════════════════════════════════════════════");
+        }
+        nvs_close(nvs_handle);
     }
 
     configure_gpios();
