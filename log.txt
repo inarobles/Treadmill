@@ -1,10 +1,229 @@
-						LOG 1
+						LOG 2
 
 
-C:\esp\Treadmill\Consola>idf.py -p COM4 monitor
+C:\Esp\Treadmill\Base>idf.py -p COM3 monitor
 Executing action: monitor
-Running idf_monitor in directory C:\esp\Treadmill\Consola
-Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM4 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 1 --decode-panic backtrace C:\esp\Treadmill\Consola\build\lvgl_demo_v8.elf C:\esp\Treadmill\Consola\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM4'"...
+Running idf_monitor in directory C:\Esp\Treadmill\Base
+Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM3 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 C:\Esp\Treadmill\Base\build\sala_maquinas.elf C:\Esp\Treadmill\Base\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM3'"...
+--- Warning: GDB cannot open serial ports accessed as COMx
+--- Using \\.\COM3 instead...
+--- esp-idf-monitor 1.8.0 on \\.\COM3 115200
+--- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6380
+ho 0 tail 12 room 4
+load:0x40078000,len:15916
+load:0x40080400,len:3860
+--- 0x40080400: _invalid_pc_placeholder at C:/Espressif/frameworks/esp-idf-v5.5.1/components/xtensa/xtensa_vectors.S:2235
+entry 0x40080638
+--- 0x40080638: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
+I (29) boot: ESP-IDF v5.5.1 2nd stage bootloader
+I (29) boot: compile time Nov 11 2025 14:51:44
+I (29) boot: Multicore bootloader
+I (31) boot: chip revision: v3.1
+I (33) boot.esp32: SPI Speed      : 40MHz
+I (37) boot.esp32: SPI Mode       : DIO
+I (41) boot.esp32: SPI Flash Size : 4MB
+I (44) boot: Enabling RNG early entropy source...
+I (49) boot: Partition Table:
+I (51) boot: ## Label            Usage          Type ST Offset   Length
+I (58) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (64) boot:  1 phy_init         RF data          01 01 0000f000 00001000
+I (71) boot:  2 factory          factory app      00 00 00010000 00100000
+I (77) boot: End of partition table
+I (81) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=10e18h ( 69144) map
+I (112) esp_image: segment 1: paddr=00020e40 vaddr=3ffb0000 size=023e8h (  9192) load
+I (115) esp_image: segment 2: paddr=00023230 vaddr=40080000 size=0cde8h ( 52712) load
+I (136) esp_image: segment 3: paddr=00030020 vaddr=400d0020 size=29780h (169856) map
+I (194) esp_image: segment 4: paddr=000597a8 vaddr=4008cde8 size=009ech (  2540) load
+I (196) esp_image: segment 5: paddr=0005a19c vaddr=50000000 size=00020h (    32) load
+I (205) boot: Loaded app from partition at offset 0x10000
+I (205) boot: Disabling RNG early entropy source...
+I (220) cpu_start: Multicore app
+I (228) cpu_start: Pro cpu start user code
+I (228) cpu_start: cpu freq: 160000000 Hz
+I (228) app_init: Application information:
+I (231) app_init: Project name:     sala_maquinas
+I (237) app_init: App version:      94c8ac8-dirty
+I (242) app_init: Compile time:     Nov 12 2025 14:08:59
+I (248) app_init: ELF file SHA256:  0a4018ed5...
+I (253) app_init: ESP-IDF:          v5.5.1
+I (258) efuse_init: Min chip rev:     v0.0
+I (263) efuse_init: Max chip rev:     v3.99
+I (268) efuse_init: Chip rev:         v3.1
+I (273) heap_init: Initializing. RAM available for dynamic allocation:
+I (280) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (286) heap_init: At 3FFB2D60 len 0002D2A0 (180 KiB): DRAM
+I (292) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (298) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (305) heap_init: At 4008D7D4 len 0001282C (74 KiB): IRAM
+W (312) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
+I (325) spi_flash: detected chip: generic
+I (330) spi_flash: flash io: dio
+I (334) main_task: Started on CPU0
+I (337) main_task: Calling app_main()
+I (341) SLAVE: ==============================================
+I (348) SLAVE:   Sala de Maquinas - Sistema Esclavo
+I (353) SLAVE:   PROTOCOLO: ASCII Simple (UART Direct)
+I (359) SLAVE: ==============================================
+E (375) SLAVE: ═══════════════════════════════════════════════════
+E (381) SLAVE:   ERROR CRÍTICO PERSISTENTE DETECTADO
+E (387) SLAVE:   Fallo del sensor de fin de carrera registrado
+E (393) SLAVE:   El sistema permanecerá BLOQUEADO hasta reparación
+E (400) SLAVE:   Para resetear: Borrar NVS y verificar sensor
+E (407) SLAVE: ═══════════════════════════════════════════════════
+I (423) SLAVE: GPIO 21 configurado para fin de carrera de inclinación (pull-up interno)
+I (431) SLAVE: GPIOs configurados. Asignación v6 (Fin de carrera en GPIO 21 con pull-up interno).
+I (441) SLAVE: Temporizador de bomba de cera creado.
+I (447) SPEED_SENSOR: Inicializando sensor de velocidad (PCNT) en GPIO 15
+I (454) SPEED_SENSOR: GPIO 15 configurado con pull-down para evitar ruido
+I (462) SPEED_SENSOR: Sensor de velocidad (PCNT) inicializado y contando.
+I (469) SLAVE: Configurando UART para RS485...
+I (475) SLAVE: UART1 configurado: 115200 baud, TX=17, RX=16
+I (480) SLAVE: Tarea UART RX iniciada (modo ASCII). Escuchando en UART1...
+I (488) SLAVE: Tarea UART RX creada
+I (492) VFD_DRIVER_MODBUS: Inicializando driver Modbus Master...
+I (500) uart: queue free spaces: 20
+I (503) mb_port.serial: mbm_rtu@0x3ffb80fc, suspend port from task.
+W (582) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+I (611) VFD_DRIVER_MODBUS: Modbus Master inicializado en UART2 (TX:19, RX:18, 9600 bps)
+I (611) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+I (617) VFD_DRIVER_MODBUS: VFD Driver (Modbus Real) inicializado. Tarea creada.
+I (624) SLAVE: Controlador VFD (real) inicializado
+I (630) SLAVE: Tarea de actualización de velocidad iniciada
+I (636) SLAVE: Tarea de actualización de velocidad creada
+I (642) SLAVE: Tarea de control de inclinación iniciada
+I (649) SLAVE: Posición de inclinación cargada desde NVS: 0.0%
+I (655) SLAVE: Timeout dinámico de homing calculado: 5000 ms (basado en posición guardada: 0.0%)
+I (665) SLAVE: Tarea de control de inclinación creada
+I (670) SLAVE: Tarea de watchdog iniciada (Timeout: 0 ms)
+I (676) SLAVE: Tarea de watchdog creada (timeout: 1000ms)
+I (682) SLAVE: Sistema iniciado correctamente
+I (688) SLAVE: Esperando comandos del Maestro...
+W (782) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (882) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (1082) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (1182) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (1382) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (1482) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+E (1625) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (1627) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (1635) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (1642) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+E (2776) SLAVE: ¡WATCHDOG TIMEOUT! No se recibió comando en 0 ms
+W (2776) SLAVE: ⚠️ ENTERING SAFE STATE - Communication lost or emergency stop
+I (3613) SLAVE: ✅ SAFE STATE reset. Communication restored.
+W (3613) SLAVE: Comando desconocido o no soportado: SuDD<xD#
+W (4095) SLAVE: Comando desconocido o no soportado: @xx<( @@zx<xp8 )D@A@@zxxih8@@(DxPP?@PD@@<XPA
+E (5180) SLAVE: ¡WATCHDOG TIMEOUT! No se recibió comando en 0 ms
+W (5180) SLAVE: ⚠️ ENTERING SAFE STATE - Communication lost or emergency stop
+I (6650) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+E (7659) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (7659) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (7667) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (7675) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+I (8247) SLAVE: ✅ SAFE STATE reset. Communication restored.
+W (8247) SLAVE: Comando desconocido o no soportado: Q @=<<@D<x<@Pzzp@@@ <(x<P<0QSYNC=0.00,0.00,0,0,0,0
+W (8347) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (8547) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (8647) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (8847) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (8946) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9047) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9146) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9247) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9447) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9547) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9647) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9747) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9847) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (9947) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (10046) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (10146) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (10246) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (10347) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (10447) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (10647) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+I (10693) SLAVE: Heartbeat #0 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %
+W (10747) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (10847) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (10946) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11046) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11147) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11346) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11446) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11547) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11646) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11747) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11847) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (11946) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (12046) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (12146) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (12246) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (12346) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (12447) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (12646) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+I (12682) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+W (12746) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (12847) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (12946) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (13047) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (13246) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+E (13315) SLAVE: ⚠️ TIMEOUT DE HOMING EXCEDIDO: 5050 ms > 5000 ms
+E (13315) SLAVE: El fin de carrera no se detectó en el tiempo esperado
+W (13319) SLAVE: ⚠️ ENTERING SAFE STATE - Communication lost or emergency stop
+I (13446) SLAVE: ✅ SAFE STATE reset. Communication restored.
+W (13447) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (13546) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+E (13690) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (13691) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (13699) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (13707) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+W (13746) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (13846) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (13946) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (14047) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (14246) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (14346) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (14446) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (14546) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (14746) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (14846) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (14946) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+--- To exit from IDF monitor please use "Ctrl+]". Alternatively, you can use Ctrl+T Ctrl+X to exit.
+W (15046) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (15246) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (15346) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (15446) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (15547) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+W (15747) SLAVE: Sistema BLOQUEADO por fallo crítico - Rechazando comandos
+
+Traceback (most recent call last):
+  File "C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py", line 11, in <module>
+    sys.exit(subprocess.run([sys.executable, '-m', 'esp_idf_monitor'] + sys.argv[1:]).returncode)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "subprocess.py", line 550, in run
+  File "subprocess.py", line 1199, in communicate
+  File "subprocess.py", line 1262, in wait
+  File "subprocess.py", line 1543, in _wait
+KeyboardInterrupt
+idf_monitor failed with exit code 3221225786, output of the command is in the C:\Esp\Treadmill\Base\build\log\idf_py_stderr_output_11668 and C:\Esp\Treadmill\Base\build\log\idf_py_stdout_output_11668
+
+C:\Esp\Treadmill\Base>
+
+
+
+C:\Esp\Treadmill\Consola>idf.py -p COM4 monitor
+Executing action: monitor
+Running idf_monitor in directory C:\Esp\Treadmill\Consola
+Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM4 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 1 --decode-panic backtrace C:\Esp\Treadmill\Consola\build\lvgl_demo_v8.elf C:\Esp\Treadmill\Consola\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM4'"...
 --- Warning: GDB cannot open serial ports accessed as COMx
 --- Using \\.\COM4 instead...
 --- esp-idf-monitor 1.8.0 on \\.\COM4 115200
@@ -20,40 +239,40 @@ load:0x4ff2cbd0,len:0x345c
 --- 0x4ff2cbd0: esp_flash_encryption_enabled at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/flash_encrypt.c:89
 entry 0x4ff29eda
 --- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
-I (25) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader
-I (26) boot: compile time Nov 11 2025 01:39:59
+I (25) boot: ESP-IDF v5.5.1 2nd stage bootloader
+I (26) boot: compile time Nov 11 2025 14:54:14
 I (26) boot: Multicore bootloader
-I (28) boot: chip revision: v1.0
+I (27) boot: chip revision: v1.0
 I (29) boot: efuse block revision: v0.3
-I (33) qio_mode: Enabling default flash chip QIO
+I (32) qio_mode: Enabling default flash chip QIO
 I (37) boot.esp32p4: SPI Speed      : 80MHz
-I (41) boot.esp32p4: SPI Mode       : QIO
-I (45) boot.esp32p4: SPI Flash Size : 16MB
-I (49) boot: Enabling RNG early entropy source...
+I (40) boot.esp32p4: SPI Mode       : QIO
+I (44) boot.esp32p4: SPI Flash Size : 16MB
+I (48) boot: Enabling RNG early entropy source...
 I (53) boot: Partition Table:
-I (56) boot: ## Label            Usage          Type ST Offset   Length
-I (62) boot:  0 nvs              WiFi data        01 02 00009000 00006000
+I (55) boot: ## Label            Usage          Type ST Offset   Length
+I (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000
 I (68) boot:  1 phy_init         RF data          01 01 0000f000 00001000
-I (75) boot:  2 factory          factory app      00 00 00010000 00800000
+I (74) boot:  2 factory          factory app      00 00 00010000 00800000
 I (81) boot:  3 storage          Unknown data     01 82 00810000 00700000
 I (89) boot: End of partition table
-I (91) esp_image: segment 0: paddr=00010020 vaddr=48110020 size=9f794h (653204) map
-I (200) esp_image: segment 1: paddr=000af7bc vaddr=30100000 size=00068h (   104) load
-I (202) esp_image: segment 2: paddr=000af82c vaddr=4ff00000 size=007ech (  2028) load
-I (205) esp_image: segment 3: paddr=000b0020 vaddr=48000020 size=109ae0h (1088224) map
-I (379) esp_image: segment 4: paddr=001b9b08 vaddr=4ff007ec size=1c30ch (115468) load
-I (401) esp_image: segment 5: paddr=001d5e1c vaddr=4ff1cb00 size=047b4h ( 18356) load
-I (406) esp_image: segment 6: paddr=001da5d8 vaddr=50108080 size=00020h (    32) load
+I (91) esp_image: segment 0: paddr=00010020 vaddr=48110020 size=9f9bch (653756) map
+I (199) esp_image: segment 1: paddr=000af9e4 vaddr=30100000 size=00068h (   104) load
+I (201) esp_image: segment 2: paddr=000afa54 vaddr=4ff00000 size=005c4h (  1476) load
+I (205) esp_image: segment 3: paddr=000b0020 vaddr=48000020 size=109de0h (1088992) map
+I (378) esp_image: segment 4: paddr=001b9e08 vaddr=4ff005c4 size=1c534h (116020) load
+I (401) esp_image: segment 5: paddr=001d6344 vaddr=4ff1cb00 size=047b4h ( 18356) load
+I (406) esp_image: segment 6: paddr=001dab00 vaddr=50108080 size=00020h (    32) load
 I (413) boot: Loaded app from partition at offset 0x10000
 I (414) boot: Disabling RNG early entropy source...
 I (428) hex_psram: vendor id    : 0x0d (AP)
 I (429) hex_psram: Latency      : 0x01 (Fixed)
 I (429) hex_psram: DriveStr.    : 0x00 (25 Ohm)
-I (430) hex_psram: dev id       : 0x03 (generation 4)
+I (429) hex_psram: dev id       : 0x03 (generation 4)
 I (434) hex_psram: density      : 0x07 (256 Mbit)
 I (439) hex_psram: good-die     : 0x06 (Pass)
 I (443) hex_psram: SRF          : 0x02 (Slow Refresh)
-I (448) hex_psram: BurstType    : 0x00 ( Wrap)
+I (447) hex_psram: BurstType    : 0x00 ( Wrap)
 I (452) hex_psram: BurstLen     : 0x03 (2048 Byte)
 I (456) hex_psram: BitMode      : 0x01 (X16 Mode)
 I (461) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
@@ -66,77 +285,77 @@ I (674) mmu_psram: .rodata xip on psram
 I (726) mmu_psram: .text xip on psram
 I (726) hex_psram: psram CS IO is dedicated
 I (727) cpu_start: Multicore app
-I (1162) esp_psram: SPI SRAM memory test OK
-I (1170) cpu_start: Pro cpu start user code
-I (1171) cpu_start: cpu freq: 360000000 Hz
-I (1171) app_init: Application information:
-I (1171) app_init: Project name:     lvgl_demo_v8
-I (1175) app_init: App version:      02e3918
-I (1179) app_init: Compile time:     Nov 11 2025 11:10:32
-I (1184) app_init: ELF file SHA256:  8254e1eeb...
-I (1189) app_init: ESP-IDF:          v5.5.1-dirty
-I (1193) efuse_init: Min chip rev:     v0.1
-I (1197) efuse_init: Max chip rev:     v1.99
-I (1201) efuse_init: Chip rev:         v1.0
-I (1205) heap_init: Initializing. RAM available for dynamic allocation:
-I (1211) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
-I (1217) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
-I (1222) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
-I (1227) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
-I (1233) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
-I (1238) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
-I (1244) esp_psram: Adding pool of 25K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
-I (1256) esp_psram: Adding pool of 2K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
-I (1267) spi_flash: detected chip: boya
-I (1270) spi_flash: flash io: qio
-I (1273) host_init: ESP Hosted : Host chip_ip[18]
-I (1288) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
-I (1288) H_API: ** add_esp_wifi_remote_channels **
-I (1291) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
---- 0x4800ea10: transport_drv_sta_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
---- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-I (1298) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
---- 0x4800e952: transport_drv_ap_tx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
---- 0x48022f6c: esp_wifi_remote_channel_rx at C:/esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-sdio_mempool_create free:31916456 min-free:31916456 lfb-def:31457280 lfb-8bit:31457280
+I (1169) esp_psram: SPI SRAM memory test OK
+I (1178) cpu_start: Pro cpu start user code
+I (1178) cpu_start: cpu freq: 360000000 Hz
+I (1178) app_init: Application information:
+I (1178) app_init: Project name:     lvgl_demo_v8
+I (1183) app_init: App version:      94c8ac8-dirty
+I (1187) app_init: Compile time:     Nov 12 2025 14:09:11
+I (1193) app_init: ELF file SHA256:  8699163da...
+I (1197) app_init: ESP-IDF:          v5.5.1
+I (1201) efuse_init: Min chip rev:     v0.1
+I (1205) efuse_init: Max chip rev:     v1.99
+I (1209) efuse_init: Chip rev:         v1.0
+I (1213) heap_init: Initializing. RAM available for dynamic allocation:
+I (1219) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
+I (1224) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
+I (1229) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
+I (1235) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
+I (1240) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
+I (1245) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
+I (1252) esp_psram: Adding pool of 24K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
+I (1263) esp_psram: Adding pool of 1K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
+I (1275) spi_flash: detected chip: boya
+I (1278) spi_flash: flash io: qio
+I (1281) host_init: ESP Hosted : Host chip_ip[18]
+I (1295) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
+I (1296) H_API: ** add_esp_wifi_remote_channels **
+I (1298) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
+--- 0x4800ea10: transport_drv_sta_tx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
+--- 0x48022f6c: esp_wifi_remote_channel_rx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
+I (1306) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
+--- 0x4800e952: transport_drv_ap_tx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
+--- 0x48022f6c: esp_wifi_remote_channel_rx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
+sdio_mempool_create free:31915176 min-free:31915176 lfb-def:31457280 lfb-8bit:31457280
 
-I (1314) H_SDIO_DRV: sdio_data_to_rx_buf_task started
-I (1318) main_task: Started on CPU0
-I (1322) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
-I (1329) main_task: Calling app_main()
-I (1335) WIFI_MANAGER: Initializing WiFi Manager
-I (1337) WIFI_MANAGER: WiFi Manager initialized successfully
-I (1343) LVGL: Starting LVGL task
-I (1346) ESP32_P4_EV: MIPI DSI PHY Powered on
-I (1351) ESP32_P4_EV: Install MIPI DSI LCD control panel
-I (1355) ESP32_P4_EV: Install ILI9881C LCD control panel
-I (1506) jd9365: LCD ID: 93 65 04
-I (1633) ESP32_P4_EV: Display initialized
-I (1694) gsl3680: start init
-I (1694) gsl3680: clear reg
-I (1824) gsl3680: start load fw
-I (2686) gsl3680: load fw success
-I (2686) gsl3680: enter
-I (2696) gsl_point_id: gsl_DataInit
-I (2756) gsl3680: enter
-I (2766) gsl_point_id: gsl_DataInit
-I (2766) ESP32_P4_EV: Setting LCD backlight: 100%
-I (2766) UI: Loaded wax counter from NVS: 720 seconds
-I (2889) Audio: Inicializando altavoz...
-I (2894) ES8311: Work in Slave mode
-I (3007) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
-I (3007) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
-I (3039) Adev_Codec: Open codec device OK
-I (3062) Audio: Buffer de pitido generado (4410 bytes)
-I (3062) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
-I (3063) NIMBLE_BLE_CLIENT: Initializing BLE Client for ESP-Hosted...
-I (3063) ButtonHandler: MCP23017 configurado para los botones.
-I (3073) transport: Attempt connection with slave: retry[0]
-W (3079) H_SDIO_DRV: Reset slave using GPIO[54]
-I (3083) os_wrapper_esp: GPIO [54] configured
-I (4289) sdio_wrapper: SDIO master: Slot 1, Data-Lines: 4-bit Freq(KHz)[20000 KHz]
-I (4289) sdio_wrapper: GPIOs: CLK[18] CMD[19] D0[14] D1[15] D2[16] D3[17] Slave_Reset[54]
-I (4293) sdio_wrapper: Queues: Tx[20] Rx[20] SDIO-Rx-Mode[1]
+I (1322) H_SDIO_DRV: sdio_data_to_rx_buf_task started
+I (1326) main_task: Started on CPU0
+I (1330) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
+I (1337) main_task: Calling app_main()
+I (1344) WIFI_MANAGER: Initializing WiFi Manager
+I (1345) WIFI_MANAGER: WiFi Manager initialized successfully
+I (1351) LVGL: Starting LVGL task
+I (1354) ESP32_P4_EV: MIPI DSI PHY Powered on
+I (1359) ESP32_P4_EV: Install MIPI DSI LCD control panel
+I (1363) ESP32_P4_EV: Install ILI9881C LCD control panel
+I (1514) jd9365: LCD ID: 93 65 04
+I (1641) ESP32_P4_EV: Display initialized
+I (1702) gsl3680: start init
+I (1702) gsl3680: clear reg
+I (1832) gsl3680: start load fw
+I (2692) gsl3680: load fw success
+I (2692) gsl3680: enter
+I (2702) gsl_point_id: gsl_DataInit
+I (2762) gsl3680: enter
+I (2772) gsl_point_id: gsl_DataInit
+I (2772) ESP32_P4_EV: Setting LCD backlight: 100%
+I (2772) UI: Loaded wax counter from NVS: 720 seconds
+I (2896) Audio: Inicializando altavoz...
+I (2901) ES8311: Work in Slave mode
+I (2904) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
+I (2904) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
+I (3045) Adev_Codec: Open codec device OK
+I (3068) Audio: Buffer de pitido generado (4410 bytes)
+I (3068) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
+I (3069) NIMBLE_BLE_CLIENT: Initializing BLE Client for ESP-Hosted...
+I (3069) ButtonHandler: MCP23017 configurado para los botones.
+I (3080) transport: Attempt connection with slave: retry[0]
+W (3085) H_SDIO_DRV: Reset slave using GPIO[54]
+I (3089) os_wrapper_esp: GPIO [54] configured
+I (4295) sdio_wrapper: SDIO master: Slot 1, Data-Lines: 4-bit Freq(KHz)[20000 KHz]
+I (4295) sdio_wrapper: GPIOs: CLK[18] CMD[19] D0[14] D1[15] D2[16] D3[17] Slave_Reset[54]
+I (4299) sdio_wrapper: Queues: Tx[20] Rx[20] SDIO-Rx-Mode[1]
 Name:
 Type: SDIO
 Speed: 20.00 MHz (limit: 20.00 MHz)
@@ -156,489 +375,429 @@ TUPLE: CFTABLE_ENTRY, size: 8
   IR: 30, mask: 1,   IRQ: FF FF
   LEN: FFFF
 TUPLE: END
-I (4370) sdio_wrapper: Function 0 Blocksize: 512
-I (4375) sdio_wrapper: Function 1 Blocksize: 512
-I (4379) H_SDIO_DRV: Card init success, TRANSPORT_RX_ACTIVE
-I (4384) transport: set_transport_state: 1
-I (4388) transport: Waiting for esp_hosted slave to be ready
-I (4414) H_SDIO_DRV: SDIO Host operating in STREAMING MODE
-I (4414) H_SDIO_DRV: Open data path at slave
-I (4414) H_SDIO_DRV: Starting SDIO process rx task
-I (4418) H_SDIO_DRV: Received ESP_PRIV_IF type message
-I (4421) transport: Received INIT event from ESP32 peripheral
-I (4427) transport: EVENT: 12
-I (4429) transport: Identified slave [esp32c6]
-W (4433) H_SDIO_DRV: SDIO clock freq set to [20000]KHz, Max possible (on PCB) is 40000KHz
-I (4441) transport: EVENT: 11
-I (4444) transport: capabilities: 0xd
-I (4447) transport: Features supported are:
-I (4451) transport:      * WLAN
-I (4454) transport:        - HCI over SDIO
-I (4457) transport:        - BLE only
-I (4461) transport: EVENT: 13
-W (4463) transport: === ESP-Hosted Version Warning ===
+I (4376) sdio_wrapper: Function 0 Blocksize: 512
+I (4381) sdio_wrapper: Function 1 Blocksize: 512
+I (4385) H_SDIO_DRV: Card init success, TRANSPORT_RX_ACTIVE
+I (4390) transport: set_transport_state: 1
+I (4394) transport: Waiting for esp_hosted slave to be ready
+I (4422) H_SDIO_DRV: SDIO Host operating in STREAMING MODE
+I (4422) H_SDIO_DRV: Open data path at slave
+I (4422) H_SDIO_DRV: Starting SDIO process rx task
+I (4425) H_SDIO_DRV: Received ESP_PRIV_IF type message
+I (4429) transport: Received INIT event from ESP32 peripheral
+I (4435) transport: EVENT: 12
+I (4437) transport: Identified slave [esp32c6]
+W (4441) H_SDIO_DRV: SDIO clock freq set to [20000]KHz, Max possible (on PCB) is 40000KHz
+I (4449) transport: EVENT: 11
+I (4452) transport: capabilities: 0xd
+I (4455) transport: Features supported are:
+I (4459) transport:      * WLAN
+I (4462) transport:        - HCI over SDIO
+I (4465) transport:        - BLE only
+I (4469) transport: EVENT: 13
+W (4471) transport: === ESP-Hosted Version Warning ===
 Version on Host is NEWER than version on co-processor
 RPC requests sent by host may encounter timeout errors
 or may not be supported by co-processor
-W (4481) transport: === ESP-Hosted Version Warning ===
-I (4486) transport: ESP board type is : 13
+W (4489) transport: === ESP-Hosted Version Warning ===
+I (4494) transport: ESP board type is : 13
 
-I (4490) transport: Base transport is set-up, TRANSPORT_TX_ACTIVE
-I (4496) H_API: Transport active
-I (4499) transport: Slave chip Id[12]
-I (4502) transport: raw_tp_dir[-], flow_ctrl: low[60] high[80]
-I (4508) transport: transport_delayed_init
-I (4512) esp_cli: Remove any existing deep_sleep cmd in cli
-I (4517) esp_cli: Registering command: crash
-I (4521) esp_cli: Registering command: reboot
-I (4525) esp_cli: Registering command: mem-dump
-I (4529) esp_cli: Registering command: task-dump
-I (4534) esp_cli: Registering command: cpu-dump
-I (4538) esp_cli: Registering command: heap-trace
-I (4542) esp_cli: Registering command: sock-dump
-I (4547) esp_cli: Registering command: host-power-save
-I (4552) vhci_drv: Host BT Support: Enabled
-I (4556) vhci_drv:      BT Transport Type: VHCI
-I (4559) H_SDIO_DRV: Received INIT event
-I (4563) H_SDIO_DRV: Event type: 0x22
-I (4567) H_SDIO_DRV: Write thread started
-I (4593) NIMBLE_BLE_CLIENT: BLE Host Task Started
-I (4593) NIMBLE_BLE_CLIENT: BLE Client initialization complete.
-I (4593) WIFI_CLIENT: Initializing WiFi Client...
-I (4599) transport: Attempt connection with slave: retry[0]
-I (4602) transport: Transport is already up
-I (4603) NimBLE: GAP procedure initiated: stop advertising.
+I (4498) transport: Base transport is set-up, TRANSPORT_TX_ACTIVE
+I (4504) H_API: Transport active
+I (4507) transport: Slave chip Id[12]
+I (4510) transport: raw_tp_dir[-], flow_ctrl: low[60] high[80]
+I (4516) transport: transport_delayed_init
+I (4520) esp_cli: Remove any existing deep_sleep cmd in cli
+I (4525) esp_cli: Registering command: crash
+I (4529) esp_cli: Registering command: reboot
+I (4533) esp_cli: Registering command: mem-dump
+I (4537) esp_cli: Registering command: task-dump
+I (4542) esp_cli: Registering command: cpu-dump
+I (4546) esp_cli: Registering command: heap-trace
+I (4550) esp_cli: Registering command: sock-dump
+I (4555) esp_cli: Registering command: host-power-save
+I (4560) vhci_drv: Host BT Support: Enabled
+I (4564) vhci_drv:      BT Transport Type: VHCI
+I (4567) H_SDIO_DRV: Received INIT event
+I (4571) H_SDIO_DRV: Event type: 0x22
+I (4575) H_SDIO_DRV: Write thread started
+I (4599) NIMBLE_BLE_CLIENT: BLE Host Task Started
+I (4599) NIMBLE_BLE_CLIENT: BLE Client initialization complete.
+I (4599) WIFI_CLIENT: Initializing WiFi Client...
+I (4605) transport: Attempt connection with slave: retry[0]
+I (4608) transport: Transport is already up
+I (4609) NimBLE: GAP procedure initiated: stop advertising.
 
-I (4613) NimBLE: Failed to restore IRKs from store; status=8
+I (4619) NimBLE: Failed to restore IRKs from store; status=8
 
-I (4616) NIMBLE_BLE_CLIENT: BLE Host synced.
-I (4621) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
-I (4627) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-I (4635) NimBLE: GAP procedure initiated: connect;
-I (4640) NimBLE: peer_addr_type=1 peer_addr=
-I (4644) NimBLE: ed:67:b1:95:9b:28
-I (4647) NimBLE:  scan_itvl=16 scan_window=16 itvl_min=24 itvl_max=40 latency=0 supervision_timeout=256 min_ce_len=0 max_ce_len=0 own_addr_type=0
-I (4660) NimBLE:
+I (4622) NIMBLE_BLE_CLIENT: BLE Host synced.
+I (4627) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
+I (4633) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
+I (4641) NimBLE: GAP procedure initiated: connect;
+I (4646) NimBLE: peer_addr_type=1 peer_addr=
+I (4650) NimBLE: ed:67:b1:95:9b:28
+I (4653) NimBLE:  scan_itvl=16 scan_window=16 itvl_min=24 itvl_max=40 latency=0 supervision_timeout=256 min_ce_len=0 max_ce_len=0 own_addr_type=0
+I (4666) NimBLE:
 
-I (4664) NIMBLE_BLE_CLIENT: BLE reconnect task started
-I (4664) NIMBLE_BLE_CLIENT: Reconnect task started
-I (5314) RPC_WRAP: --- ESP Event: Slave ESP Init ---
-I (5522) WIFI_CLIENT: wifi_init_sta finished.
-I (5522) CM_MASTER: Inicializando CM Master (Protocolo ASCII)...
-I (5522) CM_MASTER: UART1 configurado: 115200 baud, TX=4, RX=5
-I (5526) CM_MASTER: Iniciando tareas del maestro...
-I (5529) RPC_WRAP: ESP Event: wifi station started
-I (5535) CM_MASTER: Tarea UART RX iniciada (modo ASCII)
-I (5540) CM_MASTER: Tarea maestro iniciada (protocolo SYNC simplificado)
+I (4670) NIMBLE_BLE_CLIENT: BLE reconnect task started
+I (4670) NIMBLE_BLE_CLIENT: Reconnect task started
+I (5322) RPC_WRAP: --- ESP Event: Slave ESP Init ---
+I (5530) WIFI_CLIENT: wifi_init_sta finished.
+I (5530) CM_MASTER: Inicializando CM Master (Protocolo ASCII)...
+I (5530) CM_MASTER: UART1 configurado: 115200 baud, TX=4, RX=5
+I (5534) CM_MASTER: Iniciando tareas del maestro...
+I (5537) RPC_WRAP: ESP Event: wifi station started
+I (5543) CM_MASTER: Tarea UART RX iniciada (modo ASCII)
+I (5546) CM_MASTER: Tarea maestro iniciada (protocolo SYNC simplificado)
 I (5546) CM_MASTER: Tareas del maestro creadas correctamente
-I (5552) MainApp: Inicialización completa.
-I (5556) main_task: Returned from app_main()
-I (5653) WIFI_CLIENT: WIFI_EVENT_STA_START: Initializing connection process.
-I (5653) WIFI_MANAGER: Found 2 saved SSIDs in order
-I (5654) WIFI_CLIENT: Attempting to connect to MOVISTAR_4B85 (1/2)
-I (5660) WIFI_MANAGER: Credentials loaded for SSID: MOVISTAR_4B85
-I (5689) H_API: esp_wifi_remote_connect
-W (5811) rpc_rsp: Hosted RPC_Resp [0x21a], uid [7], resp code [12295]
-I (5826) ButtonHandler: Botón físico 1 pulsado
-I (5827) CM_MASTER: Inclinación objetivo: 0.0%
-I (5827) UI: Entrenamiento libre seleccionado (botón físico)
-I (5830) CM_MASTER: Training mode: ACTIVADO (entrenando)
-I (5835) UI: Training mode activado (botón físico)
-I (7662) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (7732) NIMBLE_BLE_CLIENT: Connection established; conn_handle=0
-I (7732) NIMBLE_BLE_CLIENT: Saved device address to NVS.
-I (7732) NimBLE: GATT procedure initiated: discover all services
-
-I (7883) NIMBLE_BLE_CLIENT: Found Heart Rate Service. Discovering characteristics...
-I (7883) NimBLE: GATT procedure initiated: discover all characteristics;
-I (7886) NimBLE: start_handle=11 end_handle=16
-
-I (7983) NIMBLE_BLE_CLIENT: Found Heart Rate Measurement characteristic.
-I (7983) NimBLE: GATT procedure initiated: discover all descriptors;
-I (7985) NimBLE: chr_val_handle=13 end_handle=65535
-
-I (8232) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
-I (8232) NimBLE: GATT procedure initiated: write;
-I (8233) NimBLE: att_handle=14 len=2
-
-I (8257) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (8733) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
-I (8733) NimBLE: GATT procedure initiated: write;
-I (8734) NimBLE: att_handle=20 len=2
-
-I (8938) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (8984) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
-I (8984) NimBLE: GATT procedure initiated: write;
-I (8984) NimBLE: att_handle=23 len=2
-
-I (8988) NIMBLE_BLE_CLIENT: Found CCCD for HR Measurement. Enabling notifications.
-I (8995) NimBLE: GATT procedure initiated: write;
-I (9000) NimBLE: att_handle=27 len=2
-
-I (10764) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (11170) RPC_WRAP: ESP Event: Station mode: Connected
-I (11170) esp_wifi_remote: esp_wifi_internal_reg_rxcb: sta: 0x480bbd30
---- 0x480bbd30: wifi_sta_receive at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_wifi/src/wifi_netif.c:39
-I (11265) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (11986) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (12482) NimBLE: GAP procedure initiated:
-I (12482) NimBLE: connection parameter update; conn_handle=0 itvl_min=200 itvl_max=400 latency=0 supervision_timeout=400 min_ce_len=0 max_ce_len=0
-I (12488) NimBLE:
-
-I (12551) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (13114) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (13656) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (14157) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (14495) esp_netif_handlers: sta ip: 192.168.1.134, mask: 255.255.255.0, gw: 192.168.1.1
-I (14495) WIFI_CLIENT: Got IP address: 192.168.1.134
-I (14496) WIFI_CLIENT: wifi_connect_task: WiFi Connected
-I (14500) WIFI_MANAGER: Updated SSID order: MOVISTAR_4B85,SPOOFER
-I (14507) WIFI_CLIENT: Manually set DNS server to 8.8.8.8
-I (14680) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (14820) WIFI_CONNECTIVITY: Internet connectivity confirmed.
-I (15224) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (15785) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (16286) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (16767) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (17288) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (17791) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (18274) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (18775) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (19256) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (19717) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (20218) CM_MASTER: Velocidad objetivo: 0.00 km/h
-I (20681) CM_MASTER: Velocidad objetivo: 0.10 km/h
-I (21143) CM_MASTER: Velocidad objetivo: 0.00 km/h
-
-
-C:\esp\Treadmill\Consola>
-
-
-
-C:\esp\Treadmill\Base>idf.py -p COM3 monitor
-Executing action: monitor
-Running idf_monitor in directory C:\esp\Treadmill\Base
-Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM3 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 C:\esp\Treadmill\Base\build\sala_maquinas.elf C:\esp\Treadmill\Base\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM3'"...
---- Warning: GDB cannot open serial ports accessed as COMx
---- Using \\.\COM3 instead...
---- esp-idf-monitor 1.8.0 on \\.\COM3 115200
---- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
-ul 29 2019 12:21:46
-
-rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
-conets Jul 29 2019 12:21:46
-
-rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
-configsip: 0, SPIWP:0xee
-clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
-mode:DIO, clock div:2
-load:0x3fff0030,len:6380
-ho 0 tail 12 room 4
-load:0x40078000,len:15916
-load:0x40080400,len:3860
---- 0x40080400: _invalid_pc_placeholder at C:/Espressif/frameworks/esp-idf-v5.5.1/components/xtensa/xtensa_vectors.S:2235
-entry 0x40080638
---- 0x40080638: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
-I (29) boot: ESP-IDF v5.5.1-dirty 2nd stage bootloader
-I (29) boot: compile time Nov 11 2025 01:39:43
-I (29) boot: Multicore bootloader
-I (31) boot: chip revision: v3.1
-I (34) boot.esp32: SPI Speed      : 40MHz
-I (38) boot.esp32: SPI Mode       : DIO
-I (41) boot.esp32: SPI Flash Size : 4MB
-I (45) boot: Enabling RNG early entropy source...
-I (49) boot: Partition Table:
-I (52) boot: ## Label            Usage          Type ST Offset   Length
-I (58) boot:  0 nvs              WiFi data        01 02 00009000 00006000
-I (65) boot:  1 phy_init         RF data          01 01 0000f000 00001000
-I (71) boot:  2 factory          factory app      00 00 00010000 00100000
-I (78) boot: End of partition table
-I (81) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=108d0h ( 67792) map
-I (112) esp_image: segment 1: paddr=000208f8 vaddr=3ffb0000 size=023d8h (  9176) load
-I (115) esp_image: segment 2: paddr=00022cd8 vaddr=40080000 size=0d340h ( 54080) load
-I (137) esp_image: segment 3: paddr=00030020 vaddr=400d0020 size=27f24h (163620) map
-I (193) esp_image: segment 4: paddr=00057f4c vaddr=4008d340 size=00494h (  1172) load
-I (194) esp_image: segment 5: paddr=000583e8 vaddr=50000000 size=00020h (    32) load
-I (203) boot: Loaded app from partition at offset 0x10000
-I (204) boot: Disabling RNG early entropy source...
-I (218) cpu_start: Multicore app
-I (227) cpu_start: Pro cpu start user code
-I (227) cpu_start: cpu freq: 160000000 Hz
-I (227) app_init: Application information:
-I (230) app_init: Project name:     sala_maquinas
-I (235) app_init: App version:      02e3918
-I (240) app_init: Compile time:     Nov 11 2025 11:10:23
-I (246) app_init: ELF file SHA256:  6b834d032...
-I (251) app_init: ESP-IDF:          v5.5.1-dirty
-I (256) efuse_init: Min chip rev:     v0.0
-I (261) efuse_init: Max chip rev:     v3.99
-I (266) efuse_init: Chip rev:         v3.1
-I (271) heap_init: Initializing. RAM available for dynamic allocation:
-I (278) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
-I (284) heap_init: At 3FFB2D40 len 0002D2C0 (180 KiB): DRAM
-I (291) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
-I (297) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
-I (303) heap_init: At 4008D7D4 len 0001282C (74 KiB): IRAM
-W (311) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
-I (324) spi_flash: detected chip: generic
-I (328) spi_flash: flash io: dio
-I (333) main_task: Started on CPU0
-I (337) main_task: Calling app_main()
-I (340) SLAVE: ==============================================
-I (347) SLAVE:   Sala de Maquinas - Sistema Esclavo
-I (352) SLAVE:   PROTOCOLO: ASCII Simple (UART Direct)
-I (358) SLAVE: ==============================================
-E (374) gpio: gpio_pullup_en(78): GPIO number error (input-only pad has no internal PU)
-I (374) SLAVE: GPIO 35 configurado para fin de carrera de inclinación
-I (380) SLAVE: GPIOs configurados. Asignación v5 (Sensores en 34, 35).
-I (388) SLAVE: Temporizador de bomba de cera creado.
-I (393) SPEED_SENSOR: Inicializando sensor de velocidad (PCNT) en GPIO 15
-I (401) SPEED_SENSOR: GPIO 15 configurado con pull-down para evitar ruido
-I (409) SPEED_SENSOR: Sensor de velocidad (PCNT) inicializado y contando.
-I (416) SLAVE: Configurando UART para RS485...
-I (422) SLAVE: UART1 configurado: 115200 baud, TX=17, RX=16
-I (427) SLAVE: Tarea UART RX iniciada (modo ASCII). Escuchando en UART1...
-I (435) SLAVE: Tarea UART RX creada
-I (439) VFD_DRIVER_MODBUS: Inicializando driver Modbus Master...
-I (446) uart: queue free spaces: 20
-I (450) mb_port.serial: mbm_rtu@0x3ffb8038, suspend port from task.
-E (486) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (487) SLAVE: Inclinación no calibrada, ignorando objetivo
-I (557) VFD_DRIVER_MODBUS: Modbus Master inicializado en UART2 (TX:19, RX:18, 9600 bps)
-I (557) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-I (563) VFD_DRIVER_MODBUS: VFD Driver (Modbus Real) inicializado. Tarea creada.
-I (570) SLAVE: Controlador VFD (real) inicializado
-I (576) SLAVE: Tarea de actualización de velocidad iniciada
-I (582) SLAVE: Tarea de actualización de velocidad creada
-E (586) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (595) SLAVE: Inclinación no calibrada, ignorando objetivo
-I (602) SLAVE: Tarea de control de inclinación iniciada
-I (607) SLAVE: Tarea de control de inclinación creada
-I (613) SLAVE: Tarea de watchdog iniciada (Timeout: 0 ms)
-I (619) SLAVE: Tarea de watchdog creada (timeout: 1000ms)
-I (625) SLAVE: Sistema iniciado correctamente
-I (630) SLAVE: Esperando comandos del Maestro...
-I (657) SLAVE: ✓ Homing de inclinación completado - Fin de carrera detectado
-E (686) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (786) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (886) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (986) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1086) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1186) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1286) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1386) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1486) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1571) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (1573) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (1581) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (1586) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1588) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-E (1686) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1786) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1886) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (1986) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (2086) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (3119) SLAVE: ¡WATCHDOG TIMEOUT! No se recibió comando en 0 ms
-W (3119) SLAVE: ⚠️ ENTERING SAFE STATE - Communication lost or emergency stop
-I (6603) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (7612) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (7612) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (7620) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (7628) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-I (8818) SLAVE: ✅ SAFE STATE reset. Communication restored.
-W (8818) SLAVE: Comando desconocido o no soportado: k,SYNC=0.00,0.00,0,0,0,1
-E (8918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (10636) SLAVE: Heartbeat #0 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %
-E (10718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (12635) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (12718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13644) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (13644) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (13653) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (13660) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-E (13818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (18667) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (18718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19676) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (19676) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (19685) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (19692) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-E (19718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (20636) SLAVE: Heartbeat #1 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %
-E (20718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (24699) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (24718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25708) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (25708) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (25717) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (25718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25724) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-E (25818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26318) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26418) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26518) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26618) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26718) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26818) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26918) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (27018) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (27118) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (27218) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (27318) SLAVE: No se puede actualizar velocidad: VFD no disponible
+I (5560) MainApp: Inicialización completa.
+I (5564) main_task: Returned from app_main()
+I (5662) WIFI_CLIENT: WIFI_EVENT_STA_START: Initializing connection process.
+I (5662) WIFI_MANAGER: Found 2 saved SSIDs in order
+I (5662) WIFI_CLIENT: Attempting to connect to MOVISTAR_4B85 (1/2)
+I (5668) WIFI_MANAGER: Credentials loaded for SSID: MOVISTAR_4B85
+I (5829) H_API: esp_wifi_remote_connect
+W (5845) rpc_rsp: Hosted RPC_Resp [0x21a], uid [7], resp code [12295]
+E (6761) CM_MASTER: ═══════════════════════════════════════════════════
+E (6765) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (6771) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (6777) CM_MASTER: ═══════════════════════════════════════════════════
+I (6792) CM_MASTER: Velocidad objetivo: 0.00 km/h
+E (6798) UI: ═══════════════════════════════════════════════════
+E (6811) UI:   SISTEMA BLOQUEADO POR ERROR CRÍTICO
+E (6816) UI:   Sensor de fin de carrera de inclinación falló
+E (6822) UI:   Todos los controles desactivados
+E (6826) UI: ═══════════════════════════════════════════════════
+E (6961) CM_MASTER: ═══════════════════════════════════════════════════
+E (6965) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (6971) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (6977) CM_MASTER: ═══════════════════════════════════════════════════
+E (7061) CM_MASTER: ═══════════════════════════════════════════════════
+E (7065) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (7071) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (7077) CM_MASTER: ═══════════════════════════════════════════════════
+E (7261) CM_MASTER: ═══════════════════════════════════════════════════
+E (7265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (7271) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (7277) CM_MASTER: ═══════════════════════════════════════════════════
+E (7360) CM_MASTER: ═══════════════════════════════════════════════════
+E (7365) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (7371) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (7377) CM_MASTER: ═══════════════════════════════════════════════════
+E (7461) CM_MASTER: ═══════════════════════════════════════════════════
+E (7465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (7471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (7477) CM_MASTER: ═══════════════════════════════════════════════════
+E (7561) CM_MASTER: ═══════════════════════════════════════════════════
+E (7565) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (7571) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (7577) CM_MASTER: ═══════════════════════════════════════════════════
+E (7661) CM_MASTER: ═══════════════════════════════════════════════════
+E (7665) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (7671) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (7677) CM_MASTER: ═══════════════════════════════════════════════════
+E (7861) CM_MASTER: ═══════════════════════════════════════════════════
+E (7865) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (7871) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (7877) CM_MASTER: ═══════════════════════════════════════════════════
+E (7961) CM_MASTER: ═══════════════════════════════════════════════════
+E (7965) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (7971) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (7977) CM_MASTER: ═══════════════════════════════════════════════════
+E (8061) CM_MASTER: ═══════════════════════════════════════════════════
+E (8065) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8071) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8077) CM_MASTER: ═══════════════════════════════════════════════════
+E (8161) CM_MASTER: ═══════════════════════════════════════════════════
+E (8165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8177) CM_MASTER: ═══════════════════════════════════════════════════
+E (8261) CM_MASTER: ═══════════════════════════════════════════════════
+E (8265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8271) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8277) CM_MASTER: ═══════════════════════════════════════════════════
+E (8361) CM_MASTER: ═══════════════════════════════════════════════════
+E (8365) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8372) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8378) CM_MASTER: ═══════════════════════════════════════════════════
+E (8460) CM_MASTER: ═══════════════════════════════════════════════════
+E (8465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8477) CM_MASTER: ═══════════════════════════════════════════════════
+E (8561) CM_MASTER: ═══════════════════════════════════════════════════
+E (8565) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8571) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8577) CM_MASTER: ═══════════════════════════════════════════════════
+E (8661) CM_MASTER: ═══════════════════════════════════════════════════
+E (8665) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8671) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8677) CM_MASTER: ═══════════════════════════════════════════════════
+E (8761) CM_MASTER: ═══════════════════════════════════════════════════
+E (8765) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8771) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8777) CM_MASTER: ═══════════════════════════════════════════════════
+E (8861) CM_MASTER: ═══════════════════════════════════════════════════
+E (8865) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (8871) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (8877) CM_MASTER: ═══════════════════════════════════════════════════
+E (9061) CM_MASTER: ═══════════════════════════════════════════════════
+E (9065) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9071) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9077) CM_MASTER: ═══════════════════════════════════════════════════
+E (9161) CM_MASTER: ═══════════════════════════════════════════════════
+E (9165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9177) CM_MASTER: ═══════════════════════════════════════════════════
+E (9261) CM_MASTER: ═══════════════════════════════════════════════════
+E (9265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9271) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9277) CM_MASTER: ═══════════════════════════════════════════════════
+E (9360) CM_MASTER: ═══════════════════════════════════════════════════
+E (9365) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9371) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9377) CM_MASTER: ═══════════════════════════════════════════════════
+E (9461) CM_MASTER: ═══════════════════════════════════════════════════
+E (9465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9477) CM_MASTER: ═══════════════════════════════════════════════════
+E (9561) CM_MASTER: ═══════════════════════════════════════════════════
+E (9565) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9571) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9577) CM_MASTER: ═══════════════════════════════════════════════════
+I (9677) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
+I (9677) NIMBLE_BLE_CLIENT: Not connected - attempting reconnect to saved device...
+I (9680) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
+E (9688) NIMBLE_BLE_CLIENT: Failed to initiate connect; rc=2. Restarting scan.
+E (9695) NIMBLE_BLE_CLIENT: Error starting scan; rc=15
+E (9761) CM_MASTER: ═══════════════════════════════════════════════════
+E (9765) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9771) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9777) CM_MASTER: ═══════════════════════════════════════════════════
+E (9861) CM_MASTER: ═══════════════════════════════════════════════════
+E (9865) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9871) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9877) CM_MASTER: ═══════════════════════════════════════════════════
+E (9961) CM_MASTER: ═══════════════════════════════════════════════════
+E (9965) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (9971) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (9977) CM_MASTER: ═══════════════════════════════════════════════════
+E (10061) CM_MASTER: ═══════════════════════════════════════════════════
+E (10065) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10071) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10077) CM_MASTER: ═══════════════════════════════════════════════════
+E (10161) CM_MASTER: ═══════════════════════════════════════════════════
+E (10165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10177) CM_MASTER: ═══════════════════════════════════════════════════
+E (10261) CM_MASTER: ═══════════════════════════════════════════════════
+E (10265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10271) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10277) CM_MASTER: ═══════════════════════════════════════════════════
+E (10361) CM_MASTER: ═══════════════════════════════════════════════════
+E (10365) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10371) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10377) CM_MASTER: ═══════════════════════════════════════════════════
+E (10461) CM_MASTER: ═══════════════════════════════════════════════════
+E (10465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10477) CM_MASTER: ═══════════════════════════════════════════════════
+E (10561) CM_MASTER: ═══════════════════════════════════════════════════
+E (10565) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10571) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10577) CM_MASTER: ═══════════════════════════════════════════════════
+E (10661) CM_MASTER: ═══════════════════════════════════════════════════
+E (10665) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10671) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10677) CM_MASTER: ═══════════════════════════════════════════════════
+E (10761) CM_MASTER: ═══════════════════════════════════════════════════
+E (10765) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10771) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10777) CM_MASTER: ═══════════════════════════════════════════════════
+E (10861) CM_MASTER: ═══════════════════════════════════════════════════
+E (10865) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (10871) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (10877) CM_MASTER: ═══════════════════════════════════════════════════
+I (10954) RPC_WRAP: ESP Event: Station mode: Connected
+I (10954) esp_wifi_remote: esp_wifi_internal_reg_rxcb: sta: 0x480bbfe4
+--- 0x480bbfe4: wifi_sta_receive at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_wifi/src/wifi_netif.c:39
+E (11061) CM_MASTER: ═══════════════════════════════════════════════════
+E (11065) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (11071) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (11077) CM_MASTER: ═══════════════════════════════════════════════════
+E (11161) CM_MASTER: ═══════════════════════════════════════════════════
+E (11165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (11171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (11177) CM_MASTER: ═══════════════════════════════════════════════════
+E (11261) CM_MASTER: ═══════════════════════════════════════════════════
+E (11265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (11271) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (11277) CM_MASTER: ═══════════════════════════════════════════════════
+E (11360) CM_MASTER: ═══════════════════════════════════════════════════
+E (11365) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (11371) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (11377) CM_MASTER: ═══════════════════════════════════════════════════
+E (11461) CM_MASTER: ═══════════════════════════════════════════════════
+E (11465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (11471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (11478) CM_MASTER: ═══════════════════════════════════════════════════
+E (11661) CM_MASTER: ═══════════════════════════════════════════════════
+E (11665) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (11671) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (11677) CM_MASTER: ═══════════════════════════════════════════════════
+E (11864) CM_MASTER: ═══════════════════════════════════════════════════
+E (11868) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (11874) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (11881) CM_MASTER: ═══════════════════════════════════════════════════
+E (11961) CM_MASTER: ═══════════════════════════════════════════════════
+E (11965) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (11971) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (11977) CM_MASTER: ═══════════════════════════════════════════════════
+E (12161) CM_MASTER: ═══════════════════════════════════════════════════
+E (12165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (12171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (12177) CM_MASTER: ═══════════════════════════════════════════════════
+E (12261) CM_MASTER: ═══════════════════════════════════════════════════
+E (12265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (12271) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (12277) CM_MASTER: ═══════════════════════════════════════════════════
+E (12361) CM_MASTER: ═══════════════════════════════════════════════════
+E (12365) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (12371) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (12377) CM_MASTER: ═══════════════════════════════════════════════════
+E (12461) CM_MASTER: ═══════════════════════════════════════════════════
+E (12465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (12471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (12478) CM_MASTER: ═══════════════════════════════════════════════════
+E (12661) CM_MASTER: ═══════════════════════════════════════════════════
+E (12665) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (12671) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (12677) CM_MASTER: ═══════════════════════════════════════════════════
+E (12761) CM_MASTER: ═══════════════════════════════════════════════════
+E (12765) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (12771) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (12777) CM_MASTER: ═══════════════════════════════════════════════════
+E (12861) CM_MASTER: ═══════════════════════════════════════════════════
+E (12865) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (12871) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (12877) CM_MASTER: ═══════════════════════════════════════════════════
+E (12961) CM_MASTER: ═══════════════════════════════════════════════════
+E (12965) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (12971) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (12977) CM_MASTER: ═══════════════════════════════════════════════════
+E (13161) CM_MASTER: ═══════════════════════════════════════════════════
+E (13165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (13171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (13177) CM_MASTER: ═══════════════════════════════════════════════════
+E (13261) CM_MASTER: ═══════════════════════════════════════════════════
+E (13265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (13271) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (13277) CM_MASTER: ═══════════════════════════════════════════════════
+E (13361) CM_MASTER: ═══════════════════════════════════════════════════
+E (13365) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (13371) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (13377) CM_MASTER: ═══════════════════════════════════════════════════
+E (13461) CM_MASTER: ═══════════════════════════════════════════════════
+E (13465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (13471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (13477) CM_MASTER: ═══════════════════════════════════════════════════
+E (13661) CM_MASTER: ═══════════════════════════════════════════════════
+E (13665) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (13671) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (13677) CM_MASTER: ═══════════════════════════════════════════════════
+E (13761) CM_MASTER: ═══════════════════════════════════════════════════
+E (13765) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (13771) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (13777) CM_MASTER: ═══════════════════════════════════════════════════
+E (13861) CM_MASTER: ═══════════════════════════════════════════════════
+E (13865) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (13871) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (13877) CM_MASTER: ═══════════════════════════════════════════════════
+E (13961) CM_MASTER: ═══════════════════════════════════════════════════
+E (13965) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (13971) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (13978) CM_MASTER: ═══════════════════════════════════════════════════
+E (14161) CM_MASTER: ═══════════════════════════════════════════════════
+E (14165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (14171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (14178) CM_MASTER: ═══════════════════════════════════════════════════
+E (14261) CM_MASTER: ═══════════════════════════════════════════════════
+E (14265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (14271) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (14277) CM_MASTER: ═══════════════════════════════════════════════════
+E (14461) CM_MASTER: ═══════════════════════════════════════════════════
+E (14465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (14471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (14477) CM_MASTER: ═══════════════════════════════════════════════════
+E (14661) CM_MASTER: ═══════════════════════════════════════════════════
+E (14665) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (14671) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (14677) CM_MASTER: ═══════════════════════════════════════════════════
+I (14700) NIMBLE_BLE_CLIENT: Not connected - attempting reconnect to saved device...
+I (14700) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
+E (14708) NIMBLE_BLE_CLIENT: Failed to initiate connect; rc=2. Restarting scan.
+E (14715) NIMBLE_BLE_CLIENT: Error starting scan; rc=15
+E (14761) CM_MASTER: ═══════════════════════════════════════════════════
+E (14765) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (14771) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (14777) CM_MASTER: ═══════════════════════════════════════════════════
+E (14961) CM_MASTER: ═══════════════════════════════════════════════════
+E (14965) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (14971) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (14977) CM_MASTER: ═══════════════════════════════════════════════════
+I (14980) esp_netif_handlers: sta ip: 192.168.1.134, mask: 255.255.255.0, gw: 192.168.1.1
+I (15001) WIFI_CLIENT: Got IP address: 192.168.1.134
+I (15005) WIFI_CLIENT: wifi_connect_task: WiFi Connected
+I (15008) WIFI_MANAGER: Updated SSID order: MOVISTAR_4B85,SPOOFER
+I (15020) WIFI_CLIENT: Manually set DNS server to 8.8.8.8
+E (15061) CM_MASTER: ═══════════════════════════════════════════════════
+E (15065) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (15071) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (15077) CM_MASTER: ═══════════════════════════════════════════════════
+E (15161) CM_MASTER: ═══════════════════════════════════════════════════
+E (15165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (15171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (15178) CM_MASTER: ═══════════════════════════════════════════════════
+I (15203) WIFI_CONNECTIVITY: Internet connectivity confirmed.
+E (15373) CM_MASTER: ═══════════════════════════════════════════════════
+E (15377) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (15384) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (15404) CM_MASTER: ═══════════════════════════════════════════════════
+E (15461) CM_MASTER: ═══════════════════════════════════════════════════
+E (15465) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (15471) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (15477) CM_MASTER: ═══════════════════════════════════════════════════
+E (15661) CM_MASTER: ═══════════════════════════════════════════════════
+E (15665) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (15672) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (15677) CM_MASTER: ═══════════════════════════════════════════════════
+E (15761) CM_MASTER: ═══════════════════════════════════════════════════
+E (15765) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (15771) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (15777) CM_MASTER: ═══════════════════════════════════════════════════
+E (15861) CM_MASTER: ═══════════════════════════════════════════════════
+E (15865) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (15871) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (15877) CM_MASTER: ═══════════════════════════════════════════════════
+E (15961) CM_MASTER: ═══════════════════════════════════════════════════
+E (15965) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (15972) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (15977) CM_MASTER: ═══════════════════════════════════════════════════
+E (16061) CM_MASTER: ═══════════════════════════════════════════════════
+E (16065) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (16071) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (16077) CM_MASTER: ═══════════════════════════════════════════════════
+E (16161) CM_MASTER: ═══════════════════════════════════════════════════
+E (16165) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (16171) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (16177) CM_MASTER: ═══════════════════════════════════════════════════
+E (16261) CM_MASTER: ═══════════════════════════════════════════════════
+E (16265) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (16272) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (16277) CM_MASTER: ═══════════════════════════════════════════════════
+E (16361) CM_MASTER: ═══════════════════════════════════════════════════
+E (16365) CM_MASTER:   ALERTA CRÍTICA: Fallo del sensor de inclinación
+E (16371) CM_MASTER:   Sistema bloqueado - Requiere servicio técnico
+E (16377) CM_MASTER: ═══════════════════════════════════════════════════
 
 
-C:\esp\Treadmill\Base>
+C:\Esp\Treadmill\Consola>
