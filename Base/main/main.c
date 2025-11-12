@@ -671,17 +671,13 @@ static void incline_control_task(void *pvParameters) {
                 } else {
                     float error = g_target_incline_pct - g_real_incline_pct;
                     if (fabs(error) > 0.1) {
-                        // Asegurar que el motor está apagado antes de cambiar dirección
-                        gpio_set_level(INCLINE_ON_OFF_PIN, 1);  // 1 = OFF
-                        vTaskDelay(pdMS_TO_TICKS(100));  // Pausa de 100ms antes de cambiar dirección
-
                         if (error > 0) {
                             g_incline_motor_state = INCLINE_MOTOR_UP;
-                            gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // 1 = NC = arriba
+                            gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // PRUEBA: Invertir - 0 para subir
                             gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                         } else {
                             g_incline_motor_state = INCLINE_MOTOR_DOWN;
-                            gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // 0 = NO = abajo
+                            gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // PRUEBA: Invertir - 1 para bajar
                             gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                         }
                     }
