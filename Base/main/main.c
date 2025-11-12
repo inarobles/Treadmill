@@ -673,11 +673,11 @@ static void incline_control_task(void *pvParameters) {
                     if (fabs(error) > 0.1) {
                         if (error > 0) {
                             g_incline_motor_state = INCLINE_MOTOR_UP;
-                            gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // PRUEBA: Invertir - 0 para subir
+                            gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // 1 = NC = arriba
                             gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                         } else {
                             g_incline_motor_state = INCLINE_MOTOR_DOWN;
-                            gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // PRUEBA: Invertir - 1 para bajar
+                            gpio_set_level(INCLINE_DIRECTION_PIN, 0);  // 0 = NO = abajo
                             gpio_set_level(INCLINE_ON_OFF_PIN, 0);     // 0 = ON
                         }
                     }
