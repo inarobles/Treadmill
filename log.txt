@@ -1,690 +1,8 @@
-						LOG 3
-
-
-C:\Esp\Treadmill\Consola>idf.py -p COM4 monitor
-Executing action: monitor
-Running idf_monitor in directory C:\Esp\Treadmill\Consola
-Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM4 -b 115200 --toolchain-prefix riscv32-esp-elf- --target esp32p4 --revision 1 --decode-panic backtrace C:\Esp\Treadmill\Consola\build\lvgl_demo_v8.elf C:\Esp\Treadmill\Consola\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM4'"...
---- Warning: GDB cannot open serial ports accessed as COMx
---- Using \\.\COM4 instead...
---- esp-idf-monitor 1.8.0 on \\.\COM4 115200
---- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
-ESP-ROM:esp32p4-eco2-20240710
-Build:Jul 10 2024
-rst:0x1 (POWERON),boot:0x30f (SPI_FAST_FLASH_BOOT)
-SPI mode:DIO, clock div:1
-load:0x4ff33ce0,len:0x17a4
-load:0x4ff29ed0,len:0xfc0
---- 0x4ff29ed0: esp_bootloader_get_description at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_bootloader_format/esp_bootloader_desc.c:39
-load:0x4ff2cbd0,len:0x345c
---- 0x4ff2cbd0: esp_flash_encryption_enabled at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/flash_encrypt.c:89
-entry 0x4ff29eda
---- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
-I (25) boot: ESP-IDF v5.5.1 2nd stage bootloader
-I (26) boot: compile time Nov 11 2025 14:54:14
-I (26) boot: Multicore bootloader
-I (27) boot: chip revision: v1.0
-I (29) boot: efuse block revision: v0.3
-I (32) qio_mode: Enabling default flash chip QIO
-I (37) boot.esp32p4: SPI Speed      : 80MHz
-I (40) boot.esp32p4: SPI Mode       : QIO
-I (44) boot.esp32p4: SPI Flash Size : 16MB
-I (48) boot: Enabling RNG early entropy source...
-I (53) boot: Partition Table:
-I (55) boot: ## Label            Usage          Type ST Offset   Length
-I (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000
-I (68) boot:  1 phy_init         RF data          01 01 0000f000 00001000
-I (74) boot:  2 factory          factory app      00 00 00010000 00800000
-I (81) boot:  3 storage          Unknown data     01 82 00810000 00700000
-I (89) boot: End of partition table
-I (91) esp_image: segment 0: paddr=00010020 vaddr=48110020 size=9f9bch (653756) map
-I (199) esp_image: segment 1: paddr=000af9e4 vaddr=30100000 size=00068h (   104) load
-I (201) esp_image: segment 2: paddr=000afa54 vaddr=4ff00000 size=005c4h (  1476) load
-I (205) esp_image: segment 3: paddr=000b0020 vaddr=48000020 size=109de0h (1088992) map
-I (378) esp_image: segment 4: paddr=001b9e08 vaddr=4ff005c4 size=1c534h (116020) load
-I (401) esp_image: segment 5: paddr=001d6344 vaddr=4ff1cb00 size=047b4h ( 18356) load
-I (406) esp_image: segment 6: paddr=001dab00 vaddr=50108080 size=00020h (    32) load
-I (413) boot: Loaded app from partition at offset 0x10000
-I (414) boot: Disabling RNG early entropy source...
-I (428) hex_psram: vendor id    : 0x0d (AP)
-I (429) hex_psram: Latency      : 0x01 (Fixed)
-I (429) hex_psram: DriveStr.    : 0x00 (25 Ohm)
-I (429) hex_psram: dev id       : 0x03 (generation 4)
-I (434) hex_psram: density      : 0x07 (256 Mbit)
-I (439) hex_psram: good-die     : 0x06 (Pass)
-I (443) hex_psram: SRF          : 0x02 (Slow Refresh)
-I (447) hex_psram: BurstType    : 0x00 ( Wrap)
-I (452) hex_psram: BurstLen     : 0x03 (2048 Byte)
-I (456) hex_psram: BitMode      : 0x01 (X16 Mode)
-I (461) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
-I (466) hex_psram: DriveStrength: 0x00 (1/1)
-I (470) MSPI DQS: tuning success, best phase id is 0
-I (642) MSPI DQS: tuning success, best delayline id is 17
-I esp_psram: Found 32MB PSRAM device
-I esp_psram: Speed: 200MHz
-I (674) mmu_psram: .rodata xip on psram
-I (726) mmu_psram: .text xip on psram
-I (726) hex_psram: psram CS IO is dedicated
-I (727) cpu_start: Multicore app
-I (1165) esp_psram: SPI SRAM memory test OK
-I (1174) cpu_start: Pro cpu start user code
-I (1174) cpu_start: cpu freq: 360000000 Hz
-I (1174) app_init: Application information:
-I (1174) app_init: Project name:     lvgl_demo_v8
-I (1178) app_init: App version:      a220190-dirty
-I (1183) app_init: Compile time:     Nov 13 2025 00:32:55
-I (1188) app_init: ELF file SHA256:  a924d816d...
-I (1193) app_init: ESP-IDF:          v5.5.1
-I (1196) efuse_init: Min chip rev:     v0.1
-I (1200) efuse_init: Max chip rev:     v1.99
-I (1204) efuse_init: Chip rev:         v1.0
-I (1208) heap_init: Initializing. RAM available for dynamic allocation:
-I (1215) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
-I (1220) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
-I (1225) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
-I (1231) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
-I (1236) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
-I (1241) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
-I (1248) esp_psram: Adding pool of 24K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
-I (1259) esp_psram: Adding pool of 1K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
-I (1270) spi_flash: detected chip: boya
-I (1273) spi_flash: flash io: qio
-I (1277) host_init: ESP Hosted : Host chip_ip[18]
-I (1291) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
-I (1291) H_API: ** add_esp_wifi_remote_channels **
-I (1294) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
---- 0x4800ea10: transport_drv_sta_tx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
---- 0x48022f6c: esp_wifi_remote_channel_rx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-I (1301) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
---- 0x4800e952: transport_drv_ap_tx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
---- 0x48022f6c: esp_wifi_remote_channel_rx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-sdio_mempool_create free:31915176 min-free:31915176 lfb-def:31457280 lfb-8bit:31457280
-
-I (1317) H_SDIO_DRV: sdio_data_to_rx_buf_task started
-I (1321) main_task: Started on CPU0
-I (1325) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
-I (1332) main_task: Calling app_main()
-I (1338) WIFI_MANAGER: Initializing WiFi Manager
-I (1340) WIFI_MANAGER: WiFi Manager initialized successfully
-I (1346) LVGL: Starting LVGL task
-I (1349) ESP32_P4_EV: MIPI DSI PHY Powered on
-I (1354) ESP32_P4_EV: Install MIPI DSI LCD control panel
-I (1358) ESP32_P4_EV: Install ILI9881C LCD control panel
-I (1509) jd9365: LCD ID: 93 65 04
-I (1636) ESP32_P4_EV: Display initialized
-I (1697) gsl3680: start init
-I (1697) gsl3680: clear reg
-I (1827) gsl3680: start load fw
-I (2688) gsl3680: load fw success
-I (2688) gsl3680: enter
-I (2698) gsl_point_id: gsl_DataInit
-I (2758) gsl3680: enter
-I (2768) gsl_point_id: gsl_DataInit
-I (2768) ESP32_P4_EV: Setting LCD backlight: 100%
-I (2768) UI: Loaded wax counter from NVS: 720 seconds
-I (2891) Audio: Inicializando altavoz...
-I (2896) ES8311: Work in Slave mode
-I (3009) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
-I (3009) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
-I (3041) Adev_Codec: Open codec device OK
-I (3063) Audio: Buffer de pitido generado (4410 bytes)
-I (3064) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
-I (3064) NIMBLE_BLE_CLIENT: Initializing BLE Client for ESP-Hosted...
-I (3065) ButtonHandler: MCP23017 configurado para los botones.
-I (3075) transport: Attempt connection with slave: retry[0]
-W (3080) H_SDIO_DRV: Reset slave using GPIO[54]
-I (3085) os_wrapper_esp: GPIO [54] configured
-I (4291) sdio_wrapper: SDIO master: Slot 1, Data-Lines: 4-bit Freq(KHz)[20000 KHz]
-I (4291) sdio_wrapper: GPIOs: CLK[18] CMD[19] D0[14] D1[15] D2[16] D3[17] Slave_Reset[54]
-I (4295) sdio_wrapper: Queues: Tx[20] Rx[20] SDIO-Rx-Mode[1]
-Name:
-Type: SDIO
-Speed: 20.00 MHz (limit: 20.00 MHz)
-Size: 0MB
-CSD: ver=1, sector_size=0, capacity=0 read_bl_len=0
-SCR: sd_spec=0, bus_width=0
-TUPLE: DEVICE, size: 3: D9 01 FF
-TUPLE: MANFID, size: 4
-  MANF: 0092, CARD: 6666
-TUPLE: FUNCID, size: 2: 0C 00
-TUPLE: FUNCE, size: 4: 00 00 02 32
-TUPLE: CONFIG, size: 5: 01 01 00 02 07
-TUPLE: CFTABLE_ENTRY, size: 8
-  INDX: C1, Intface: 1, Default: 1, Conf-Entry-Num: 1
-  IF: 41
-  FS: 30, misc: 0, mem_space: 1, irq: 1, io_space: 0, timing: 0, power: 0
-  IR: 30, mask: 1,   IRQ: FF FF
-  LEN: FFFF
-TUPLE: END
-I (4372) sdio_wrapper: Function 0 Blocksize: 512
-I (4377) sdio_wrapper: Function 1 Blocksize: 512
-I (4381) H_SDIO_DRV: Card init success, TRANSPORT_RX_ACTIVE
-I (4386) transport: set_transport_state: 1
-I (4390) transport: Waiting for esp_hosted slave to be ready
-I (4417) H_SDIO_DRV: SDIO Host operating in STREAMING MODE
-I (4417) H_SDIO_DRV: Open data path at slave
-I (4417) H_SDIO_DRV: Starting SDIO process rx task
-I (4420) H_SDIO_DRV: Received ESP_PRIV_IF type message
-I (4424) transport: Received INIT event from ESP32 peripheral
-I (4430) transport: EVENT: 12
-I (4432) transport: Identified slave [esp32c6]
-W (4436) H_SDIO_DRV: SDIO clock freq set to [20000]KHz, Max possible (on PCB) is 40000KHz
-I (4444) transport: EVENT: 11
-I (4447) transport: capabilities: 0xd
-I (4450) transport: Features supported are:
-I (4454) transport:      * WLAN
-I (4457) transport:        - HCI over SDIO
-I (4460) transport:        - BLE only
-I (4464) transport: EVENT: 13
-W (4466) transport: === ESP-Hosted Version Warning ===
-Version on Host is NEWER than version on co-processor
-RPC requests sent by host may encounter timeout errors
-or may not be supported by co-processor
-W (4484) transport: === ESP-Hosted Version Warning ===
-I (4489) transport: ESP board type is : 13
-
-I (4493) transport: Base transport is set-up, TRANSPORT_TX_ACTIVE
-I (4499) H_API: Transport active
-I (4502) transport: Slave chip Id[12]
-I (4505) transport: raw_tp_dir[-], flow_ctrl: low[60] high[80]
-I (4511) transport: transport_delayed_init
-I (4515) esp_cli: Remove any existing deep_sleep cmd in cli
-I (4520) esp_cli: Registering command: crash
-I (4524) esp_cli: Registering command: reboot
-I (4528) esp_cli: Registering command: mem-dump
-I (4532) esp_cli: Registering command: task-dump
-I (4537) esp_cli: Registering command: cpu-dump
-I (4541) esp_cli: Registering command: heap-trace
-I (4545) esp_cli: Registering command: sock-dump
-I (4550) esp_cli: Registering command: host-power-save
-I (4555) vhci_drv: Host BT Support: Enabled
-I (4559) vhci_drv:      BT Transport Type: VHCI
-I (4562) H_SDIO_DRV: Received INIT event
-I (4566) H_SDIO_DRV: Event type: 0x22
-I (4569) H_SDIO_DRV: Write thread started
-I (4595) NIMBLE_BLE_CLIENT: BLE Host Task Started
-I (4595) NIMBLE_BLE_CLIENT: BLE Client initialization complete.
-I (4595) WIFI_CLIENT: Initializing WiFi Client...
-I (4601) transport: Attempt connection with slave: retry[0]
-I (4604) transport: Transport is already up
-I (4605) NimBLE: GAP procedure initiated: stop advertising.
-
-I (4615) NimBLE: Failed to restore IRKs from store; status=8
-
-I (4618) NIMBLE_BLE_CLIENT: BLE Host synced.
-I (4623) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
-I (4629) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-I (4637) NimBLE: GAP procedure initiated: connect;
-I (4642) NimBLE: peer_addr_type=1 peer_addr=
-I (4646) NimBLE: ed:67:b1:95:9b:28
-I (4649) NimBLE:  scan_itvl=16 scan_window=16 itvl_min=24 itvl_max=40 latency=0 supervision_timeout=256 min_ce_len=0 max_ce_len=0 own_addr_type=0
-I (4662) NimBLE:
-
-I (4666) NIMBLE_BLE_CLIENT: BLE reconnect task started
-I (4666) NIMBLE_BLE_CLIENT: Reconnect task started
-I (5317) RPC_WRAP: --- ESP Event: Slave ESP Init ---
-I (5525) WIFI_CLIENT: wifi_init_sta finished.
-I (5525) CM_MASTER: Inicializando CM Master (Protocolo ASCII)...
-I (5525) CM_MASTER: UART1 configurado: 115200 baud, TX=4, RX=5
-I (5529) CM_MASTER: Iniciando tareas del maestro...
-I (5532) RPC_WRAP: ESP Event: wifi station started
-I (5538) CM_MASTER: Tarea UART RX iniciada (modo ASCII)
-I (5543) CM_MASTER: Tarea maestro iniciada (protocolo SYNC simplificado)
-I (5549) CM_MASTER: Tareas del maestro creadas correctamente
-I (5555) MainApp: Inicialización completa.
-I (5559) main_task: Returned from app_main()
-I (5657) WIFI_CLIENT: WIFI_EVENT_STA_START: Initializing connection process.
-I (5657) WIFI_MANAGER: Found 2 saved SSIDs in order
-I (5657) WIFI_CLIENT: Attempting to connect to MOVISTAR_4B85 (1/2)
-I (5663) WIFI_MANAGER: Credentials loaded for SSID: MOVISTAR_4B85
-I (5788) H_API: esp_wifi_remote_connect
-W (5813) rpc_rsp: Hosted RPC_Resp [0x21a], uid [7], resp code [12295]
-W (7272) CM_MASTER: Línea desconocida: @DATA=0.00,0.0,0.00,1,0,0,0
-Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1).
-
---- Stack dump detected
-Core  1 register dump:
-MEPC    : 0x4ff128f0  RA      : 0x4ff12d4c  SP      : 0x4ff222a0  GP      : 0x4ff1d300 
---- 0x4ff128f0: vPortYieldFromISR at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/FreeRTOS-Kernel/portable/riscv/port.c:658
---- 0x4ff12d4c: xPortSysTickHandler at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/port_systick.c:241
---- (inlined by) SysTickIsrHandler at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/port_systick.c:148
-TP      : 0x4ff37280  T0      : 0x00000fff  T1      : 0x6f840000  T2      : 0x00000000 
-S0/FP   : 0x920cccca  S1      : 0x4ff222d8  A0      : 0x00000001  A1      : 0x00000000 
-A2      : 0x00000004  A3      : 0x00000004  A4      : 0x4ff277bc  A5      : 0x4ff27760 
-A6      : 0xfa000000  A7      : 0x00000000  S2      : 0x00000002  S3      : 0x4ff277c8 
-S4      : 0x03ffffff  S5      : 0x00000034  S6      : 0x4ff27000  S7      : 0x00000000 
-S8      : 0x00000000  S9      : 0x00000000  S10     : 0x00000000  S11     : 0x00000000 
-T3      : 0x00000000  T4      : 0x00000000  T5      : 0x00000000  T6      : 0x00000000 
-MSTATUS : 0x00001880  MTVEC   : 0x4ff00003  MCAUSE  : 0x00001018  MTVAL   : 0x00000000 
---- 0x4ff00003: _vector_table at ??:?
-MHARTID : 0x00000001
-
-
---- Backtrace:
-
-
-add symbol table from file "C:\Esp\Treadmill\Consola\build\bootloader\bootloader.elf"
-warning: could not convert 'main' from the host encoding (CP1252) to UTF-32.
-This normally should not happen, please file a bug report.
-0x4ff128f0 in vPortYieldFromISR () at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/FreeRTOS-Kernel/portable/riscv/port.c:658
-658         xPortSwitchFlag[coreID] = 1;
-#0  0x4ff128f0 in vPortYieldFromISR () at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/FreeRTOS-Kernel/portable/riscv/port.c:658
-#1  0x4ff12d4c in xPortSysTickHandler () at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/port_systick.c:241
-#2  SysTickIsrHandler (arg=0x4ff222d8 <systimer_hal>) at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/port_systick.c:148
-#3  0x4ff002d0 in _interrupt_handler () at C:/Espressif/frameworks/esp-idf-v5.5.1/components/riscv\vectors.S:456
-Backtrace stopped: previous frame inner to this frame (corrupt stack?)
-
-4ff22460: 0x00000011 0x00000000 0x00000036 0x00000101 0x00140014 0x00000000 0x00000000 0x00000000
-4ff22480: 0x00000000 0x4ff296d0 0x4ff29750 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff224a0: 0x00000000 0x48019584 0x48019584 0x48019584 0x48019584 0x48019584 0x48019584 0x48019584
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
-4ff224c0: 0x48019584 0x48019584 0x48019584 0x48019584 0x48019584 0x48019584 0x00000000 0x00000000
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
---- 0x48019584: rpc_event_callback at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/rpc/wrap/rpc_wrap.c:139
-4ff224e0: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff22500: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff22520: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff22540: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x4ff29910 0x4ff29db8 0x4ff2a260
-4ff22560: 0x4ff29b64 0x4ff2a00c 0x4ff2a4b4 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
---- 0x4ff2a260: bootloader_clock_configure at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/bootloader_clock_init.c:162
---- 0x4ff2a00c: bootloader_super_wdt_auto_feed at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/esp32p4/bootloader_esp32p4.c:91
---- (inlined by) bootloader_init at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/esp32p4/bootloader_esp32p4.c:134
---- 0x4ff2a4b4: bootloader_clear_bss_section at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/bootloader_init.c:32
---- Stack dump detected
-4ff22580: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff225a0: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff225c0: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff225e0: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff22600: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff22620: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff22640: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff22660: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-4ff22680: 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 0x00000000
-
-Core  0 register dump:
-MEPC    : 0x4ff10a14  RA      : 0x4ff10a18  SP      : 0x4ff21c90  GP      : 0x4ff1d300 
---- 0x4ff10a14: esp_vApplicationTickHook at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/freertos_hooks.c:35
---- 0x4ff10a18: esp_vApplicationTickHook at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/freertos_hooks.c:34
-TP      : 0x4ff36b20  T0      : 0x4ff27000  T1      : 0x4ff27784  T2      : 0x00000000 
-S0/FP   : 0x4ff24e64  S1      : 0x4ff24e70  A0      : 0x4ff27e10  A1      : 0xe7ffffff 
-A2      : 0x000004b0  A3      : 0x00400000  A4      : 0x00000002  A5      : 0x00000000 
-A6      : 0x4ff214cc  A7      : 0x00000000  S2      : 0x00000001  S3      : 0x4ff277c4 
-S4      : 0x03ffffff  S5      : 0x00000030  S6      : 0x4ff27000  S7      : 0x00000000 
-S8      : 0x00000000  S9      : 0x00000000  S10     : 0x00000000  S11     : 0x00000000 
-T3      : 0x00000000  T4      : 0x00000000  T5      : 0x4ff2775c  T6      : 0x00000000 
-MSTATUS : 0x00001880  MTVEC   : 0x4ff00003  MCAUSE  : 0x00001018  MTVAL   : 0x00000000 
---- 0x4ff00003: _vector_table at ??:?
-MHARTID : 0x00000000
-
-
---- Backtrace:
-
-
-add symbol table from file "C:\Esp\Treadmill\Consola\build\bootloader\bootloader.elf"
-warning: could not convert 'main' from the host encoding (CP1252) to UTF-32.
-This normally should not happen, please file a bug report.
-0x4ff10a14 in esp_vApplicationTickHook () at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/freertos_hooks.c:35
-35              if (tick_cb[core][n] != NULL) {
-#0  0x4ff10a14 in esp_vApplicationTickHook () at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/freertos_hooks.c:35
-#1  0x4ff12d16 in xPortSysTickHandler () at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/port_systick.c:199
-#2  SysTickIsrHandler (arg=0x4ff222d8 <systimer_hal>) at C:/Espressif/frameworks/esp-idf-v5.5.1/components/freertos/port_systick.c:148
-#3  0x4ff002d0 in _interrupt_handler () at C:/Espressif/frameworks/esp-idf-v5.5.1/components/riscv\vectors.S:456
-Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+LOG 4
 
 
 
-ELF file SHA256: a924d816d
-
-Rebooting...
-ESP-ROM:esp32p4-eco2-20240710
-Build:Jul 10 2024
-rst:0xc (SW_CPU_RESET),boot:0x30f (SPI_FAST_FLASH_BOOT)
-Core0 Saved PC:0x480015ec
---- 0x480015ec: panic_handler at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/port/panic_handler.c:242
-Core1 Saved PC:0x4ff10f76
---- 0x4ff10f76: esp_restart_noos at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_system/port/soc/esp32p4/system_internal.c:218
-SPI mode:DIO, clock div:1
-load:0x4ff33ce0,len:0x17a4
-load:0x4ff29ed0,len:0xfc0
---- 0x4ff29ed0: esp_bootloader_get_description at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_bootloader_format/esp_bootloader_desc.c:39
-load:0x4ff2cbd0,len:0x345c
---- 0x4ff2cbd0: esp_flash_encryption_enabled at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader_support/src/flash_encrypt.c:89
-entry 0x4ff29eda
---- 0x4ff29eda: call_start_cpu0 at C:/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject/main/bootloader_start.c:25
-I (33) boot: ESP-IDF v5.5.1 2nd stage bootloader
-I (33) boot: compile time Nov 11 2025 14:54:14
-I (34) boot: Multicore bootloader
-I (35) boot: chip revision: v1.0
-I (36) boot: efuse block revision: v0.3
-I (40) qio_mode: Enabling default flash chip QIO
-I (44) boot.esp32p4: SPI Speed      : 80MHz
-I (48) boot.esp32p4: SPI Mode       : QIO
-I (52) boot.esp32p4: SPI Flash Size : 16MB
-I (56) boot: Enabling RNG early entropy source...
-I (60) boot: Partition Table:
-I (63) boot: ## Label            Usage          Type ST Offset   Length
-I (69) boot:  0 nvs              WiFi data        01 02 00009000 00006000
-I (76) boot:  1 phy_init         RF data          01 01 0000f000 00001000
-I (82) boot:  2 factory          factory app      00 00 00010000 00800000
-I (89) boot:  3 storage          Unknown data     01 82 00810000 00700000
-I (96) boot: End of partition table
-I (99) esp_image: segment 0: paddr=00010020 vaddr=48110020 size=9f9bch (653756) map
-I (180) esp_image: segment 1: paddr=000af9e4 vaddr=30100000 size=00068h (   104) load
-I (181) esp_image: segment 2: paddr=000afa54 vaddr=4ff00000 size=005c4h (  1476) load
-I (184) esp_image: segment 3: paddr=000b0020 vaddr=48000020 size=109de0h (1088992) map
-I (313) esp_image: segment 4: paddr=001b9e08 vaddr=4ff005c4 size=1c534h (116020) load
-I (331) esp_image: segment 5: paddr=001d6344 vaddr=4ff1cb00 size=047b4h ( 18356) load
-I (335) esp_image: segment 6: paddr=001dab00 vaddr=50108080 size=00020h (    32) load
-I (342) boot: Loaded app from partition at offset 0x10000
-I (343) boot: Disabling RNG early entropy source...
-I (359) hex_psram: vendor id    : 0x0d (AP)
-I (359) hex_psram: Latency      : 0x01 (Fixed)
-I (359) hex_psram: DriveStr.    : 0x00 (25 Ohm)
-I (360) hex_psram: dev id       : 0x03 (generation 4)
-I (364) hex_psram: density      : 0x07 (256 Mbit)
-I (369) hex_psram: good-die     : 0x06 (Pass)
-I (373) hex_psram: SRF          : 0x02 (Slow Refresh)
-I (378) hex_psram: BurstType    : 0x00 ( Wrap)
-I (382) hex_psram: BurstLen     : 0x03 (2048 Byte)
-I (386) hex_psram: BitMode      : 0x01 (X16 Mode)
-I (391) hex_psram: Readlatency  : 0x04 (14 cycles@Fixed)
-I (396) hex_psram: DriveStrength: 0x00 (1/1)
-I (400) MSPI DQS: tuning success, best phase id is 0
-I (572) MSPI DQS: tuning success, best delayline id is 17
-I esp_psram: Found 32MB PSRAM device
-I esp_psram: Speed: 200MHz
-I (604) mmu_psram: .rodata xip on psram
-I (656) mmu_psram: .text xip on psram
-I (657) hex_psram: psram CS IO is dedicated
-I (658) cpu_start: Multicore app
-I (1093) esp_psram: SPI SRAM memory test OK
-I (1102) cpu_start: Pro cpu start user code
-I (1102) cpu_start: cpu freq: 360000000 Hz
-I (1102) app_init: Application information:
-I (1102) app_init: Project name:     lvgl_demo_v8
-I (1107) app_init: App version:      a220190-dirty
-I (1111) app_init: Compile time:     Nov 13 2025 00:32:55
-I (1116) app_init: ELF file SHA256:  a924d816d...
-I (1121) app_init: ESP-IDF:          v5.5.1
-I (1125) efuse_init: Min chip rev:     v0.1
-I (1129) efuse_init: Max chip rev:     v1.99
-I (1133) efuse_init: Chip rev:         v1.0
-I (1137) heap_init: Initializing. RAM available for dynamic allocation:
-I (1143) heap_init: At 4FF28120 len 00012EA0 (75 KiB): RAM
-I (1148) heap_init: At 4FF3AFC0 len 00004BF0 (18 KiB): RAM
-I (1153) heap_init: At 4FF40000 len 00040000 (256 KiB): RAM
-I (1159) heap_init: At 501080A0 len 00007F60 (31 KiB): RTCRAM
-I (1164) heap_init: At 30100068 len 00001F98 (7 KiB): TCM
-I (1169) esp_psram: Adding pool of 31040K of PSRAM memory to heap allocator
-I (1176) esp_psram: Adding pool of 24K of PSRAM memory gap generated due to end address alignment of irom to the heap allocator
-I (1187) esp_psram: Adding pool of 1K of PSRAM memory gap generated due to end address alignment of drom to the heap allocator
-I (1199) spi_flash: detected chip: boya
-I (1202) spi_flash: flash io: qio
-I (1205) host_init: ESP Hosted : Host chip_ip[18]
-I (1219) H_API: ESP-Hosted starting. Hosted_Tasks: prio:23, stack: 5120 RPC_task_stack: 5120
-I (1219) H_API: ** add_esp_wifi_remote_channels **
-I (1222) transport: Add ESP-Hosted channel IF[1]: S[0] Tx[0x4800ea10] Rx[0x48022f6c]
---- 0x4800ea10: transport_drv_sta_tx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:248
---- 0x48022f6c: esp_wifi_remote_channel_rx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-I (1230) transport: Add ESP-Hosted channel IF[2]: S[0] Tx[0x4800e952] Rx[0x48022f6c]
---- 0x4800e952: transport_drv_ap_tx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_hosted/host/drivers/transport/transport_drv.c:278
---- 0x48022f6c: esp_wifi_remote_channel_rx at C:/Esp/Treadmill/Consola/managed_components/espressif__esp_wifi_remote/esp_wifi_remote_net.c:19
-sdio_mempool_create free:31915176 min-free:31915176 lfb-def:31457280 lfb-8bit:31457280
-
-I (1246) H_SDIO_DRV: sdio_data_to_rx_buf_task started
-I (1250) main_task: Started on CPU0
-I (1254) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations
-I (1261) main_task: Calling app_main()
-I (1268) WIFI_MANAGER: Initializing WiFi Manager
-I (1269) WIFI_MANAGER: WiFi Manager initialized successfully
-I (1275) LVGL: Starting LVGL task
-I (1278) ESP32_P4_EV: MIPI DSI PHY Powered on
-I (1283) ESP32_P4_EV: Install MIPI DSI LCD control panel
-I (1287) ESP32_P4_EV: Install ILI9881C LCD control panel
-I (1438) jd9365: LCD ID: 93 65 04
-I (1565) ESP32_P4_EV: Display initialized
-I (1626) gsl3680: start init
-I (1626) gsl3680: clear reg
-I (1756) gsl3680: start load fw
-I (2616) gsl3680: load fw success
-I (2616) gsl3680: enter
-I (2626) gsl_point_id: gsl_DataInit
-I (2686) gsl3680: enter
-I (2696) gsl_point_id: gsl_DataInit
-I (2696) ESP32_P4_EV: Setting LCD backlight: 100%
-I (2696) UI: Loaded wax counter from NVS: 720 seconds
-I (2820) Audio: Inicializando altavoz...
-I (2825) ES8311: Work in Slave mode
-I (2828) I2S_IF: channel mode 0 bits:16/16 channel:2 mask:1
-I (2828) I2S_IF: STD Mode 1 bits:16/16 channel:2 sample_rate:44100 mask:1
-I (2969) Adev_Codec: Open codec device OK
-I (2992) Audio: Buffer de pitido generado (4410 bytes)
-I (2992) Audio: Altavoz y buffer de pitido listos (modo asíncrono).
-I (2993) NIMBLE_BLE_CLIENT: Initializing BLE Client for ESP-Hosted...
-I (2993) ButtonHandler: MCP23017 configurado para los botones.
-I (3004) transport: Attempt connection with slave: retry[0]
-W (3009) H_SDIO_DRV: Reset slave using GPIO[54]
-I (3013) os_wrapper_esp: GPIO [54] configured
-I (4219) sdio_wrapper: SDIO master: Slot 1, Data-Lines: 4-bit Freq(KHz)[20000 KHz]
-I (4219) sdio_wrapper: GPIOs: CLK[18] CMD[19] D0[14] D1[15] D2[16] D3[17] Slave_Reset[54]
-I (4223) sdio_wrapper: Queues: Tx[20] Rx[20] SDIO-Rx-Mode[1]
-Name:
-Type: SDIO
-Speed: 20.00 MHz (limit: 20.00 MHz)
-Size: 0MB
-CSD: ver=1, sector_size=0, capacity=0 read_bl_len=0
-SCR: sd_spec=0, bus_width=0
-TUPLE: DEVICE, size: 3: D9 01 FF
-TUPLE: MANFID, size: 4
-  MANF: 0092, CARD: 6666
-TUPLE: FUNCID, size: 2: 0C 00
-TUPLE: FUNCE, size: 4: 00 00 02 32
-TUPLE: CONFIG, size: 5: 01 01 00 02 07
-TUPLE: CFTABLE_ENTRY, size: 8
-  INDX: C1, Intface: 1, Default: 1, Conf-Entry-Num: 1
-  IF: 41
-  FS: 30, misc: 0, mem_space: 1, irq: 1, io_space: 0, timing: 0, power: 0
-  IR: 30, mask: 1,   IRQ: FF FF
-  LEN: FFFF
-TUPLE: END
-I (4300) sdio_wrapper: Function 0 Blocksize: 512
-I (4305) sdio_wrapper: Function 1 Blocksize: 512
-I (4309) H_SDIO_DRV: Card init success, TRANSPORT_RX_ACTIVE
-I (4314) transport: set_transport_state: 1
-I (4318) transport: Waiting for esp_hosted slave to be ready
-I (4346) H_SDIO_DRV: SDIO Host operating in STREAMING MODE
-I (4346) H_SDIO_DRV: Open data path at slave
-I (4346) H_SDIO_DRV: Starting SDIO process rx task
-I (4348) H_SDIO_DRV: Received ESP_PRIV_IF type message
-I (4353) transport: Received INIT event from ESP32 peripheral
-I (4359) transport: EVENT: 12
-I (4361) transport: Identified slave [esp32c6]
-W (4365) H_SDIO_DRV: SDIO clock freq set to [20000]KHz, Max possible (on PCB) is 40000KHz
-I (4373) transport: EVENT: 11
-I (4376) transport: capabilities: 0xd
-I (4379) transport: Features supported are:
-I (4383) transport:      * WLAN
-I (4386) transport:        - HCI over SDIO
-I (4389) transport:        - BLE only
-I (4393) transport: EVENT: 13
-W (4395) transport: === ESP-Hosted Version Warning ===
-Version on Host is NEWER than version on co-processor
-RPC requests sent by host may encounter timeout errors
-or may not be supported by co-processor
-W (4413) transport: === ESP-Hosted Version Warning ===
-I (4418) transport: ESP board type is : 13
-
-I (4422) transport: Base transport is set-up, TRANSPORT_TX_ACTIVE
-I (4428) H_API: Transport active
-I (4431) transport: Slave chip Id[12]
-I (4434) transport: raw_tp_dir[-], flow_ctrl: low[60] high[80]
-I (4440) transport: transport_delayed_init
-I (4444) esp_cli: Remove any existing deep_sleep cmd in cli
-I (4449) esp_cli: Registering command: crash
-I (4453) esp_cli: Registering command: reboot
-I (4457) esp_cli: Registering command: mem-dump
-I (4461) esp_cli: Registering command: task-dump
-I (4466) esp_cli: Registering command: cpu-dump
-I (4470) esp_cli: Registering command: heap-trace
-I (4474) esp_cli: Registering command: sock-dump
-I (4479) esp_cli: Registering command: host-power-save
-I (4484) vhci_drv: Host BT Support: Enabled
-I (4488) vhci_drv:      BT Transport Type: VHCI
-I (4491) H_SDIO_DRV: Received INIT event
-I (4495) H_SDIO_DRV: Event type: 0x22
-I (4499) H_SDIO_DRV: Write thread started
-I (4523) NIMBLE_BLE_CLIENT: BLE Host Task Started
-I (4523) NIMBLE_BLE_CLIENT: BLE Client initialization complete.
-I (4523) WIFI_CLIENT: Initializing WiFi Client...
-I (4529) transport: Attempt connection with slave: retry[0]
-I (4532) transport: Transport is already up
-I (4533) NimBLE: GAP procedure initiated: stop advertising.
-
-I (4543) NimBLE: Failed to restore IRKs from store; status=8
-
-I (4546) NIMBLE_BLE_CLIENT: BLE Host synced.
-I (4551) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
-I (4557) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-I (4565) NimBLE: GAP procedure initiated: connect;
-I (4570) NimBLE: peer_addr_type=1 peer_addr=
-I (4574) NimBLE: ed:67:b1:95:9b:28
-I (4577) NimBLE:  scan_itvl=16 scan_window=16 itvl_min=24 itvl_max=40 latency=0 supervision_timeout=256 min_ce_len=0 max_ce_len=0 own_addr_type=0
-I (4590) NimBLE:
-
-I (4594) NIMBLE_BLE_CLIENT: BLE reconnect task started
-I (4594) NIMBLE_BLE_CLIENT: Reconnect task started
-I (5246) RPC_WRAP: --- ESP Event: Slave ESP Init ---
-I (5454) WIFI_CLIENT: wifi_init_sta finished.
-I (5454) CM_MASTER: Inicializando CM Master (Protocolo ASCII)...
-I (5454) CM_MASTER: UART1 configurado: 115200 baud, TX=4, RX=5
-I (5458) CM_MASTER: Iniciando tareas del maestro...
-I (5461) RPC_WRAP: ESP Event: wifi station started
-I (5467) CM_MASTER: Tarea UART RX iniciada (modo ASCII)
-I (5472) CM_MASTER: Tarea maestro iniciada (protocolo SYNC simplificado)
-I (5478) CM_MASTER: Tareas del maestro creadas correctamente
-I (5484) MainApp: Inicialización completa.
-I (5488) main_task: Returned from app_main()
-I (5690) WIFI_CLIENT: WIFI_EVENT_STA_START: Initializing connection process.
-I (5690) WIFI_MANAGER: Found 2 saved SSIDs in order
-I (5691) WIFI_CLIENT: Attempting to connect to MOVISTAR_4B85 (1/2)
-I (5696) WIFI_MANAGER: Credentials loaded for SSID: MOVISTAR_4B85
-I (5746) H_API: esp_wifi_remote_connect
-W (5763) rpc_rsp: Hosted RPC_Resp [0x21a], uid [7], resp code [12295]
-I (9601) NIMBLE_BLE_CLIENT: Successfully loaded saved device address from NVS.
-I (9601) NIMBLE_BLE_CLIENT: Not connected - attempting reconnect to saved device...
-I (9604) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-E (9612) NIMBLE_BLE_CLIENT: Failed to initiate connect; rc=2. Restarting scan.
-E (9619) NIMBLE_BLE_CLIENT: Error starting scan; rc=15
-I (10867) RPC_WRAP: ESP Event: Station mode: Connected
-I (10867) esp_wifi_remote: esp_wifi_internal_reg_rxcb: sta: 0x480bbfe4
---- 0x480bbfe4: wifi_sta_receive at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_wifi/src/wifi_netif.c:39
-I (14624) NIMBLE_BLE_CLIENT: Not connected - attempting reconnect to saved device...
-I (14624) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-E (14629) NIMBLE_BLE_CLIENT: Failed to initiate connect; rc=2. Restarting scan.
-E (14636) NIMBLE_BLE_CLIENT: Error starting scan; rc=15
-I (14716) esp_netif_handlers: sta ip: 192.168.1.134, mask: 255.255.255.0, gw: 192.168.1.1
-I (14716) WIFI_CLIENT: Got IP address: 192.168.1.134
-I (14717) WIFI_CLIENT: wifi_connect_task: WiFi Connected
-I (14723) WIFI_MANAGER: Updated SSID order: MOVISTAR_4B85,SPOOFER
-I (14728) WIFI_CLIENT: Manually set DNS server to 8.8.8.8
-I (16058) WIFI_CONNECTIVITY: Internet connectivity confirmed.
-I (19520) ButtonHandler: Botón físico 1 pulsado
-I (19521) CM_MASTER: Inclinación objetivo: 0.0%
-I (19521) UI: Entrenamiento libre seleccionado (botón físico)
-I (19524) CM_MASTER: Training mode: ACTIVADO (entrenando)
-I (19529) UI: Training mode activado (botón físico)
-I (19641) NIMBLE_BLE_CLIENT: Not connected - attempting reconnect to saved device...
-I (19641) NIMBLE_BLE_CLIENT: Attempting to connect to device with address: ed:67:b1:95:9b:28
-E (19646) NIMBLE_BLE_CLIENT: Failed to initiate connect; rc=2. Restarting scan.
-E (19653) NIMBLE_BLE_CLIENT: Error starting scan; rc=15
-I (23796) ButtonHandler: Botón físico 1 pulsado
-I (23797) CM_MASTER: Inclinación objetivo: 1.0%
-Guru Meditation Error: Core  1 panic'ed (Interrupt wdt timeout on CPU1).
-
---- Stack dump detected
-Core  1 register dump:
-MEPC    : 0x4ff08fb2  RA      : 0x4ff08f9e  SP      : 0x4ff37230  GP      : 0x4ff1d300 
---- 0x4ff08fb2: esp_cpu_wait_for_intr at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support/cpu.c:64
---- 0x4ff08f9e: esp_cpu_wait_for_intr at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support/cpu.c:57
-TP      : 0x4ff37280  T0      : 0x00000000  T1      : 0x4ff093b2  T2      : 0x00000000 
---- 0x4ff093b2: acquire_free_channels_for_trans at C:/Espressif/frameworks/esp-idf-v5.5.1/components/esp_hw_support/dma/dma2d.c:82
-S0/FP   : 0x4ff5a274  S1      : 0x4ff27784  A0      : 0x00000000  A1      : 0x4ff3b2cc 
-A2      : 0x00000004  A3      : 0x00000000  A4      : 0x20800008  A5      : 0x3ff06000 
-A6      : 0x00000008  A7      : 0x00000000  S2      : 0x4ff21470  S3      : 0x4ff27000 
-S4      : 0x4ff21468  S5      : 0x00000000  S6      : 0x4ff27000  S7      : 0x00000000 
-S8      : 0x00000000  S9      : 0x00000000  S10     : 0x00000000  S11     : 0x00000000 
-T3      : 0x00000000  T4      : 0x00000000  T5      : 0x00000000  T6      : 0x00000000 
-MSTATUS : 0x00011880  MTVEC   : 0x4ff00003  MCAUSE  : 0x00001018  MTVAL   : 0x00000000 
---- 0x4ff00003: _vector_table at ??:?
-MHARTID : 0x00000001
-
-
-
-
-
-C:\Esp\Treadmill\Base>idf.py -p COM3 flash monitor
-Executing action: flash
-Running ninja in directory C:\Esp\Treadmill\Base\build
-Executing "ninja flash"...
-[1/5] C:\WINDOWS\system32\cmd.ex...ll/Base/build/sala_maquinas.bin"
-sala_maquinas.bin binary size 0x4a340 bytes. Smallest app partition is 0x100000 bytes. 0xb5cc0 bytes (71%) free.
-[1/1] C:\WINDOWS\system32\cmd.ex...build/bootloader/bootloader.bin"
-Bootloader binary size 0x6680 bytes. 0x980 bytes (8%) free.
-[4/5] C:\WINDOWS\system32\cmd.ex...sptool_py/run_serial_tool.cmake"
-esptool.py --chip esp32 -p COM3 -b 460800 --before=default_reset --after=hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 4MB 0x1000 bootloader/bootloader.bin 0x10000 sala_maquinas.bin 0x8000 partition_table/partition-table.bin
-esptool.py v4.10.0
-Serial port COM3
-Connecting....
-Chip is ESP32-D0WD-V3 (revision v3.1)
-Features: WiFi, BT, Dual Core, 240MHz, VRef calibration in efuse, Coding Scheme None
-Crystal is 40MHz
-MAC: 00:4b:12:9a:b7:2c
-Uploading stub...
-Running stub...
-Stub running...
-Changing baud rate to 460800
-Changed.
-Configuring flash size...
-Flash will be erased from 0x00001000 to 0x00007fff...
-Flash will be erased from 0x00010000 to 0x0005afff...
-Flash will be erased from 0x00008000 to 0x00008fff...
-SHA digest in image updated
-Compressed 26240 bytes to 16489...
-Writing at 0x00001000... (50 %)
-Writing at 0x000075f7... (100 %)
-Wrote 26240 bytes (16489 compressed) at 0x00001000 in 0.6 seconds (effective 376.6 kbit/s)...
-Hash of data verified.
-Compressed 303936 bytes to 168712...
-Writing at 0x00010000... (9 %)
-Writing at 0x0001d3e4... (18 %)
-Writing at 0x00026673... (27 %)
-Writing at 0x0002c129... (36 %)
-Writing at 0x00031dc6... (45 %)
-Writing at 0x00037020... (54 %)
-Writing at 0x0003cedc... (63 %)
-Writing at 0x00042483... (72 %)
-Writing at 0x00048915... (81 %)
-Writing at 0x000518c3... (90 %)
-Writing at 0x000588d6... (100 %)
-Wrote 303936 bytes (168712 compressed) at 0x00010000 in 4.2 seconds (effective 573.2 kbit/s)...
-Hash of data verified.
-Compressed 3072 bytes to 103...
-Writing at 0x00008000... (100 %)
-Wrote 3072 bytes (103 compressed) at 0x00008000 in 0.1 seconds (effective 449.0 kbit/s)...
-Hash of data verified.
-
-Leaving...
-Hard resetting via RTS pin...
+C:\Esp\Treadmill\Base>idf.py -p COM3 monitor
 Executing action: monitor
 Running idf_monitor in directory C:\Esp\Treadmill\Base
 Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espressif\frameworks\esp-idf-v5.5.1\tools/idf_monitor.py -p COM3 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 C:\Esp\Treadmill\Base\build\sala_maquinas.elf C:\Esp\Treadmill\Base\build\bootloader\bootloader.elf --force-color -m 'C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe' 'C:\Espressif\frameworks\esp-idf-v5.5.1\tools\idf.py' '-p' 'COM3'"...
@@ -692,7 +10,6 @@ Executing "C:\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe C:\Espre
 --- Using \\.\COM3 instead...
 --- esp-idf-monitor 1.8.0 on \\.\COM3 115200
 --- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H
-
 
 rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT) ets Jul 29 2019 12:21:46
 
@@ -721,298 +38,215 @@ I (58) boot:  0 nvs              WiFi data        01 02 00009000 00006000
 I (64) boot:  1 phy_init         RF data          01 01 0000f000 00001000
 I (71) boot:  2 factory          factory app      00 00 00010000 00100000
 I (77) boot: End of partition table
-I (81) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=10e68h ( 69224) map
-I (112) esp_image: segment 1: paddr=00020e90 vaddr=3ffb0000 size=023e8h (  9192) load
-I (115) esp_image: segment 2: paddr=00023280 vaddr=40080000 size=0cd98h ( 52632) load
-I (136) esp_image: segment 3: paddr=00030020 vaddr=400d0020 size=297b8h (169912) map
-I (194) esp_image: segment 4: paddr=000597e0 vaddr=4008cd98 size=00b14h (  2836) load
-I (196) esp_image: segment 5: paddr=0005a2fc vaddr=50000000 size=00020h (    32) load
-I (205) boot: Loaded app from partition at offset 0x10000
-I (205) boot: Disabling RNG early entropy source...
-I (220) cpu_start: Multicore app
-I (228) cpu_start: Pro cpu start user code
-I (228) cpu_start: cpu freq: 160000000 Hz
-I (228) app_init: Application information:
-I (231) app_init: Project name:     sala_maquinas
-I (237) app_init: App version:      a220190-dirty
-I (242) app_init: Compile time:     Nov 13 2025 00:26:46
-I (248) app_init: ELF file SHA256:  7dda2dab1...
-I (253) app_init: ESP-IDF:          v5.5.1
-I (258) efuse_init: Min chip rev:     v0.0
-I (263) efuse_init: Max chip rev:     v3.99
-I (268) efuse_init: Chip rev:         v3.1
-I (273) heap_init: Initializing. RAM available for dynamic allocation:
-I (280) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
-I (286) heap_init: At 3FFB2D60 len 0002D2A0 (180 KiB): DRAM
-I (292) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
-I (298) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
-I (305) heap_init: At 4008D8AC len 00012754 (73 KiB): IRAM
-W (312) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
-I (325) spi_flash: detected chip: generic
-I (330) spi_flash: flash io: dio
-I (334) main_task: Started on CPU0
-I (338) main_task: Calling app_main()
-I (341) SLAVE: ==============================================
-I (348) SLAVE:   Sala de Maquinas - Sistema Esclavo
-I (353) SLAVE:   PROTOCOLO: ASCII Simple (UART Direct)
-I (359) SLAVE: ==============================================
-I (376) SLAVE: GPIO 21 configurado para fin de carrera de inclinación (pull-up interno)
-I (377) SLAVE: GPIOs configurados. Asignación v6 (Fin de carrera en GPIO 21 con pull-up interno).
-I (386) SLAVE: Temporizador de bomba de cera creado.
-I (392) SPEED_SENSOR: Inicializando sensor de velocidad (PCNT) en GPIO 15
-I (399) SPEED_SENSOR: GPIO 15 configurado con pull-down para evitar ruido
-I (407) SPEED_SENSOR: Sensor de velocidad (PCNT) inicializado y contando.
-I (414) SLAVE: Configurando UART para RS485...
-I (420) SLAVE: UART1 configurado: 115200 baud, TX=17, RX=16
-I (426) SLAVE: Tarea UART RX iniciada (modo ASCII). Escuchando en UART1...
-I (433) SLAVE: Tarea UART RX creada
-I (437) VFD_DRIVER_MODBUS: Inicializando driver Modbus Master...
-I (445) uart: queue free spaces: 20
-E (447) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (455) SLAVE: Inclinación no calibrada, ignorando objetivo
-I (450) mb_port.serial: mbm_rtu@0x3ffb80fc, suspend port from task.
-E (547) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (547) SLAVE: Inclinación no calibrada, ignorando objetivo
-I (569) VFD_DRIVER_MODBUS: Modbus Master inicializado en UART2 (TX:19, RX:18, 9600 bps)
-I (569) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-I (575) VFD_DRIVER_MODBUS: VFD Driver (Modbus Real) inicializado. Tarea creada.
-I (582) SLAVE: Controlador VFD (real) inicializado
-I (588) SLAVE: Tarea de actualización de velocidad iniciada
-I (594) SLAVE: Tarea de actualización de velocidad creada
-I (600) SLAVE: Tarea de control de inclinación iniciada
-I (607) SLAVE: Timeout dinámico de homing calculado: 5000 ms (basado en posición guardada: 0.0%)
-I (616) SLAVE: Tarea de control de inclinación creada
-I (622) SLAVE: Tarea de watchdog iniciada (Timeout: 0 ms)
-I (628) SLAVE: Tarea de watchdog creada (timeout: 1000ms)
-I (634) SLAVE: Sistema iniciado correctamente
-I (639) SLAVE: Esperando comandos del Maestro...
-E (647) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (651) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (746) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (747) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (847) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (847) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (947) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (947) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1047) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1047) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1147) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1147) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1247) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1247) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1347) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1347) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1447) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1447) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1547) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1547) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1583) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (1585) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (1593) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (1600) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-E (1647) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1647) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1746) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1747) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1846) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1847) SLAVE: Inclinación no calibrada, ignorando objetivo
-E (1946) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (1947) SLAVE: Inclinación no calibrada, ignorando objetivo
-I (2016) SLAVE: ✓ Homing de inclinación completado - Fin de carrera detectado
-E (3028) SLAVE: ¡WATCHDOG TIMEOUT! No se recibió comando en 0 ms
-W (3028) SLAVE: ⚠️ ENTERING SAFE STATE - Communication lost or emergency stop
-I (6608) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (7617) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (7617) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (7625) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (7633) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-I (9364) SLAVE: ✅ SAFE STATE reset. Communication restored.
-E (9364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (9964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10264) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (10644) SLAVE: Heartbeat #0 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %
-E (10664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (10964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11164) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (11864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12164) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (12640) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (12664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (12964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13164) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13649) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (13649) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (13658) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (13664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13665) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-E (13764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (13964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14264) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (14864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15164) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15264) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (15964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16264) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (16964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17164) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (17964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18264) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (18679) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (18764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (18864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19164) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19688) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (19688) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (19696) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (19704) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-E (19764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (19964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20164) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20264) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20464) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (20644) SLAVE: Heartbeat #1 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %
-E (20664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (20864) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21064) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21264) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21364) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21564) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21664) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21764) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (21964) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22164) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22440) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22640) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22740) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22840) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (22940) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23040) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23140) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23240) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23340) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23440) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23540) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23640) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23740) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23840) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (23940) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24140) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24239) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24340) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24540) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24640) SLAVE: No se puede actualizar velocidad: VFD no disponible
-I (24711) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (24740) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24840) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (24940) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25140) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25239) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25339) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25439) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25540) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25640) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25720) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (25720) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (25728) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (25736) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-E (25740) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25840) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (25940) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26040) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26140) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26240) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26439) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26540) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (26740) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (27832) SLAVE: ¡WATCHDOG TIMEOUT! No se recibió comando en 0 ms
-W (27832) SLAVE: ⚠️ ENTERING SAFE STATE - Communication lost or emergency stop
-I (30644) SLAVE: Heartbeat #2 - Speed: 0.00/0.00 km/h, Incline: 0.4/0.0 %
-I (30743) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
-E (31752) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
-E (31752) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
-E (31761) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
-E (31768) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
-I (34420) SLAVE: ✅ SAFE STATE reset. Communication restored.
-I (34420) SLAVE: Saliendo de training mode - Forzando homing de inclinación
-E (34423) SLAVE: No se puede actualizar velocidad: VFD no disponible
-W (34430) SLAVE: Inclinación no calibrada, ignorando objetivo
-I (34487) SLAVE: ✓ Homing de inclinación completado - Fin de carrera detectado
-E (34520) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (34720) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (34820) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (34920) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35020) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35120) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35220) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35320) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35420) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35520) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35620) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35720) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35820) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (35920) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (36020) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (36120) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (36220) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (36320) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (36420) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (36520) SLAVE: No se puede actualizar velocidad: VFD no disponible
-E (36620) SLAVE: No se puede actualizar velocidad: VFD no disponible
+I (81) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=10558h ( 66904) map
+I (111) esp_image: segment 1: paddr=00020580 vaddr=3ffb0000 size=023e8h (  9192) load
+I (115) esp_image: segment 2: paddr=00022970 vaddr=40080000 size=0d6a4h ( 54948) load
+I (136) esp_image: segment 3: paddr=0003001c vaddr=50000000 size=00020h (    32) load
+I (136) esp_image: segment 4: paddr=00030044 vaddr=00000000 size=0ffd4h ( 65492)
+I (162) esp_image: segment 5: paddr=00040020 vaddr=400d0020 size=28968h (166248) map
+I (226) boot: Loaded app from partition at offset 0x10000
+I (226) boot: Disabling RNG early entropy source...
+I (236) cpu_start: Multicore app
+I (245) cpu_start: Pro cpu start user code
+I (245) cpu_start: cpu freq: 160000000 Hz
+I (245) app_init: Application information:
+I (248) app_init: Project name:     sala_maquinas
+I (253) app_init: App version:      6b89ba1-dirty
+I (258) app_init: Compile time:     Nov 13 2025 13:37:20
+I (264) app_init: ELF file SHA256:  7bfe8ac40...
+I (270) app_init: ESP-IDF:          v5.5.1
+I (274) efuse_init: Min chip rev:     v0.0
+I (279) efuse_init: Max chip rev:     v3.99
+I (284) efuse_init: Chip rev:         v3.1
+I (289) heap_init: Initializing. RAM available for dynamic allocation:
+I (296) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM
+I (302) heap_init: At 3FFB2D60 len 0002D2A0 (180 KiB): DRAM
+I (308) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM
+I (315) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM
+I (321) heap_init: At 4008D6A4 len 0001295C (74 KiB): IRAM
+W (329) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig
+I (341) spi_flash: detected chip: generic
+I (346) spi_flash: flash io: dio
+I (351) main_task: Started on CPU0
+I (355) main_task: Calling app_main()
+I (358) SLAVE: ==============================================
+I (365) SLAVE:   Sala de Maquinas - Sistema Esclavo
+I (370) SLAVE:   PROTOCOLO: ASCII Simple (UART Direct)
+I (376) SLAVE: ==============================================
+I (393) SLAVE: GPIO 21 configurado para fin de carrera de inclinación (pull-up interno)
+I (394) SLAVE: GPIOs configurados. Asignación v6 (Fin de carrera en GPIO 21 con pull-up interno).
+I (403) SLAVE: Temporizador de bomba de cera creado.
+I (409) SLAVE: Configurando UART para RS485...
+I (415) SLAVE: UART1 configurado: 115200 baud, TX=17, RX=16
+I (420) SLAVE: Tarea UART RX iniciada (modo ASCII). Escuchando en UART1...
+I (428) SLAVE: Tarea UART RX creada
+I (432) VFD_DRIVER_MODBUS: Inicializando driver Modbus Master...
+I (440) uart: queue free spaces: 20
+I (443) mb_port.serial: mbm_rtu@0x3ffb7fe8, suspend port from task.
+E (512) SLAVE: No se puede actualizar velocidad: VFD no disponible
+W (512) SLAVE: Inclinación no calibrada, ignorando objetivo
+I (550) VFD_DRIVER_MODBUS: Modbus Master inicializado en UART2 (TX:19, RX:18, 9600 bps)
+I (550) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+I (556) VFD_DRIVER_MODBUS: VFD Driver (Modbus Real) inicializado. Tarea creada.
+I (563) SLAVE: Controlador VFD (real) inicializado
+I (569) SLAVE: Tarea de actualización de velocidad iniciada (calculada desde VFD)
+I (577) SLAVE: Tarea de actualización de velocidad creada
+I (583) SLAVE: Tarea de control de inclinación iniciada
+I (590) SLAVE: Posición de inclinación cargada desde NVS: 0.0%
+I (596) SLAVE: Timeout dinámico de homing calculado: 5000 ms (basado en posición guardada: 0.0%)
+I (606) SLAVE: Tarea de control de inclinación creada
+E (612) SLAVE: No se puede actualizar velocidad: VFD no disponible
+W (618) SLAVE: Inclinación no calibrada, ignorando objetivo
+I (625) SLAVE: Tarea de watchdog iniciada (Timeout: 0 ms)
+I (631) SLAVE: Tarea de watchdog creada (timeout: 1000ms)
+I (637) SLAVE: Sistema iniciado correctamente
+I (642) SLAVE: Esperando comandos del Maestro...
+I (655) SLAVE: ✓ Homing de inclinación completado - Fin de carrera detectado
+E (712) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1565) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (1566) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (1574) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (1581) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+E (1611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (1811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (2911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (3911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (4011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (4111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (4211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (4311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (4411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (4611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (4711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (4911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (5911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+I (6589) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+E (6611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (6911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7598) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (7598) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (7606) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (7611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7614) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+E (7711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (7911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (8911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (9911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (10111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (10211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (10311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (10411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (10511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (10611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+I (10647) SLAVE: Heartbeat #0 - Speed: 0.00/0.00 km/h, Incline: 0.0/0.0 %
+E (10811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (11011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (11111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (11211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (11311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (11411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (11611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (11711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (11911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (12011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (12111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (12211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (12311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (12411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (12611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+I (12628) VFD_DRIVER_MODBUS: Configurando VFD (Fuente de Comando y Frecuencia)...
+E (12711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (12811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (12911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (13011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (13111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (13311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (13411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (13511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (13611) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (13637) MB_CONTROLLER_MASTER: mbc_master_send_request(169): Master send request failure error=(0x107) (ESP_ERR_TIMEOUT).
+E (13637) VFD_DRIVER_MODBUS: Error al escribir en registro 0x0001: ESP_ERR_TIMEOUT
+E (13646) VFD_DRIVER_MODBUS: Error configurando F0-01 (Fuente de Comando)
+E (13653) VFD_DRIVER_MODBUS: Reintentando configuración del VFD en 5s...
+E (13811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (13911) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (14011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (14111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (14311) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (14411) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (14511) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (14711) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (14811) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (15011) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (15111) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (15211) SLAVE: No se puede actualizar velocidad: VFD no disponible
+E (15311) SLAVE: No se puede actualizar velocidad: VFD no disponible
 
-Done
 
 C:\Esp\Treadmill\Base>
-
-
 
 
