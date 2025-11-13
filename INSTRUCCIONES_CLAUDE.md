@@ -1,5 +1,33 @@
 # Instrucciones para Claude Code
 
+## Procedimiento de Trabajo con el Usuario
+
+### Antes de Hacer Cualquier Cambio
+
+**SIEMPRE seguir este procedimiento:**
+
+1. **Explicar lo que entendí** de la solicitud del usuario
+2. **Describir EXACTAMENTE qué cambios voy a hacer** (qué archivos, qué líneas, qué valores)
+3. **ESPERAR aprobación explícita** del usuario ("si", "apruebo", "adelante")
+4. **SOLO ENTONCES ejecutar los cambios**
+
+### Cómo Actuar
+
+- **No adivinar**: Si hay ambigüedad en la solicitud, PREGUNTAR antes de asumir
+- **No hacer suposiciones sobre el hardware**: El usuario conoce el comportamiento real, yo solo veo código
+- **Ser conciso**: Respuestas estructuradas pero directas, sin divagaciones innecesarias
+
+### Errores que NO Repetir
+
+- ❌ Hacer cambios sin aprobación del usuario
+- ❌ Proponer soluciones antes de entender completamente el problema
+- ❌ Asumir que entendí cuando aún tengo dudas
+
+### Buena Práctica al Finalizar
+
+- ✅ **Siempre proporcionar el link del PR** cuando se hayan hecho cambios
+  - Formato: `https://github.com/inarobles/Treadmill/compare/<nombre-rama>`
+
 ## Flujo de Trabajo Git
 
 ### Principios Fundamentales
