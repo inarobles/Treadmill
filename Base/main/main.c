@@ -35,10 +35,10 @@ typedef enum {
 
 static const char *TAG = "SLAVE";
 
-// Factor de calibración CALIBRADO con hardware real
-// Datos de calibración: 78.10 Hz → 10.00 km/h → 575 pulsos/seg promedio
-// Cálculo: g_calibration_factor = 10.00 km/h / 575 pulsos/seg = 0.0174
-static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona de 12 dientes
+// NOTA: Sensor Hall desconectado por problemas de ruido
+// La velocidad ahora se calcula desde la frecuencia real del VFD (registro 0x2103)
+// Fórmula: velocidad_kmh = vfd_freq_hz × (6.4 / 50.0) = vfd_freq_hz × 0.128
+// static float g_calibration_factor = 0.0174;  // YA NO SE USA - Sensor Hall deshabilitado
 #define SPEED_UPDATE_INTERVAL_MS 500
 
 // ===========================================================================
@@ -53,7 +53,7 @@ static float g_calibration_factor = 0.0174; // Calibrado 2025-11-06 con corona d
 // ===========================================================================
 // ASIGNACIÓN DE PINES (v6)
 // ===========================================================================
-#define SENSOR_SPEED_PIN        15 // (PCNT) - Sensor Hall con corona de 12 dientes
+// #define SENSOR_SPEED_PIN        15 // DESHABILITADO: Sensor Hall desconectado físicamente por problemas de ruido
 #define INCLINE_LIMIT_SWITCH_PIN 21 // (Entrada con pull-up interno)
 #define HEAD_FAN_ON_OFF_PIN     26 // Relé 6 - ON/OFF del ventilador
 #define HEAD_FAN_SPEED_PIN      27 // Relé 7 - Selector velocidad (NC=normal, NO=fuerte)
@@ -299,7 +299,7 @@ static esp_err_t send_line(const char *line) {
  */
 static void send_data_response(void) {
     xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
-    float real_speed = g_real_speed_kmh;
+    float real_speed = g_real_speed_kmh;  // Calculada desde VFD, NO desde sensor Hall
     float real_incline = g_real_incline_pct;
     uint8_t head_fan = g_head_fan_state;
     uint8_t chest_fan = g_chest_fan_state;
@@ -605,20 +605,18 @@ static void uart_rx_task(void *pvParameters) {
 // ===========================================================================
 
 static void speed_update_task(void *pvParameters) {
-    ESP_LOGI(TAG, "Tarea de actualización de velocidad iniciada");
-    int64_t last_read_time_us = esp_timer_get_time();
-    
-    for (;;) {
-        vTaskDelay(pdMS_TO_TICKS(SPEED_UPDATE_INTERVAL_MS)); // <-- CORREGIDO (Errata)
-        
-        int64_t now_us = esp_timer_get_time();
-        int64_t delta_time_us = now_us - last_read_time_us;
-        last_read_time_us = now_us;
+    ESP_LOGI(TAG, "Tarea de actualización de velocidad iniciada (calculada desde VFD)");
 
-        int pulse_count = speed_sensor_get_pulse_count();
-        float pulses_per_sec = (float)pulse_count * 1000000.0 / (float)delta_time_us;
-        float new_real_speed = pulses_per_sec * g_calibration_factor;
-        
+    for (;;) {
+        vTaskDelay(pdMS_TO_TICKS(SPEED_UPDATE_INTERVAL_MS)); // 500ms
+
+        // Obtener frecuencia real del VFD (registro 0x2103)
+        float vfd_freq_hz = vfd_driver_get_real_freq_hz();
+
+        // Convertir Hz a km/h usando la fórmula del VFD SU300
+        // velocidad_kmh = frecuencia_Hz × (6.4 / 50.0)
+        float new_real_speed = vfd_freq_hz * (6.4f / 50.0f);
+
         xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
         g_real_speed_kmh = new_real_speed;
         xSemaphoreGive(g_speed_mutex);
@@ -847,7 +845,7 @@ void app_main(void) {
     ESP_ERROR_CHECK(esp_timer_create(&wax_pump_timer_args, &wax_pump_timer_handle));
     ESP_LOGI(TAG, "Temporizador de bomba de cera creado.");
 
-    speed_sensor_init();
+    // speed_sensor_init();  // DESHABILITADO: Sensor Hall desconectado, velocidad se calcula desde VFD
 
     ESP_LOGI(TAG, "Configurando UART para RS485...");
     uart_config_t uart_config = {
