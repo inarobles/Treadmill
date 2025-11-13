@@ -82,6 +82,8 @@ static bool g_incline_sensor_fault = false;  // Error crítico: fin de carrera n
 static float g_last_saved_incline_pct = 0.0f;  // Última posición guardada en NVS
 static uint32_t g_homing_timeout_ms = 5000;    // Timeout dinámico para homing (calculado desde NVS)
 static uint64_t g_homing_start_time_us = 0;    // Timestamp de inicio del homing
+static uint64_t g_descend_to_zero_start_time_us = 0;  // Timestamp de inicio de descenso a 0%
+static uint32_t g_descend_to_zero_timeout_ms = 0;     // Timeout dinámico para descenso a 0%
 static uint8_t g_head_fan_state = 0;
 static uint8_t g_chest_fan_state = 0;
 static uint8_t g_wax_pump_relay_state = 0;
@@ -679,6 +681,15 @@ static void incline_control_task(void *pvParameters) {
                             g_incline_motor_state = INCLINE_MOTOR_DOWN;
                             gpio_set_level(INCLINE_DIRECTION_PIN, 1);  // 1 = abajo (HIGH=ON)
                             gpio_set_level(INCLINE_ON_OFF_PIN, 1);     // 1 = ON (HIGH=ON)
+
+                            // Si el objetivo es 0%, iniciar modo "descenso a cero"
+                            if (g_target_incline_pct == 0.0f) {
+                                g_descend_to_zero_start_time_us = now_us;
+                                // Timeout dinámico: tiempo para bajar desde posición actual + 5s margen
+                                g_descend_to_zero_timeout_ms = (uint32_t)((g_real_incline_pct / 0.375f) * 1000.0f) + 5000;
+                                ESP_LOGI(TAG, "Iniciando descenso a 0%% desde %.1f%% (timeout: %lu ms)",
+                                         g_real_incline_pct, g_descend_to_zero_timeout_ms);
+                            }
                         }
                     }
                 }
@@ -723,26 +734,46 @@ static void incline_control_task(void *pvParameters) {
                 // Verificar fin de carrera primero (seguridad y recalibración)
                 if (gpio_get_level(INCLINE_LIMIT_SWITCH_PIN) == 0) {
                     // Fin de carrera detectado - recalibrar a 0%
-                    ESP_LOGI(TAG, "⚠ Fin de carrera detectado durante descenso - Recalibrando a 0%%");
+                    ESP_LOGI(TAG, "✓ Fin de carrera detectado durante descenso - Recalibrando a 0%%");
                     stop_incline_motor();
                     g_real_incline_pct = 0.0f;
                     g_target_incline_pct = 0.0f;
                     g_incline_is_calibrated = true;
+                    g_descend_to_zero_start_time_us = 0;  // Reset timeout
                 } else {
                     // Continuar bajando normalmente
                     g_real_incline_pct -= (delta_ms * INCLINE_SPEED_PCT_PER_MS);
 
-                    // PROTECCIÓN CRÍTICA: Si bajó más allá del umbral, el sensor falló
-                    if (g_real_incline_pct < INCLINE_SAFETY_THRESHOLD_PCT) {
-                        xSemaphoreGive(g_speed_mutex);  // Liberar antes de llamar handle_incline_sensor_fault
-                        handle_incline_sensor_fault();
-                        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);  // Re-tomar para mantener consistencia
-                        break;  // Salir del switch, el sistema está bloqueado
-                    }
+                    // Si estamos en modo "descenso a cero" (target = 0%)
+                    if (g_target_incline_pct == 0.0f && g_descend_to_zero_start_time_us > 0) {
+                        // PROTECCIÓN CRÍTICA: Verificar timeout de descenso a cero
+                        uint64_t descend_elapsed_ms = (now_us - g_descend_to_zero_start_time_us) / 1000;
+                        if (descend_elapsed_ms > g_descend_to_zero_timeout_ms) {
+                            ESP_LOGE(TAG, "⚠️ TIMEOUT DE DESCENSO A CERO EXCEDIDO: %llu ms > %lu ms",
+                                     descend_elapsed_ms, g_descend_to_zero_timeout_ms);
+                            ESP_LOGE(TAG, "El fin de carrera no se detectó en el tiempo esperado");
+                            g_descend_to_zero_start_time_us = 0;  // Reset timeout
+                            xSemaphoreGive(g_speed_mutex);
+                            handle_incline_sensor_fault();
+                            xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+                            break;
+                        }
+                        // En modo descenso a cero: NO detenerse por cálculo, solo por fin de carrera
+                        // Continuar bajando hasta detectar el fin de carrera físico
+                    } else {
+                        // Modo normal (target > 0%): detenerse por cálculo
+                        // PROTECCIÓN CRÍTICA: Si bajó más allá del umbral, el sensor falló
+                        if (g_real_incline_pct < INCLINE_SAFETY_THRESHOLD_PCT) {
+                            xSemaphoreGive(g_speed_mutex);
+                            handle_incline_sensor_fault();
+                            xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+                            break;
+                        }
 
-                    if (g_real_incline_pct <= g_target_incline_pct) {
-                        stop_incline_motor();
-                        g_real_incline_pct = g_target_incline_pct;
+                        if (g_real_incline_pct <= g_target_incline_pct) {
+                            stop_incline_motor();
+                            g_real_incline_pct = g_target_incline_pct;
+                        }
                     }
                 }
                 break;
