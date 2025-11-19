@@ -149,6 +149,12 @@ static bool need_restore_weight_buttons = false;
 static bool buttons_are_stop_mode = false;
 static bool showing_weight_in_kcal_field = false;
 
+// Variables para lógica inteligente de entrada de velocidad
+static bool waiting_for_second_digit = false;
+static lv_timer_t *speed_input_timeout_timer = NULL;
+static char first_speed_digit = '\0';
+static bool confirming_in_progress = false;
+
 // -- Pantalla de Ajuste (Clon) --
 static lv_obj_t *scr_set;
 static lv_obj_t *scr_wax;
@@ -453,7 +459,6 @@ void ui_update_task(void *pvParameter) {
         bool ble_connected_copy = g_treadmill_state.ble_connected;
         int real_pulse_copy = g_treadmill_state.real_pulse;
         bool weight_entered_copy = g_treadmill_state.weight_entered;
-        float user_weight_kg_copy = g_treadmill_state.user_weight_kg;
         set_mode_t set_mode_copy = g_treadmill_state.set_mode;
         int current_kcal = (int)(g_treadmill_state.sim_kcal + 0.5f);
         uint8_t head_fan_copy = head_value;
@@ -1707,6 +1712,25 @@ static void create_shutdown_screen(void) {
 //==================================================================================
 // 7. FUNCIONES DE GESTIÓN DE PANTALLA Y CURSOR
 //==================================================================================
+
+// Callback para timeout de entrada de velocidad (5 segundos)
+static void speed_input_timeout_cb(lv_timer_t *timer) {
+    waiting_for_second_digit = false;
+    if (speed_input_timeout_timer) {
+        lv_timer_del(speed_input_timeout_timer);
+        speed_input_timeout_timer = NULL;
+    }
+    
+    // Interpretar '1' como 1 km/h
+    g_treadmill_state.set_buffer[0] = '1';
+    g_treadmill_state.set_buffer[1] = '\0';
+
+    g_treadmill_state.set_digit_index = 1;
+    
+    // Confirmar automáticamente
+    ui_confirm_set_value();
+}
+
 static void _update_set_display_text_internal(void) {
     char display_buf[10];
 
@@ -1727,17 +1751,15 @@ static void _update_set_display_text_internal(void) {
             lv_label_set_text(label_climb_percent_set, display_buf);  // Mostramos inclinación
         }
     } else {
-        // Para velocidad usamos 3 dígitos con punto decimal
+        // Para velocidad usamos 2 dígitos sin decimal
         char d1 = (g_treadmill_state.set_digit_index > 0) ? g_treadmill_state.set_buffer[0] : '-';
         char d2 = (g_treadmill_state.set_digit_index > 1) ? g_treadmill_state.set_buffer[1] : '-';
-        char d3 = (g_treadmill_state.set_digit_index > 2) ? g_treadmill_state.set_buffer[2] : '-';
 
         char cursor = g_treadmill_state.blink_state ? '-' : ' ';
         if (g_treadmill_state.set_digit_index == 0) d1 = cursor;
         else if (g_treadmill_state.set_digit_index == 1) d2 = cursor;
-        else if (g_treadmill_state.set_digit_index == 2) d3 = cursor;
 
-        sprintf(display_buf, "%c%c.%c", d1, d2, d3);
+        sprintf(display_buf, "%c%c", d1, d2);
         lv_label_set_text(label_speed_kmh_set, display_buf);
     }
 }
@@ -1777,6 +1799,13 @@ static void _switch_to_set_screen_internal(set_mode_t mode) {
 }
 
 static void _switch_to_main_screen_internal(void) {
+    // Limpiar timer de timeout de velocidad si existe
+    if (speed_input_timeout_timer) {
+        lv_timer_del(speed_input_timeout_timer);
+        speed_input_timeout_timer = NULL;
+    }
+    waiting_for_second_digit = false;
+
     g_treadmill_state.set_mode = SET_MODE_NONE;
     if (g_treadmill_state.blink_timer) {
         lv_timer_del(g_treadmill_state.blink_timer);
@@ -2195,33 +2224,80 @@ static bool _handle_numpad_press_internal(char digit) {
 
         return (g_treadmill_state.set_digit_index >= 2);  // Completado cuando tenemos 2 dígitos
     } else {
-        // Comportamiento original para velocidad (3 dígitos con decimal)
-        if (g_treadmill_state.set_digit_index >= 3) return false;
-
-        char temp_buffer[4];
-        strncpy(temp_buffer, g_treadmill_state.set_buffer, g_treadmill_state.set_digit_index);
-        temp_buffer[g_treadmill_state.set_digit_index] = digit;
-        temp_buffer[g_treadmill_state.set_digit_index + 1] = '\0';
-
-        for (int i = strlen(temp_buffer); i < 3; ++i) {
-            temp_buffer[i] = '0';
-            temp_buffer[i+1] = '\0';
+        // Velocidad: Lógica inteligente
+        // - Dígitos 2-9: Inmediato (unidades)
+        // - Dígito 1: Espera 5s para segundo dígito o se toma como 1 km/h
+        // - Dígito 0: 0 km/h inmediato
+        
+        if (waiting_for_second_digit) {
+            // Ya tenemos el primer dígito '1', este es el segundo
+            if (speed_input_timeout_timer) {
+                lv_timer_del(speed_input_timeout_timer);
+                speed_input_timeout_timer = NULL;
+            }
+            waiting_for_second_digit = false;
+            
+            // Combinar dígitos: 1 + digit
+            char temp_buffer[3];
+            temp_buffer[0] = '1';
+            temp_buffer[1] = digit;
+            temp_buffer[2] = '\0';
+            
+            float proposed_value = atof(temp_buffer);
+            if (proposed_value > MAX_SPEED_KMH) {
+                ESP_LOGI(TAG, "Velocidad %.1f excede el máximo %.1f", proposed_value, MAX_SPEED_KMH);
+                return false;
+            }
+            
+            // Guardar en buffer
+            strcpy(g_treadmill_state.set_buffer, temp_buffer);
+            g_treadmill_state.set_digit_index = 2;
+            
+            _update_set_display_text_internal();
+            
+            // Retornar true para indicar que está completo
+            return true;
+            
+        } else {
+            // Primer dígito
+            if (digit == '1') {
+                // Dígito 1: Esperar segundo dígito o timeout
+                waiting_for_second_digit = true;
+                first_speed_digit = '1';
+                
+                g_treadmill_state.set_buffer[0] = '1';
+                g_treadmill_state.set_buffer[1] = '\0';
+                g_treadmill_state.set_digit_index = 1;
+                
+                // Iniciar timer de 5 segundos
+                if (speed_input_timeout_timer) {
+                    lv_timer_del(speed_input_timeout_timer);
+                }
+                speed_input_timeout_timer = lv_timer_create(speed_input_timeout_cb, 5000, NULL);
+                lv_timer_set_repeat_count(speed_input_timeout_timer, 1);
+                
+                _update_set_display_text_internal();
+                return false; // No completado aún
+                
+            } else {
+                // Dígitos 0, 2-9: Inmediato (unidades)
+                float proposed_value = (float)(digit - '0');
+                
+                if (proposed_value > MAX_SPEED_KMH) {
+                    ESP_LOGI(TAG, "Velocidad %.1f excede el máximo %.1f", proposed_value, MAX_SPEED_KMH);
+                    return false;
+                }
+                
+                g_treadmill_state.set_buffer[0] = digit;
+                g_treadmill_state.set_buffer[1] = '\0';
+                g_treadmill_state.set_digit_index = 1;
+                
+                _update_set_display_text_internal();
+                
+                // Retornar true para indicar que está completo
+                return true;
+            }
         }
-
-        float proposed_value = atof(temp_buffer) / 10.0f;
-
-        if (proposed_value > MAX_SPEED_KMH) {
-            ESP_LOGI(TAG, "Dígito inválido '%c'. El valor propuesto %.1f excede el máximo %.1f", digit, proposed_value, MAX_SPEED_KMH);
-            return false;
-        }
-
-        g_treadmill_state.set_buffer[g_treadmill_state.set_digit_index] = digit;
-        g_treadmill_state.set_digit_index++;
-        g_treadmill_state.set_buffer[g_treadmill_state.set_digit_index] = '\0';
-
-        _update_set_display_text_internal();
-
-        return (g_treadmill_state.set_digit_index >= 3);
     }
 }
 
@@ -2229,11 +2305,25 @@ bool ui_handle_numpad_press(char digit) {
     audio_play_beep();
     xSemaphoreTake(g_state_mutex, portMAX_DELAY);
     bool result = _handle_numpad_press_internal(digit);
+    bool should_confirm = result && (g_treadmill_state.set_mode != SET_MODE_NONE);
     xSemaphoreGive(g_state_mutex);
+    
+    // Si está completo Y el modo es válido, auto-confirmar
+    if (should_confirm) {
+        ui_confirm_set_value();
+    }
+    
     return result;
 }
 
 void ui_confirm_set_value(void) {
+    // Evitar doble confirmación
+    if (confirming_in_progress) {
+        ESP_LOGI(TAG, "ui_confirm_set_value: Ya hay una confirmación en progreso, ignorando");
+        return;
+    }
+    confirming_in_progress = true;
+    
     xSemaphoreTake(g_state_mutex, portMAX_DELAY);
 
     if (g_treadmill_state.set_mode == SET_MODE_WEIGHT) {
@@ -2265,10 +2355,13 @@ void ui_confirm_set_value(void) {
     } else {
         bool is_speed_mode = (g_treadmill_state.set_mode == SET_MODE_SPEED);
         float final_value;
+        
+        ESP_LOGI(TAG, "ui_confirm_set_value: set_mode=%d, is_speed_mode=%d, buffer='%s'", 
+                 g_treadmill_state.set_mode, is_speed_mode, g_treadmill_state.set_buffer);
 
         if (is_speed_mode) {
-            // Velocidad: 3 dígitos divididos por 10 (ej: "051" = 5.1 km/h)
-            final_value = atof(g_treadmill_state.set_buffer) / 10.0f;
+            // Velocidad: 2 dígitos enteros (ej: "14" = 14.0 km/h)
+            final_value = atof(g_treadmill_state.set_buffer);
             if (final_value > MAX_SPEED_KMH) final_value = MAX_SPEED_KMH;
             g_treadmill_state.ramp_mode = RAMP_MODE_NORMAL;
             g_treadmill_state.target_speed = final_value;
@@ -2283,8 +2376,10 @@ void ui_confirm_set_value(void) {
 
         // Enviar comando al esclavo via RS485
         if (is_speed_mode) {
+            ESP_LOGI(TAG, "Enviando VELOCIDAD: %.1f km/h", final_value);
             cm_master_set_speed(final_value);
         } else {
+            ESP_LOGI(TAG, "Enviando INCLINACIÓN: %.1f %%", final_value);
             cm_master_set_incline(final_value);
         }
 
@@ -2319,6 +2414,9 @@ void ui_confirm_set_value(void) {
     lv_label_set_text(ta_info_set, "");
     lv_scr_load(scr_main);
     xSemaphoreGive(g_state_mutex);
+    
+    // Limpiar bandera de confirmación
+    confirming_in_progress = false;
 }
 
 void ui_switch_to_main_screen_from_timer(void) {

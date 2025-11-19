@@ -299,9 +299,8 @@ static void button_handler_task(void *pvParameter) {
             else if ((portb_changed & BUTTON_STOP_RESUME_PIN) && !(portb_state & BUTTON_STOP_RESUME_PIN)) { pressed_char = '5'; }
 
             if (pressed_char != 0) {
-                if (ui_handle_numpad_press(pressed_char)) {
-                    ui_confirm_set_value();
-                }
+                // ui_handle_numpad_press ya llama a ui_confirm_set_value internamente
+                ui_handle_numpad_press(pressed_char);
             }
         }
 
