@@ -122,9 +122,28 @@ La interfaz se sincroniza con el núcleo mediante la tarea `ui_update_task` (**1
 -   **Modbus RTU**: Registros `0x2000` (Control), `0x2001` (Frecuencia), `0x2103` (Frecuencia Real).
 -   **Calibración**: Ratio de **7.8125 Hz/km/h**.
 
-### 8.2 Inclinación y Homing
--   **Rastreo Temporal**: Velocidad de **0.375% por segundo**.
--   **Homing**: Bajada hasta activar Limit Switch (GPIO 21). Reset interno de posición tras activación.
+### 8.2 Algoritmo de Calibración (Homing) de Inclinación
+Dado que el actuador usa estimación por tiempo, el sistema implementa una rutina de "autocorrección" física mediante un fin de carrera (limit switch) en GPIO 21.
+
+#### Triggers de Calibración: ¿Cuándo ocurre?
+-   **Arranque en Frío (Cold Boot)**: Al encenderse, el sistema busca siempre el punto 0% para inicializar la referencia.
+-   **Salida de Modo Entrenamiento**: Al volver a la pantalla inicial (desactivar `training_mode`), el sistema fuerza un homing para asegurar que el actuador reposa en el punto de menor tensión mecánica.
+-   **Comando Maestro**: Mediante el comando ASCII `CALIBRATE_INCLINE=`.
+-   **Objetivo 0% (Modo Descenso a Cero)**: Siempre que el usuario selecciona una inclinación de 0.0%, el sistema no se detiene por cálculo; baja hasta tocar físicamente el switch para resetear el error acumulado por deriva temporal.
+-   **Auto-recalibración**: Si durante cualquier descenso el switch se activa prematuramente, se recalibra la posición real a 0.0% instantáneamente.
+
+#### Algoritmo Paso a Paso:
+1.  **Carga de NVS**: Se lee la última posición guardada.
+2.  **Cálculo de Timeout Dinámico**: Para evitar esperas innecesarias de 45s, el sistema calcula: `Timeout = (Posicion_Guardada / 0.375%/s) + 5s (margen)`.
+3.  **Descenso Forzado**: Activa motor en dirección abajo.
+4.  **Bucle de Validación**:
+    -   **Éxito**: Si toca Switch, detiene motor y establece `real_incline = 0.0`.
+    -   **Fallo (Timeout)**: Si excede el tiempo calculado, asume fallo de hardware.
+    -   **Fallo (Umbral)**: Si la estimación baja de **-2.0%** sin tocar el switch, dispara estado de error crítico.
+
+#### Parámetros Técnicos:
+-   **Velocidad Nominal**: 0.375% por segundo (Aprox. 40s para el rango 0-15%).
+-   **Umbral de Seguridad**: -2.0% (Protección contra switch desconectado o bloqueado).
 
 ---
 
