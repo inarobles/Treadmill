@@ -153,15 +153,37 @@ Ante el entorno de alta vibración y el uso de memoria Flash, el firmware de la 
 
 ---
 
-## 9. Seguridad Multinivel y Tolerancia a Fallos
+## 9. Seguridad Multinivel y Gestión de Errores
 
-### 9.1 Watchdogs y Parada de Emergencia
--   **UART Watchdog (1000ms)**: Parada inmediata del motor si se pierde el enlace.
--   **VFD Faults**: Monitoreo constante del registro `0x2100` para errores de variador.
--   **Safe State**: Transición inmediata a STOP y bloqueo de UI ante fallos críticos.
+El sistema está diseñado bajo una filosofía de "Fallo Seguro" (Fail-Safe), donde ambos nodos supervisan constantemente la integridad del sistema.
+
+### 9.1 Matriz de Reacción ante Errores
+
+| Evento de Error | Detección (Componente) | Acción en la Base (Esclavo) | Acción en la Consola (Maestro) |
+| :--- | :--- | :--- | :--- |
+| **Pérdida de Comunicación** | UART Watchdog (1000ms) | **Safe State**: Parada VFD inmediata, Inclinación STOP, Periféricos OFF. | Bloqueo de comandos. Muestra alerta de "Desconexión". |
+| **Fallo Sensor Inclinación** | Homing Timeout / Umbral < -2% | **Bloqueo Crítico**: Detiene inclinación, log en NVS, rechaza todo SYNC. | **Lockdown de UI**: Desactiva botones, muestra mensaje de "Servicio Técnico". |
+| **Fallo de Variador (VFD)** | Modbus Reg 0x2100 != 0 | Reporta `vfd_fault` en la trama DATA. | Notificación visual de error de motor. Bloquea incrementos de velocidad. |
+| **Desconexión Modbus** | Timeout UART2 (Base-VFD) | Marca `g_vfd_status = DISCONNECTED`. | Muestra estado de motor como "Offline". |
+| **Fallo de Homing** | Estimación vs Switch Físico | Detiene motor para evitar daños mecánicos. | Reporta error de calibración. |
+| **Error de Red (WiFi)** | `wifi_manager` | N/A (Ignorado por la Base) | Desactiva funciones Cloud (Upload/Download). Icono de estado. |
+| **Pérdida Pulso BLE** | NimBLE Watchdog | N/A (Ignorado por la Base) | Muestra "--" y detiene el cálculo de zonas de entrenamiento. |
+
+### 9.2 Lógica de "Safe State" (Estado Seguro)
+Cuando la Base entra en `Safe State` debido a un Watchdog o Parada de Emergencia:
+1.  **VFD (Motor)**: Se envía `0x0001` (Stop) al registro de control y se fuerza la frecuencia a `0`.
+2.  **Actuador**: Se corta la alimentación del relé principal de inclinación (`INCLINE_ON_OFF_PIN = 0`).
+3.  **Periféricos**: Se desactivan ventiladores y la bomba de cera.
+4.  **Recuperación**: El sistema solo sale del estado seguro tras recibir un comando `SYNC` válido y coherente de la Consola.
+
+### 9.3 Persistencia de Errores Críticos
+Los fallos del sensor de inclinación se consideran daños potenciales de hardware. Para evitar recalibraciones destructivas al reiniciar:
+-   **Arranque Seguro**: Al bootear, la Base lee `incline_fault`. Si es `1`, el sistema se bloquea antes de iniciar tareas de movimiento.
+-   **Reset Técnico**: Requiere el borrado manual de la partición NVS tras la reparación física del sensor.
 
 ---
 
 **Fin del Informe**
 **Estado**: Estable / Documentado al 100%
-**Autor**: Antigravity AI
+**Autor**: Antigravity AI (Google Deepmind)
+**Última Versión**: 2025-12-26 (v2.6)
