@@ -8,12 +8,12 @@ Sistema de consola interactiva completo para control de cinta de correr profesio
 
 ## Descripción General
 
-Este proyecto implementa la consola MAESTRO del sistema de control distribuido de una cinta de correr. La consola actúa como interfaz de usuario principal y coordinador del sistema, comunicándose con el módulo Base (esclavo) mediante RS485.
+Este proyecto implementa la consola MAESTRO del sistema de control distribuido de una cinta de correr. La consola actúa como interfaz de usuario principal y coordinador del sistema, comunicándose con el módulo Base (esclavo) mediante una conexión directa UART (3 hilos: TX, RX, GND).
 
 ### Características Principales
 
 - **Pantalla Táctil**: 10.1" 1280x800 MIPI-DSI con interfaz gráfica LVGL
-- **Comunicación RS485**: Protocolo maestro CM_Protocol v2.1 para control de hardware
+- **Comunicación UART**: Protocolo simplificado ASCII (SYNC/DATA) a 115200 bps
 - **Conectividad WiFi**: Gestión de redes WiFi via ESP-Hosted (ESP32-C6)
 - **Bluetooth LE**: Cliente para monitores de frecuencia cardíaca
 - **Sistema de Audio**: Reproducción de audio para eventos
@@ -39,7 +39,7 @@ Este proyecto implementa la consola MAESTRO del sistema de control distribuido d
 └─────────┼──────────────┼───────────────┼────────────────────┘
           │              │               │
           v              v               v
-    Display       UART1 (RS485)   ESP32-C6 (ESP-Hosted)
+    Display       UART1 (Directa)  ESP32-C6 (ESP-Hosted)
     Touch                │               │
     Audio                v               v
     Buttons         Base Module    WiFi/BLE Radio
@@ -51,7 +51,7 @@ Este proyecto implementa la consola MAESTRO del sistema de control distribuido d
 El proyecto está documentado en módulos independientes:
 
 - **[HARDWARE.md](docs/HARDWARE.md)**: Especificaciones de hardware, conexiones y periféricos
-- **[COMUNICACION_RS485.md](docs/COMUNICACION_RS485.md)**: Protocolo maestro CM_Protocol v2.1
+- **[COMUNICACION_RS485.md](docs/COMUNICACION_RS485.md)**: Protocolo ASCII simplificado (SYNC/DATA)
 - **[WIFI.md](docs/WIFI.md)**: Sistema WiFi con ESP-Hosted, escaneo y HTTP
 - **[BLE.md](docs/BLE.md)**: Cliente BLE para monitores de frecuencia cardíaca
 - **[INTERFAZ_GRAFICA.md](docs/INTERFAZ_GRAFICA.md)**: Sistema UI completo con LVGL v8
@@ -85,7 +85,7 @@ Consola/
 ├── main/
 │   ├── main.c                  # Punto de entrada
 │   ├── treadmill_state.c/h     # Estado global
-│   ├── cm_master.c/h           # Maestro RS485
+│   ├── cm_master.c/h           # Maestro UART
 │   ├── wifi_manager.c/h        # Gestión WiFi
 │   ├── wifi_client.c/h         # Cliente WiFi + HTTP
 │   ├── ble_client.c/h          # Cliente BLE
@@ -109,13 +109,13 @@ Estructura compartida protegida por mutex que contiene:
 - Peso del usuario
 - Contador de mantenimiento
 
-### 2. Maestro CM Protocol (`cm_master.c/h`)
+### 2. Maestro SYNC Protocol (`cm_master.c/h`)
 
-Sistema de comunicación RS485 con el módulo Base:
-- Heartbeat cada 300ms
-- Comandos asíncronos con timeout y retry
-- Control de velocidad, inclinación, ventiladores
-- Detección de desconexión
+Sistema de comunicación UART simplificado con el módulo Base:
+- Envío de `SYNC` cada 100ms con todos los objetivos (velocidad, inclinación, ventiladores, etc.)
+- Recepción de `DATA` con valores reales y estado de fallos
+- Control de timeout (1000ms) y detección de desconexión
+- Comandos ASCII directos finalizados en `\n`
 
 Ver detalles en [COMUNICACION_RS485.md](docs/COMUNICACION_RS485.md)
 
@@ -157,9 +157,9 @@ Ver detalles en [INTERFAZ_GRAFICA.md](docs/INTERFAZ_GRAFICA.md)
 |-----------|-------|-------------|
 | Velocidad máxima | 19.5 km/h | `MAX_SPEED_KMH` |
 | Inclinación máxima | 15% | `MAX_CLIMB_PERCENT` |
-| Heartbeat RS485 | 300 ms | `CM_MASTER_HEARTBEAT_MS` |
-| Timeout RS485 | 100 ms | `CM_MASTER_TIMEOUT_MS` |
-| Baudrate RS485 | 115200 | `CM_MASTER_BAUD_RATE` |
+| Intervalo SYNC | 100 ms | `SYNC_INTERVAL_MS` |
+| Timeout Conexión | 1000 ms | `CONNECTION_TIMEOUT_MS` |
+| Baudrate UART | 115200 | `CM_MASTER_BAUD_RATE` |
 | Peso predeterminado | 70 kg | `DEFAULT_USER_WEIGHT_KG` |
 
 ## Solución de Problemas Comunes
@@ -179,8 +179,8 @@ Ver detalles en [INTERFAZ_GRAFICA.md](docs/INTERFAZ_GRAFICA.md)
 - Verificar monitor HR en modo pairing
 - Ver logs de `NIMBLE_BLE_CLIENT`
 
-### RS485 sin comunicación
-- Verificar cableado TX/RX (GPIO 4/5)
+### UART Directa sin comunicación
+- Verificar cableado TX/RX (GPIO 4/5) y GND común
 - Confirmar módulo Base alimentado
 - Verificar baudrate (115200)
 
@@ -190,7 +190,7 @@ Ver más en la documentación específica de cada módulo.
 
 ### Implementado ✅
 - Interfaz gráfica completa
-- Maestro CM Protocol
+- Protocolo SYNC/DATA (ASCII)
 - WiFi y HTTP
 - Cliente BLE
 - Audio y botones
@@ -209,4 +209,4 @@ Proyecto interno para sistema de control de cinta de correr.
 
 ---
 
-**ESP-IDF**: v5.3+ | **LVGL**: v8 | **Última actualización**: 2025-11-05
+**ESP-IDF**: v5.3+ | **LVGL**: v8 | **Última actualización**: 2025-12-26 (Actualizado a protocolo SYNC)
