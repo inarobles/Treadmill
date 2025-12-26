@@ -145,6 +145,12 @@ Dado que el actuador usa estimación por tiempo, el sistema implementa una rutin
 -   **Velocidad Nominal**: 0.375% por segundo (Aprox. 40s para el rango 0-15%).
 -   **Umbral de Seguridad**: -2.0% (Protección contra switch desconectado o bloqueado).
 
+#### 8.3 Resiliencia y Mantenimiento del Hardware
+Ante el entorno de alta vibración y el uso de memoria Flash, el firmware de la Base aplica medidas específicas:
+
+-   **Antirebote (Debounce) Dinámico**: El sensor de fin de carrera (GPIO 21) no activa la lógica por interrupción simple. La función `is_limit_switch_pressed` implementa una validación de **50ms de estabilidad**. Si el contacto se pierde por una vibración puntual en menos de ese tiempo, el sistema lo descarta como ruido, evitando paradas falsas durante el entrenamiento intenso.
+-   **Gestión de Ciclos de Flash (NVS)**: Para proteger la vida útil del ESP32, la escritura de posición en NVS no ocurre de forma continua durante el movimiento. Solo se realiza una operación de `nvs_commit` al **detenerse el motor** (llegada a target o homing completado). Esto garantiza que, incluso en entrenamientos con cambios constantes de pendiente, la degradación de las celdas de memoria sea insignificante a lo largo de los años.
+
 ---
 
 ## 9. Seguridad Multinivel y Tolerancia a Fallos
