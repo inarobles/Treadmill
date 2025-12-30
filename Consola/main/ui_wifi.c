@@ -25,6 +25,11 @@ static char ssid_to_edit[WIFI_MANAGER_MAX_SSID_LEN];
 static wifi_network_info_t g_scanned_networks[WIFI_MANAGER_MAX_NETWORKS];
 static uint16_t g_num_scanned_networks = 0;
 
+// Cache for last connected SSID to avoid timeout during scan
+static char g_last_connected_ssid[WIFI_MANAGER_MAX_SSID_LEN] = {0};
+static int g_last_connected_rssi = 0;
+static bool g_wifi_is_scanning = false;  // Flag to prevent timer calls during scan
+
 // --- Forward declarations ---
 void ui_open_wifi_list(void);
 static void build_wifi_list(void);
@@ -187,11 +192,13 @@ static void build_wifi_list(void) {
 
     // --- Data Gathering ---
     char current_ssid[WIFI_MANAGER_MAX_SSID_LEN] = {0};
+    int current_rssi = 0;
     bool is_connected = is_wifi_connected();
-    wifi_ap_record_t ap_info;
-    if (is_connected) {
-        esp_wifi_sta_get_ap_info(&ap_info);
-        strlcpy(current_ssid, (char *)ap_info.ssid, sizeof(current_ssid));
+    
+    // Use cached SSID to avoid timeout during scan
+    if (is_connected && g_last_connected_ssid[0] != '\0') {
+        strlcpy(current_ssid, g_last_connected_ssid, sizeof(current_ssid));
+        current_rssi = g_last_connected_rssi;
     }
 
     wifi_network_info_t saved_networks[WIFI_MANAGER_MAX_NETWORKS];
@@ -228,7 +235,7 @@ static void build_wifi_list(void) {
         lv_obj_set_flex_align(item, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
         lv_obj_t *label = lv_label_create(item);
-        lv_label_set_text_fmt(label, "Conectado a: %s (%d)", current_ssid, ap_info.rssi);
+        lv_label_set_text_fmt(label, "Conectado a: %s (%d)", current_ssid, current_rssi);
         lv_obj_set_style_text_color(label, lv_color_white(), 0);
     }
 
@@ -344,7 +351,29 @@ static void loading_screen_event_cb(lv_event_t *e) {
 static void wifi_scan_task(void *pvParameters) {
     lv_obj_t *scr_loading = (lv_obj_t *)pvParameters;
 
+    // Set scanning flag to prevent timer-based wifi_manager_get_current_ssid() calls
+    g_wifi_is_scanning = true;
+
+    // Cache current connection info BEFORE scanning to avoid timeout
+    g_last_connected_ssid[0] = '\0';  // Reset cache
+    g_last_connected_rssi = 0;
+    
+    if (is_wifi_connected()) {
+        wifi_ap_record_t ap_info;
+        esp_err_t err = esp_wifi_sta_get_ap_info(&ap_info);
+        if (err == ESP_OK) {
+            strlcpy(g_last_connected_ssid, (char *)ap_info.ssid, sizeof(g_last_connected_ssid));
+            g_last_connected_rssi = ap_info.rssi;
+            ESP_LOGI(TAG, "Cached connected SSID: %s (%d)", g_last_connected_ssid, g_last_connected_rssi);
+        } else {
+            ESP_LOGW(TAG, "Could not cache AP info before scan: %s", esp_err_to_name(err));
+        }
+    }
+
     wifi_manager_scan_networks(g_scanned_networks, WIFI_MANAGER_MAX_NETWORKS, &g_num_scanned_networks);
+
+    // Clear scanning flag after scan completes
+    g_wifi_is_scanning = false;
 
     lv_event_send(scr_loading, LV_EVENT_WIFI_SCAN_DONE, NULL);
 
@@ -372,4 +401,8 @@ void ui_open_wifi_list(void) {
 
     // Create a task to perform the scan
     xTaskCreate(wifi_scan_task, "wifi_scan_task", 4096, scr_loading, 5, NULL);
+}
+
+bool ui_wifi_is_scanning(void) {
+    return g_wifi_is_scanning;
 }

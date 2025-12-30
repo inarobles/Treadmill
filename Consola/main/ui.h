@@ -44,5 +44,6 @@ void ui_back_to_training(void);
 // Defined in ui_wifi.c
 void create_wifi_screens(void);
 void ui_open_wifi_list(void);
+bool ui_wifi_is_scanning(void);  // Check if WiFi scan is in progress
 
 #endif // UI_H

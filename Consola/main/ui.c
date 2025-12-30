@@ -9,6 +9,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include "ia_sync.h"
+#include "ia_telemetry.h"
 #include "freertos/task.h"
 #include "bsp/esp32_p4_function_ev_board.h"
 #include "nvs_flash.h"
@@ -132,7 +134,14 @@ static lv_obj_t *label_cooldown_btn;
 static lv_obj_t *btn_stop;
 static lv_obj_t *btn_cooldown;
 static lv_obj_t *btn_upload_training;
+static lv_obj_t *btn_test_upload;
 static lv_obj_t *ta_info;
+static lv_obj_t *label_status_wifi;
+static lv_obj_t *label_status_ble;
+
+LV_IMG_DECLARE(icon_main);
+
+static ia_plan_t g_current_plan;
 // Botones de velocidad e inclinación (para deshabilitación visual)
 static lv_obj_t *btn_speed_inc;
 static lv_obj_t *btn_speed_set;
@@ -154,6 +163,7 @@ static bool waiting_for_second_digit = false;
 static lv_timer_t *speed_input_timeout_timer = NULL;
 static char first_speed_digit = '\0';
 static bool confirming_in_progress = false;
+static ia_plan_t g_current_plan;
 
 // -- Pantalla de Ajuste (Clon) --
 static lv_obj_t *scr_set;
@@ -210,6 +220,77 @@ static void wifi_selector_event_cb(lv_event_t *e);
 static void wax_event_cb(lv_event_t *e);
 static void apply_wax_event_cb(lv_event_t *e);
 static void wax_back_event_cb(lv_event_t *e);
+static void on_report_sent(bool success, const char *error_msg);
+
+// --- IA Sync Callbacks ---
+static void on_plan_received(const ia_plan_t *plan, const char *error_msg) {
+    bsp_display_lock(0);
+    if (plan) {
+        ESP_LOGI(TAG, "Plan recibido: %s con %d bloques", plan->plan_id, plan->block_count);
+        memcpy(&g_current_plan, plan, sizeof(ia_plan_t));
+        
+        // Initialize execution state (reset even if we just show JSON)
+        xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+        g_current_plan = *plan;
+        g_treadmill_state.plan_running = false; // Don't start automatically yet per user request
+        g_treadmill_state.current_block_idx = 0;
+        g_treadmill_state.block_elapsed_seconds = 0;
+        xSemaphoreGive(g_state_mutex);
+
+        lv_scr_load(scr_main);
+        
+        // MOSTRAR EL JSON EN EL RECUADRO BLANCO (ta_info)
+        // set_info_text_persistent usually sets a single line, but we want the whole JSON
+        // If ta_info is a label, it might not scroll well, but let's try.
+        lv_label_set_text(ta_info, plan->raw_json);
+        
+        // Iniciar captura de telemetría HD (0.5Hz) si el usuario empieza el entreno
+        // ia_telemetry_start_session(); 
+        
+        cm_master_set_training_mode(true);
+    } else {
+        ESP_LOGE(TAG, "Error al recibir plan: %s", error_msg ? error_msg : "Desocnocido");
+        set_info_text_persistent("Error al descargar plan. Intentalo de nuevo.");
+        lv_scr_load(scr_training_select);
+    }
+    bsp_display_unlock();
+}
+
+static void test_upload_event_cb(lv_event_t *e) {
+    audio_play_beep();
+    // Ejemplo de telemetría comprimida para prueba (formato exacto del txt)
+    const char *test_data = "v,i,p,c,z; 10.0,0.0,120,160,1.10 | 10.5,0.5,122,161,1.11 | 11.2,1.0,125,165,1.15";
+    
+    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+    int training = g_treadmill_state.selected_training;
+    xSemaphoreGive(g_state_mutex);
+
+    // Si no hay entrenamiento seleccionado (estamos en test), usamos "Ina" por defecto
+    const char *user = (training == 2) ? "Itsaso" : "Ina";
+    const char *p_id = (g_current_plan.block_count > 0) ? g_current_plan.plan_id : "DEBUG-TEST";
+
+    set_info_text_persistent("Subiendo reporte de prueba a Sheets...");
+    ia_sync_upload_report(user, p_id, test_data, on_report_sent);
+}
+
+static void on_report_sent(bool success, const char *error_msg) {
+    bsp_display_lock(0);
+    if (success) {
+        ESP_LOGI(TAG, "Reporte enviado con éxito");
+        set_info_text_persistent("¡Entrenamiento guardado! Buen trabajo.");
+        
+        xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+        g_treadmill_state.has_uploaded = true;
+        xSemaphoreGive(g_state_mutex);
+        
+        lv_scr_load(scr_training_select);
+    } else {
+        ESP_LOGE(TAG, "Error al enviar reporte: %s", error_msg ? error_msg : "Desconcido");
+        set_info_text_persistent("Error al subir el entrenamiento.");
+        lv_scr_load(scr_training_select);
+    }
+    bsp_display_unlock();
+}
 
 
 //==================================================================================
@@ -223,27 +304,70 @@ static void text_area_clear_timer_cb(lv_timer_t *timer) {
 static uint32_t wifi_connected_timestamp = 0;
 
 static void wifi_check_timer_cb(lv_timer_t *timer) {
+    bool wifi_connected = is_wifi_connected();
     bool internet_connected = is_internet_connected();
 
+    // 1. Actualizar botones de entrenamiento según Internet
     if (internet_connected) {
-        // Habilitar botones y cambiar texto
         if (btn_training_itsaso && label_training_itsaso) {
-            lv_obj_clear_state(btn_training_itsaso, LV_STATE_DISABLED);
-            lv_label_set_text(label_training_itsaso, "2 - Entrenamiento Itsaso");
+            lv_obj_add_flag(btn_training_itsaso, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_text_color(label_training_itsaso, lv_color_hex(0xFFFFFF), 0);
+            lv_label_set_text(label_training_itsaso, "Entrenamiento Itsaso");
         }
         if (btn_training_ina && label_training_ina) {
-            lv_obj_clear_state(btn_training_ina, LV_STATE_DISABLED);
-            lv_label_set_text(label_training_ina, "3 - Entrenamiento Ina");
+            lv_obj_add_flag(btn_training_ina, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_text_color(label_training_ina, lv_color_hex(0xFFFFFF), 0);
+            lv_label_set_text(label_training_ina, "Entrenamiento Ina");
         }
     } else {
-        // Mantener botones deshabilitados
         if (btn_training_itsaso && label_training_itsaso) {
-            lv_obj_add_state(btn_training_itsaso, LV_STATE_DISABLED);
-            lv_label_set_text(label_training_itsaso, "Estableciendo conexion a internet...");
+            lv_obj_clear_flag(btn_training_itsaso, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_text_color(label_training_itsaso, lv_color_hex(0x000000), 0);
+            lv_label_set_text(label_training_itsaso, "Conectando...");
         }
         if (btn_training_ina && label_training_ina) {
-            lv_obj_add_state(btn_training_ina, LV_STATE_DISABLED);
-            lv_label_set_text(label_training_ina, "Estableciendo conexion a internet...");
+            lv_obj_clear_flag(btn_training_ina, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_set_style_text_color(label_training_ina, lv_color_hex(0x000000), 0);
+            lv_label_set_text(label_training_ina, "Conectando...");
+        }
+    }
+
+    // 2. Actualizar Etiqueta WiFi (Abajo)
+    if (label_status_wifi) {
+        if (!wifi_connected) {
+            lv_obj_set_style_text_color(label_status_wifi, lv_color_hex(0xFFFFFF), 0); // Blanco
+            lv_label_set_text(label_status_wifi, "WiFi: No conectado");
+        } else {
+            char ssid[32];
+            // Skip wifi_manager_get_current_ssid() if scanning to avoid timeout
+            if (ui_wifi_is_scanning()) {
+                strcpy(ssid, "Scanning...");
+            } else {
+                if (wifi_manager_get_current_ssid(ssid) != ESP_OK) strcpy(ssid, "Desconocido");
+            }
+            
+            if (internet_connected) {
+                lv_obj_set_style_text_color(label_status_wifi, lv_color_hex(0x00FF00), 0); // Verde
+            } else {
+                lv_obj_set_style_text_color(label_status_wifi, lv_color_hex(0xFFFF00), 0); // Amarillo
+            }
+            lv_label_set_text_fmt(label_status_wifi, "WiFi: %s", ssid);
+        }
+    }
+
+    // 3. Actualizar Etiqueta Cardio BLE (Abajo)
+    if (label_status_ble) {
+        xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+        bool ble_conn = g_treadmill_state.ble_connected;
+        uint16_t pulse = g_treadmill_state.real_pulse;
+        xSemaphoreGive(g_state_mutex);
+
+        if (!ble_conn) {
+            lv_obj_set_style_text_color(label_status_ble, lv_color_hex(0xFFFFFF), 0); // Blanco
+            lv_label_set_text(label_status_ble, "Cardio BLE: No conectado");
+        } else {
+            lv_obj_set_style_text_color(label_status_ble, lv_color_hex(0x00FF00), 0); // Verde
+            lv_label_set_text_fmt(label_status_ble, "Cardio BLE: %u BPM", pulse);
         }
     }
 }
@@ -419,6 +543,44 @@ void ui_update_task(void *pvParameter) {
                     nvs_save_counter = 0;
                     save_wax_counter_to_nvs(g_treadmill_state.total_running_seconds);
                 }
+
+                // --- Lógica de Ejecución de Plan IA ---
+                if (g_treadmill_state.plan_running && g_current_plan.block_count > 0) {
+                    g_treadmill_state.block_elapsed_seconds++;
+                    int idx = g_treadmill_state.current_block_idx;
+                    
+                    if (g_treadmill_state.block_elapsed_seconds >= g_current_plan.blocks[idx].duration_s) {
+                        // Fin de bloque, pasar al siguiente
+                        g_treadmill_state.current_block_idx++;
+                        g_treadmill_state.block_elapsed_seconds = 0;
+                        
+                        if (g_treadmill_state.current_block_idx < g_current_plan.block_count) {
+                            int new_idx = g_treadmill_state.current_block_idx;
+                            g_treadmill_state.target_speed = g_current_plan.blocks[new_idx].target_speed;
+                            g_treadmill_state.target_climb_percent = g_current_plan.blocks[new_idx].target_incline;
+                            
+                            cm_master_set_speed(g_treadmill_state.target_speed);
+                            cm_master_set_incline(g_treadmill_state.target_climb_percent);
+                            
+                            bsp_display_lock(0);
+                            char info_buf[128];
+                            snprintf(info_buf, sizeof(info_buf), "%s: %s", 
+                                     g_current_plan.blocks[new_idx].tramo_label, 
+                                     g_current_plan.blocks[new_idx].bloque_label);
+                            set_info_text_persistent(info_buf);
+                            bsp_display_unlock();
+                            
+                            ESP_LOGI("UI", "IA_PLAN: Nex block %d (%s)", new_idx, info_buf);
+                        } else {
+                            // Fin del plan
+                            g_treadmill_state.plan_running = false;
+                            bsp_display_lock(0);
+                            set_info_text_persistent("¡Entrenamiento finalizado! Puedes pulsar STOP.");
+                            bsp_display_unlock();
+                            ESP_LOGI("UI", "IA_PLAN: Completed");
+                        }
+                    }
+                }
             }
             // Check if minimum running time has been reached (10 seconds)
             if (!g_treadmill_state.has_run_minimum_time && g_treadmill_state.elapsed_seconds >= 10) {
@@ -465,6 +627,7 @@ void ui_update_task(void *pvParameter) {
         uint8_t chest_fan_copy = chest_value;
 
         xSemaphoreGive(g_state_mutex);
+        bsp_display_lock(0);
 
         // --- Actualizaciones de UI con variables locales (fuera de la sección crítica) ---
 
@@ -628,6 +791,7 @@ void ui_update_task(void *pvParameter) {
             }
         }
 
+        bsp_display_unlock();
         vTaskDelay(pdMS_TO_TICKS(UI_UPDATE_INTERVAL_MS));
     }
 }
@@ -802,15 +966,17 @@ static void upload_training_event_cb(lv_event_t *e) {
     // Cambiar a pantalla de subida
     lv_scr_load(scr_uploading);
 
-    // Subir datos al servidor de Oracle Cloud
-    if (training == 2) {
-        // Entrenamiento Itsaso
-        upload_to_oracle_itsaso(upload_data);
-        ESP_LOGI(TAG, "Uploading to Oracle for Itsaso: %s", upload_data);
-    } else if (training == 3) {
-        // Entrenamiento Ina
-        upload_to_oracle_ina(upload_data);
-        ESP_LOGI(TAG, "Uploading to Oracle for Ina: %s", upload_data);
+    // Parar telemetría y obtener el reporte HD
+    ia_telemetry_stop_session();
+    const char *telemetry_hd = ia_telemetry_get_current_report();
+
+    if (telemetry_hd) {
+        const char *user = (training == 2) ? "Itsaso" : "Ina";
+        ia_sync_upload_report(user, g_current_plan.plan_id, telemetry_hd, on_report_sent);
+    } else {
+        ESP_LOGE(TAG, "No telemetry data found to upload!");
+        set_info_text_persistent("Error: No hay datos de telemetria.");
+        lv_scr_load(scr_training_select);
     }
 }
 
@@ -833,7 +999,7 @@ static void numpad_event_cb(lv_event_t *e) {
 //==================================================================================
 // 6. FUNCIONES DE CREACIÓN DE INTERFAZ
 //==================================================================================
-static lv_style_t style_title, style_value_main, style_value_secondary, style_unit, style_value_extra_large, style_btn_symbol, style_btn_text;
+static lv_style_t style_title, style_value_main, style_value_secondary, style_unit, style_value_extra_large, style_btn_symbol, style_btn_text, style_btn_premium, style_btn_text_disabled, style_btn_premium_disabled;
 static void create_styles(void) {
     lv_style_init(&style_title);
     lv_style_set_text_font(&style_title, &lv_font_montserrat_40);
@@ -850,8 +1016,34 @@ static void create_styles(void) {
     lv_style_set_text_font(&style_btn_symbol, &lv_font_montserrat_44);
 
     lv_style_init(&style_btn_text);
-    lv_style_set_text_font(&style_btn_text, &lv_font_montserrat_24);
+    lv_style_set_text_font(&style_btn_text, &lv_font_montserrat_26);
+    lv_style_set_text_color(&style_btn_text, lv_color_hex(0xFFFFFF)); // Blanco por defecto
+
+    lv_style_init(&style_btn_text_disabled);
+    lv_style_set_text_color(&style_btn_text_disabled, lv_color_hex(0x000000)); // Negro cuando está desactivo
+    lv_style_set_text_opa(&style_btn_text_disabled, LV_OPA_COVER); // Sin difuminado
+
+    lv_style_init(&style_btn_symbol);
+    lv_style_set_text_font(&style_btn_symbol, &lv_font_montserrat_44);
+    lv_style_set_text_color(&style_btn_symbol, lv_color_hex(0xFFFFFF));
+
+    lv_style_init(&style_btn_premium);
+    lv_style_set_bg_color(&style_btn_premium, lv_color_hex(0x2C2C2C)); 
+    lv_style_set_border_color(&style_btn_premium, lv_color_hex(0x4A4A4A));
+    lv_style_set_border_width(&style_btn_premium, 2);
+    lv_style_set_radius(&style_btn_premium, 12);
+    lv_style_set_bg_opa(&style_btn_premium, LV_OPA_COVER);
+
+    // Estilo para forzar que el desactivado NO sea difuminado
+    lv_style_init(&style_btn_premium_disabled);
+    lv_style_set_bg_color(&style_btn_premium_disabled, lv_color_hex(0x2C2C2C)); 
+    lv_style_set_bg_opa(&style_btn_premium_disabled, LV_OPA_COVER);
+    lv_style_set_opa(&style_btn_premium_disabled, LV_OPA_COVER);
+    lv_style_set_border_color(&style_btn_premium_disabled, lv_color_hex(0x4A4A4A));
+    lv_style_set_border_width(&style_btn_premium_disabled, 2);
+    lv_style_set_radius(&style_btn_premium_disabled, 12);
     
+    // Aplicar estilo premium a los botones
     lv_style_init(&style_value_extra_large);
     lv_style_set_text_font(&style_value_extra_large, &chivo_mono_100); 
 
@@ -1164,7 +1356,11 @@ static void back_to_training_select_event_cb(lv_event_t *e) {
 
     // DESACTIVAR TRAINING MODE (saliendo de pantalla principal)
     cm_master_set_training_mode(false);
-    ESP_LOGI(TAG, "Saliendo de pantalla principal - Training mode desactivado");
+    ia_telemetry_stop_session();
+    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+    g_treadmill_state.plan_running = false;
+    xSemaphoreGive(g_state_mutex);
+    ESP_LOGI(TAG, "Saliendo de pantalla principal - Training mode, Telemetría y Plan desactivados");
 
     // Limpiar timer de WiFi si existe
     if (wifi_check_timer) {
@@ -1235,7 +1431,7 @@ static void training_itsaso_event_cb(lv_event_t *e) {
     g_treadmill_state.has_shown_welcome_message = false;
     xSemaphoreGive(g_state_mutex);
     lv_scr_load(scr_loading);
-    wifi_download_plan("itsaso");
+    ia_sync_get_next_plan("Itsaso", on_plan_received);
 }
 
 static void training_ina_event_cb(lv_event_t *e) {
@@ -1255,58 +1451,9 @@ static void training_ina_event_cb(lv_event_t *e) {
     g_treadmill_state.has_shown_welcome_message = false;
     xSemaphoreGive(g_state_mutex);
     lv_scr_load(scr_loading);
-    wifi_download_plan("ina");
+    ia_sync_get_next_plan("Ina", on_plan_received);
 }
 
-static void training_alain_event_cb(lv_event_t *e) {
-    audio_play_beep();
-    ESP_LOGI(TAG, "Entrenamiento Alain seleccionado");
-
-    // Limpiar timer de WiFi
-    if (wifi_check_timer) {
-        lv_timer_del(wifi_check_timer);
-        wifi_check_timer = NULL;
-    }
-
-    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
-    g_treadmill_state.selected_training = 4;
-    g_treadmill_state.has_run_minimum_time = false;
-    g_treadmill_state.has_uploaded = false;
-    g_treadmill_state.has_shown_welcome_message = false;
-    xSemaphoreGive(g_state_mutex);
-    lv_scr_load(scr_main);
-
-    // ACTIVAR TRAINING MODE (entrando a pantalla principal)
-    cm_master_set_training_mode(true);
-    ESP_LOGI(TAG, "Entrando a pantalla principal - Training mode activado");
-
-    set_info_text_persistent("Los enanos tienen que usar esta cinta con supervision de aita o ama.");
-}
-
-static void training_urko_event_cb(lv_event_t *e) {
-    audio_play_beep();
-    ESP_LOGI(TAG, "Entrenamiento Urko seleccionado");
-
-    // Limpiar timer de WiFi
-    if (wifi_check_timer) {
-        lv_timer_del(wifi_check_timer);
-        wifi_check_timer = NULL;
-    }
-
-    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
-    g_treadmill_state.selected_training = 5;
-    g_treadmill_state.has_run_minimum_time = false;
-    g_treadmill_state.has_uploaded = false;
-    g_treadmill_state.has_shown_welcome_message = false;
-    xSemaphoreGive(g_state_mutex);
-    lv_scr_load(scr_main);
-
-    // ACTIVAR TRAINING MODE (entrando a pantalla principal)
-    cm_master_set_training_mode(true);
-    ESP_LOGI(TAG, "Entrando a pantalla principal - Training mode activado");
-
-    set_info_text_persistent("Los enanos tienen que usar esta cinta con supervision de aita o ama.");
-}
 
 //==================================================================================
 // CREACIÓN DE PANTALLA DE SELECCIÓN
@@ -1317,7 +1464,7 @@ static void create_training_select_screen(void) {
     lv_obj_clear_flag(scr_training_select, LV_OBJ_FLAG_SCROLLABLE);
 
     // Botones anchos pegados a la izquierda (igual que pantalla principal)
-    const int left_btn_w = 500;
+    const int left_btn_w = 350;
     const int btn_h = 136;
     const int margin = 20;
     lv_obj_t *btn, *l;
@@ -1329,59 +1476,56 @@ static void create_training_select_screen(void) {
     lv_obj_align(btn_container, LV_ALIGN_TOP_LEFT, margin, 0);
     lv_obj_set_layout(btn_container, LV_LAYOUT_FLEX);
     lv_obj_set_flex_flow(btn_container, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(btn_container, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_flex_align(btn_container, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_set_style_pad_top(btn_container, margin, 0);
     lv_obj_set_style_pad_bottom(btn_container, margin, 0);
+    lv_obj_set_style_pad_gap(btn_container, 20, 0);
 
     // Botón 1: Entrenamiento libre
     btn = lv_btn_create(btn_container);
     lv_obj_set_size(btn, left_btn_w, btn_h);
+    lv_obj_add_style(btn, &style_btn_premium, 0); 
+    lv_obj_add_style(btn, &style_btn_premium_disabled, LV_STATE_DISABLED); 
     lv_obj_add_event_cb(btn, training_free_event_cb, LV_EVENT_CLICKED, NULL);
     l = lv_label_create(btn);
     lv_obj_add_style(l, &style_btn_text, 0);
-    lv_label_set_text(l, "1 - Entrenamiento libre");
-    lv_obj_align(l, LV_ALIGN_LEFT_MID, 20, 0);
+    lv_obj_set_style_bg_opa(l, 0, 0); // Asegurar que el label no tenga fondo (evita recuadro gris)
+    lv_label_set_text(l, "Entrenamiento libre");
+    lv_obj_center(l);
 
-    // Botón 2: Entrenamiento Itsaso
     btn_training_itsaso = lv_btn_create(btn_container);
     lv_obj_set_size(btn_training_itsaso, left_btn_w, btn_h);
+    lv_obj_add_style(btn_training_itsaso, &style_btn_premium, 0); 
+    lv_obj_add_style(btn_training_itsaso, &style_btn_premium_disabled, LV_STATE_DISABLED); 
     lv_obj_add_event_cb(btn_training_itsaso, training_itsaso_event_cb, LV_EVENT_CLICKED, NULL);
     label_training_itsaso = lv_label_create(btn_training_itsaso);
     lv_obj_add_style(label_training_itsaso, &style_btn_text, 0);
-    lv_label_set_text(label_training_itsaso, "Estableciendo conexion a internet...");
-    lv_obj_align(label_training_itsaso, LV_ALIGN_LEFT_MID, 20, 0);
-    lv_obj_add_state(btn_training_itsaso, LV_STATE_DISABLED);  // Inicialmente deshabilitado
+    lv_obj_set_style_bg_opa(label_training_itsaso, 0, 0); 
+    lv_label_set_text(label_training_itsaso, "Conectando...");
+    lv_obj_center(label_training_itsaso);
+    lv_obj_clear_flag(btn_training_itsaso, LV_OBJ_FLAG_CLICKABLE); // Deshabilitado lógicamente
+    lv_obj_set_style_text_color(label_training_itsaso, lv_color_hex(0x000000), 0); // Negro inicial
 
     // Botón 3: Entrenamiento Ina
     btn_training_ina = lv_btn_create(btn_container);
     lv_obj_set_size(btn_training_ina, left_btn_w, btn_h);
+    lv_obj_add_style(btn_training_ina, &style_btn_premium, 0); 
+    lv_obj_add_style(btn_training_ina, &style_btn_premium_disabled, LV_STATE_DISABLED); 
     lv_obj_add_event_cb(btn_training_ina, training_ina_event_cb, LV_EVENT_CLICKED, NULL);
     label_training_ina = lv_label_create(btn_training_ina);
     lv_obj_add_style(label_training_ina, &style_btn_text, 0);
-    lv_label_set_text(label_training_ina, "Estableciendo conexion a internet...");
-    lv_obj_align(label_training_ina, LV_ALIGN_LEFT_MID, 20, 0);
-    lv_obj_add_state(btn_training_ina, LV_STATE_DISABLED);  // Inicialmente deshabilitado
+    lv_obj_set_style_bg_opa(label_training_ina, 0, 0); 
+    lv_label_set_text(label_training_ina, "Conectando...");
+    lv_obj_center(label_training_ina);
+    lv_obj_clear_flag(btn_training_ina, LV_OBJ_FLAG_CLICKABLE); // Deshabilitado lógicamente
+    lv_obj_set_style_text_color(label_training_ina, lv_color_hex(0x000000), 0); // Negro inicial
 
-    // Botón 4: Entrenamiento Alain
-    btn = lv_btn_create(btn_container);
-    lv_obj_set_size(btn, left_btn_w, btn_h);
-    lv_obj_add_event_cb(btn, training_alain_event_cb, LV_EVENT_CLICKED, NULL);
-    l = lv_label_create(btn);
-    lv_obj_add_style(l, &style_btn_text, 0);
-    lv_label_set_text(l, "4 - Entrenamiento Alain");
-    lv_obj_align(l, LV_ALIGN_LEFT_MID, 20, 0);
 
-    // Botón 5: Entrenamiento Urko
-    btn = lv_btn_create(btn_container);
-    lv_obj_set_size(btn, left_btn_w, btn_h);
-    lv_obj_add_event_cb(btn, training_urko_event_cb, LV_EVENT_CLICKED, NULL);
-    l = lv_label_create(btn);
-    lv_obj_add_style(l, &style_btn_text, 0);
-    lv_label_set_text(l, "5 - Entrenamiento Urko");
-    lv_obj_align(l, LV_ALIGN_LEFT_MID, 20, 0);
+    // --- NEW: Dark background ---
+    lv_obj_set_style_bg_color(scr_training_select, lv_color_black(), 0);
 
     // --- NEW: Right column for numbered buttons ---
-    const int right_btn_w = 120;
+    const int right_btn_w = 350;
     lv_obj_t * right_col = lv_obj_create(scr_training_select);
     lv_obj_remove_style_all(right_col);
     lv_obj_set_size(right_col, right_btn_w, LV_PCT(100));
@@ -1398,6 +1542,8 @@ static void create_training_select_screen(void) {
     for (int i = 1; i <= 3; i++) {
         btn = lv_btn_create(right_col);
         lv_obj_set_size(btn, right_btn_w, btn_h);
+        lv_obj_add_style(btn, &style_btn_premium, 0); 
+        lv_obj_add_style(btn, &style_btn_premium_disabled, LV_STATE_DISABLED); 
         lv_obj_set_user_data(btn, (void*)i);
 
         // Set event callbacks
@@ -1412,33 +1558,56 @@ static void create_training_select_screen(void) {
 
         l = lv_label_create(btn);
         lv_obj_add_style(l, &style_btn_text, 0);
+        lv_obj_set_style_bg_opa(l, 0, 0); 
 
         // Set labels
         if (i == 1) {
-            lv_label_set_text(l, "WIFI");
+            lv_label_set_text(l, "Ajustes WiFi");
         } else if (i == 2) {
-            lv_label_set_text(l, "BLE");
+            lv_label_set_text(l, "Ajustes BLE");
         } else { // i == 3
-            lv_label_set_text(l, "WAX");
+            lv_label_set_text(l, "Ajustes WAX");
         }
         lv_obj_center(l);
     }
 
-    // Botón UPLOAD (solo visible para Itsaso e Ina)
     btn_upload_training = lv_btn_create(right_col);
     lv_obj_set_size(btn_upload_training, right_btn_w, btn_h);
+    lv_obj_add_style(btn_upload_training, &style_btn_premium, 0); 
+    lv_obj_add_style(btn_upload_training, &style_btn_premium_disabled, LV_STATE_DISABLED); 
     lv_obj_add_event_cb(btn_upload_training, upload_training_event_cb, LV_EVENT_CLICKED, NULL);
-    // Aplicar color rojo al botón
-    lv_obj_set_style_bg_color(btn_upload_training, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    // Aplicar color rojo sólido
+    lv_obj_set_style_bg_color(btn_upload_training, lv_color_hex(0xCC0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(btn_upload_training, lv_color_hex(0xCC0000), LV_PART_MAIN | LV_STATE_DISABLED);
+    lv_obj_set_style_opa(btn_upload_training, LV_OPA_COVER, LV_STATE_DISABLED); // Forzar opacidad total
     l = lv_label_create(btn_upload_training);
     lv_obj_add_style(l, &style_btn_text, 0);
+    lv_obj_set_style_bg_opa(l, 0, 0); 
     lv_label_set_text(l, "UPLOAD");
     lv_obj_center(l);
     // Ocultar por defecto (solo se muestra para entrenamientos 2 y 3)
     lv_obj_add_flag(btn_upload_training, LV_OBJ_FLAG_HIDDEN);
 
+    // --- WiFi and BLE Status Labels (Bottom Center) ---
+    label_status_wifi = lv_label_create(scr_training_select);
+    lv_obj_add_style(label_status_wifi, &style_btn_text, 0);
+    lv_obj_set_style_text_font(label_status_wifi, &lv_font_montserrat_18, 0); // Smaller font ONLY for this object
+    lv_label_set_text(label_status_wifi, "WiFi: No conectado");
+    lv_obj_align(label_status_wifi, LV_ALIGN_BOTTOM_MID, 0, -20);
+
+    label_status_ble = lv_label_create(scr_training_select);
+    lv_obj_add_style(label_status_ble, &style_btn_text, 0);
+    lv_obj_set_style_text_font(label_status_ble, &lv_font_montserrat_18, 0); // Equal to WiFi status
+    lv_label_set_text(label_status_ble, "Cardio BLE: No conectado");
+    lv_obj_align(label_status_ble, LV_ALIGN_BOTTOM_MID, 0, -50);
+
     // Crear timer para verificar estado de WiFi cada 100ms
     wifi_check_timer = lv_timer_create(wifi_check_timer_cb, 100, NULL);
+
+    // --- ICONO CANAL CENTRAL ---
+    lv_obj_t *img_icon = lv_img_create(scr_training_select);
+    lv_img_set_src(img_icon, &icon_main);
+    lv_obj_align(img_icon, LV_ALIGN_CENTER, 0, -150);
 }
 
 //==================================================================================
@@ -1482,8 +1651,11 @@ static void create_main_screen(void) {
     scr_main = lv_obj_create(NULL);
     lv_obj_set_size(scr_main, LV_PCT(100), LV_PCT(100));
     lv_obj_clear_flag(scr_main, LV_OBJ_FLAG_SCROLLABLE);
+
     
     UIPanels panels = create_common_ui_elements(scr_main);
+    lv_obj_t *btn, *l;
+    
     label_dist = panels.dist_label;
     label_time = panels.time_label;
     label_climb_percent = panels.climb_percent_label;
@@ -1493,9 +1665,19 @@ static void create_main_screen(void) {
     label_kcal = panels.kcal_label;
     ta_info = panels.info_label;
 
+    // --- BOTÓN DE PRUEBA DE SUBIDA (Debajo del cuadro de texto) ---
+    btn_test_upload = lv_btn_create(scr_main);
+    lv_obj_set_size(btn_test_upload, 300, 60);
+    lv_obj_align(btn_test_upload, LV_ALIGN_CENTER, 0, 220); // Justo debajo de ta_info que está en center+90
+    lv_obj_add_event_cb(btn_test_upload, test_upload_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_style_bg_color(btn_test_upload, lv_color_hex(0x4CAF50), 0); // Verde suave
+    l = lv_label_create(btn_test_upload);
+    lv_obj_add_style(l, &style_btn_text, 0);
+    lv_label_set_text(l, "SUBIR TEST");
+    lv_obj_center(l);
+
     const int btn_w = 120, btn_h = 136;
     const int margin = 20;
-    lv_obj_t *btn, *l;
 
     lv_obj_t * left_col = lv_obj_create(scr_main);
     lv_obj_remove_style_all(left_col);
@@ -1520,6 +1702,7 @@ static void create_main_screen(void) {
     lv_obj_set_flex_align(btn, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     l = lv_label_create(btn);
     lv_obj_add_style(l, &style_btn_text, 0);
+    lv_obj_set_style_bg_opa(l, 0, 0); // Asegurar que el label no tenga fondo (evita recuadro gris)
     lv_label_set_text(l, "CHEST\nFAN");
     lv_obj_set_style_text_align(l, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_add_flag(l, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botón
@@ -1558,6 +1741,7 @@ static void create_main_screen(void) {
     lv_obj_set_flex_align(btn, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     l = lv_label_create(btn);
     lv_obj_add_style(l, &style_btn_text, 0);
+    lv_obj_set_style_bg_opa(l, 0, 0); // Asegurar que el label no tenga fondo (evita recuadro gris)
     lv_label_set_text(l, "HEAD\nFAN");
     lv_obj_set_style_text_align(l, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_add_flag(l, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botón
@@ -2643,36 +2827,18 @@ void ui_select_training(int training_number) {
             bsp_display_unlock();
             break;
         case 2:
-            ESP_LOGI(TAG, "Entrenamiento Itsaso seleccionado (botón físico) - iniciando descarga");
+            ESP_LOGI(TAG, "Entrenamiento Itsaso seleccionado (botón físico) - iniciando descarga IA");
             bsp_display_lock(0);
             lv_scr_load(scr_loading);  // Pantalla negra durante descarga
             bsp_display_unlock();
-            wifi_download_plan("itsaso");
+            ia_sync_get_next_plan("Itsaso", on_plan_received);
             break;
         case 3:
-            ESP_LOGI(TAG, "Entrenamiento Ina seleccionado (botón físico) - iniciando descarga");
+            ESP_LOGI(TAG, "Entrenamiento Ina seleccionado (botón físico) - iniciando descarga IA");
             bsp_display_lock(0);
             lv_scr_load(scr_loading);  // Pantalla negra durante descarga
             bsp_display_unlock();
-            wifi_download_plan("ina");
-            break;
-        case 4:
-            ESP_LOGI(TAG, "Entrenamiento Alain seleccionado (botón físico)");
-            bsp_display_lock(0);
-            lv_scr_load(scr_main);
-            cm_master_set_training_mode(true);  // ACTIVAR TRAINING MODE
-            ESP_LOGI(TAG, "Training mode activado (botón físico)");
-            set_info_text_persistent("Los enanos tienen que usar esta cinta con supervision de aita o ama.");
-            bsp_display_unlock();
-            break;
-        case 5:
-            ESP_LOGI(TAG, "Entrenamiento Urko seleccionado (botón físico)");
-            bsp_display_lock(0);
-            lv_scr_load(scr_main);
-            cm_master_set_training_mode(true);  // ACTIVAR TRAINING MODE
-            ESP_LOGI(TAG, "Training mode activado (botón físico)");
-            set_info_text_persistent("Los enanos tienen que usar esta cinta con supervision de aita o ama.");
-            bsp_display_unlock();
+            ia_sync_get_next_plan("Ina", on_plan_received);
             break;
         default:
             ESP_LOGW(TAG, "Número de entrenamiento inválido: %d", training_number);

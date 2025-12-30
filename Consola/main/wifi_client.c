@@ -181,7 +181,18 @@ static void try_next_saved_network(void) {
             strlcpy((char *)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
 
             ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
-            esp_wifi_connect();
+            
+            // Try to connect with retry logic for ESP_ERR_WIFI_STATE
+            err = esp_wifi_connect();
+            if (err == ESP_ERR_WIFI_STATE) {
+                // WiFi is already connecting - this is expected during boot
+                ESP_LOGD(TAG, "WiFi already connecting, will retry automatically");
+                // Don't fail - the existing connection attempt will continue
+            } else if (err != ESP_OK) {
+                ESP_LOGE(TAG, "esp_wifi_connect failed: %s", esp_err_to_name(err));
+                // Try next network on other errors
+                try_next_saved_network();
+            }
         } else {
             ESP_LOGE(TAG, "Failed to load password for %s. Skipping.", (char*)wifi_config.sta.ssid);
             // Immediately try the next one
