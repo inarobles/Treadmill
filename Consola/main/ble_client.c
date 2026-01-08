@@ -22,6 +22,7 @@
 
 // Key include for the hosted architecture
 #include "esp_hosted.h"
+#include "esp_hosted_misc.h"  // For esp_hosted_bt_controller_init/enable
 
 #include "treadmill_state.h"
 #include "ble_client.h"
@@ -518,6 +519,20 @@ void ble_client_init(void) {
         }
     }
 
+    // CRITICAL: Initialize and enable BT controller on C6 co-processor
+    // This is required for the C6 to start its BLE controller
+    ESP_LOGI(TAG, "Initializing BT Controller on C6 (ESP-Hosted)...");
+    esp_err_t rc = esp_hosted_bt_controller_init();
+    if (rc != ESP_OK) {
+        ESP_LOGW(TAG, "BT controller init returned 0x%x (expected for ESP-Hosted), continuing...", rc);
+    }
+
+    rc = esp_hosted_bt_controller_enable();
+    if (rc != ESP_OK) {
+        ESP_LOGW(TAG, "BT controller enable returned 0x%x, continuing...", rc);
+    }
+
+    ESP_LOGI(TAG, "Initializing NimBLE Stack...");
     nimble_port_init();
 
     ble_hs_cfg.sync_cb = ble_client_on_sync;

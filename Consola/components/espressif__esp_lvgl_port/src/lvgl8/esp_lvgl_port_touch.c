@@ -101,6 +101,14 @@ static void lvgl_port_touchpad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *
         data->point.x = touch_ctx->scale.x * touchpad_x[0];
         data->point.y = touch_ctx->scale.y * touchpad_y[0];
         data->state = LV_INDEV_STATE_PRESSED;
+        
+        // Keep logging enabled here to confirm touch detection works
+        static uint32_t touch_log_counter = 0;
+        if (touch_log_counter++ % 10 == 0) {
+            ESP_LOGI(TAG, "[TOUCH] PRESSED at (%d, %d) raw:(%d, %d)", 
+                     data->point.x, data->point.y, touchpad_x[0], touchpad_y[0]);
+        }
+
     } else {
         data->state = LV_INDEV_STATE_RELEASED;
     }

@@ -265,7 +265,13 @@ static esp_err_t esp_lcd_touch_gsl3680_read_data(esp_lcd_touch_handle_t tp)
 
     err = touch_gsl3680_i2c_read(tp, ESP_LCD_TOUCH_GSL3680_READ_XY_REG, touch_data, 44);
     Finger_num = touch_data[0];
-    // ESP_LOGI(TAG,"0x80 = %d",touch_data[0]);
+    
+    // Debug logging removed - was interfering with interrupt-based detection
+    // static int log_limit = 0;
+    // if (log_limit++ % 20 == 0) {
+    //      ESP_LOGI(TAG, "Raw GSL3680 Read: Finger_num=%d (0x80=%d), err=%d", Finger_num, touch_data[0], err);
+    // }
+
 
     cinfo.finger_num = Finger_num;	
     for(int j=0;j<Finger_num;j++)

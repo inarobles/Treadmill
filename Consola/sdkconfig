@@ -2689,7 +2689,7 @@ CONFIG_BSP_LCD_TYPE_1280_800=y
 #
 # IA Sync Client Configuration
 #
-CONFIG_IA_SYNC_SCRIPT_URL="https://script.google.com/macros/s/AKfycbwMku2scrYdlxXXh6bFTI2jatlPuLVzSKCTo2jgBXl7FE5Av8O0tS8MGcJ4dsqFc-ph/exec"
+CONFIG_IA_SYNC_SCRIPT_URL="https://script.google.com/macros/s/AKfycbxWuPToqwQfbm_U28g0Of_YdrI7KHlrmRU9Qba2ovG6NlqHNDbnAB00z8mziUt4ufBx/exec"
 CONFIG_IA_SYNC_DEVICE_TYPE_CINTA=y
 # CONFIG_IA_SYNC_DEVICE_TYPE_REMO is not set
 # CONFIG_IA_SYNC_DEVICE_TYPE_BICI is not set

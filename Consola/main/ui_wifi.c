@@ -2,6 +2,7 @@
 #include "freertos/task.h"
 #include "ui.h"
 #include "audio.h"
+#include "bsp/esp32_p4_function_ev_board.h"
 #include "wifi_client.h"
 #include "wifi_manager.h"
 #include "esp_log.h"
@@ -381,6 +382,7 @@ static void wifi_scan_task(void *pvParameters) {
 }
 
 void ui_open_wifi_list(void) {
+    bsp_display_lock(0);
     // Create a loading screen
     lv_obj_t *scr_loading = lv_obj_create(NULL);
     lv_obj_set_size(scr_loading, LV_PCT(100), LV_PCT(100));
@@ -398,6 +400,7 @@ void ui_open_wifi_list(void) {
     lv_obj_align_to(label, spinner, LV_ALIGN_OUT_BOTTOM_MID, 0, 20);
 
     lv_scr_load(scr_loading);
+    bsp_display_unlock();
 
     // Create a task to perform the scan
     xTaskCreate(wifi_scan_task, "wifi_scan_task", 4096, scr_loading, 5, NULL);

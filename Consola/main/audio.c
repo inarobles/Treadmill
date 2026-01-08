@@ -1,5 +1,6 @@
 #include "audio.h"
 #include "esp_log.h"
+#include "treadmill_state.h"
 #include "bsp/esp32_p4_function_ev_board.h"
 #include "esp_codec_dev.h"
 #include "freertos/FreeRTOS.h"
@@ -67,6 +68,32 @@ void audio_play_beep(void)
     }
 }
 
+void audio_set_volume(uint8_t volume)
+{
+    if (g_speaker_handle) {
+        if (volume > 100) volume = 100;
+        
+        // Escalar: 100% en el selector -> 90% real para evitar picos de consumo/reinicio
+        float actual_vol = (float)volume * 0.9f;
+        esp_codec_dev_set_out_vol(g_speaker_handle, actual_vol);
+        
+        xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+        g_treadmill_state.audio_volume = volume;
+        xSemaphoreGive(g_state_mutex);
+        
+        ESP_LOGI(TAG, "Volumen ajustado (UI: %u%%, Real: %.1f%%)", volume, actual_vol);
+    }
+}
+
+uint8_t audio_get_volume(void)
+{
+    uint8_t vol = 0;
+    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+    vol = g_treadmill_state.audio_volume;
+    xSemaphoreGive(g_state_mutex);
+    return vol;
+}
+
 esp_err_t audio_init(void)
 {
     ESP_LOGI(TAG, "Inicializando altavoz...");
@@ -95,7 +122,17 @@ esp_err_t audio_init(void)
         .bits_per_sample = BEEP_BIT_DEPTH,
     };
     esp_codec_dev_open(g_speaker_handle, &fs);
-    esp_codec_dev_set_out_vol(g_speaker_handle, 40.0);
+    
+    // Inicializar volumen desde el estado (o un default si es 0)
+    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+    if (g_treadmill_state.audio_volume == 0) {
+        g_treadmill_state.audio_volume = 40; // Default inicial
+    }
+    uint8_t initial_vol = g_treadmill_state.audio_volume;
+    xSemaphoreGive(g_state_mutex);
+    
+    float actual_initial_vol = (float)initial_vol * 0.9f;
+    esp_codec_dev_set_out_vol(g_speaker_handle, actual_initial_vol);
 
     generate_beep_buffer();
 

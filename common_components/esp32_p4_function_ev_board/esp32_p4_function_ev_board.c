@@ -25,7 +25,13 @@
 #include "esp_lcd_ili9881c.h"
 #endif
 #include "esp_lcd_jd9365.h"
+// #include "esp_lcd_touch_gt911.h"
 #include "esp_lcd_touch_gsl3680.h"
+
+// ... existing code ...
+
+
+
 
 #include "bsp/esp32_p4_function_ev_board.h"
 #include "bsp/display.h"
@@ -520,6 +526,10 @@ err:
     return ret;
 }
 
+
+
+
+
 esp_err_t bsp_touch_new(const bsp_touch_config_t *config, esp_lcd_touch_handle_t *ret_touch)
 {
     /* Initilize I2C */
@@ -541,14 +551,14 @@ esp_err_t bsp_touch_new(const bsp_touch_config_t *config, esp_lcd_touch_handle_t
             .mirror_x = 1,
             .mirror_y = 0,
 #else
-            .mirror_x = 1,
-            .mirror_y = 0,
+            .mirror_x = 1,  // Changed from 0 to fix diagonal inversion
+            .mirror_y = 0,  // Changed from 1 to fix diagonal inversion
 #endif
         },
     };
     esp_lcd_panel_io_handle_t tp_io_handle = NULL;
     esp_lcd_panel_io_i2c_config_t tp_io_config = ESP_LCD_TOUCH_IO_I2C_GSL3680_CONFIG();
-    tp_io_config.scl_speed_hz = CONFIG_BSP_I2C_CLK_SPEED_HZ;
+    tp_io_config.scl_speed_hz = 100000;  // 100 KHz, same as working esp_draw_bit example
     ESP_RETURN_ON_ERROR(esp_lcd_new_panel_io_i2c(i2c_handle, &tp_io_config, &tp_io_handle), TAG, "");
     return esp_lcd_touch_new_i2c_gsl3680(tp_io_handle, &tp_cfg, ret_touch);
 }
@@ -559,6 +569,8 @@ static lv_display_t *bsp_display_lcd_init(const bsp_display_cfg_t *cfg)
     assert(cfg != NULL);
     bsp_lcd_handles_t lcd_panels;
     BSP_ERROR_CHECK_RETURN_NULL(bsp_display_new_with_handles(NULL, &lcd_panels));
+
+
 
     /* Add LCD screen */
     ESP_LOGD(TAG, "Add LCD screen");

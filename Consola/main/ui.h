@@ -12,6 +12,7 @@ void ui_update_task(void *pvParameter);
 // Functions for button/event handling
 void ui_speed_inc(void);
 void ui_speed_dec(void);
+void ui_speed_execute(void);
 void ui_climb_inc(void);
 void ui_climb_dec(void);
 void ui_stop_resume(void);
@@ -39,6 +40,7 @@ void ui_chest_toggle(void);
 void ui_head_toggle(void);
 void ui_weight_entry(void);
 void ui_back_to_training(void);
+void ui_finish_training(void);
 
 // --- New WiFi UI Functions ---
 // Defined in ui_wifi.c

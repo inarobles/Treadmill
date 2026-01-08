@@ -93,7 +93,7 @@ static void button_handler_task(void *pvParameter) {
     uint32_t climb_inc_last_repeat = 0;
     uint32_t climb_dec_last_repeat = 0;
 
-    #define LONG_PRESS_TIME_MS 1000
+    #define LONG_PRESS_TIME_MS 500
     #define REPEAT_INTERVAL_MS 150  // Aproximadamente 6.7 veces por segundo
 
     while (1) {
@@ -159,16 +159,16 @@ static void button_handler_task(void *pvParameter) {
                 ui_open_wifi_list();
             }
             if ((porta_changed & BUTTON_SPEED_SET_PIN) && !(porta_state & BUTTON_SPEED_SET_PIN)) {
-                // Corresponds to BLE button, triggering its placeholder action
+                // Corresponds to BLE button
                 audio_play_beep();
-                ESP_LOGI(TAG, "Physical button (middle-right) pressed: Triggering BLE action.");
-                upload_to_ina(2);
+                ESP_LOGI(TAG, "Physical button (middle-right) pressed: BLE setup placeholder.");
+                // No llamamos a upload_to_ina viejo
             }
             if ((porta_changed & BUTTON_SPEED_DEC_PIN) && !(porta_state & BUTTON_SPEED_DEC_PIN)) {
-                // Corresponds to WAX button, triggering its placeholder action
+                // Corresponds to WAX button
                 audio_play_beep();
-                ESP_LOGI(TAG, "Physical button (bottom-right) pressed: Triggering WAX action.");
-                upload_to_itsaso(3);
+                ESP_LOGI(TAG, "Physical button (bottom-right) pressed: WAX maintenance placeholder.");
+                // No llamamos a upload_to_itsaso viejo
             }
         } else if (ui_is_main_screen_active()) {
             uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
@@ -179,11 +179,19 @@ static void button_handler_task(void *pvParameter) {
                     // Botón presionado
                     speed_inc_press_start = current_time;
                     speed_inc_repeating = false;
-                    ui_speed_inc();  // Primera pulsación inmediata
+                    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+                    g_treadmill_state.is_adjusting_speed = true;
+                    xSemaphoreGive(g_state_mutex);
+                    ui_speed_inc();
                 } else {
                     // Botón liberado
                     speed_inc_press_start = 0;
                     speed_inc_repeating = false;
+                    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+                    g_treadmill_state.is_adjusting_speed = false;
+                    g_treadmill_state.speed_adjustment_end_ms = current_time;
+                    xSemaphoreGive(g_state_mutex);
+                    ui_speed_execute();
                 }
             }
             // Repetición continua si se mantiene presionado
@@ -192,7 +200,7 @@ static void button_handler_task(void *pvParameter) {
                     speed_inc_repeating = true;
                     speed_inc_last_repeat = current_time;
                 }
-                if (speed_inc_repeating && (current_time - speed_inc_last_repeat >= REPEAT_INTERVAL_MS)) {
+                if (speed_inc_repeating && (current_time - speed_inc_last_repeat >= 500)) { // 0.5s repeat for speed
                     ui_speed_inc();
                     speed_inc_last_repeat = current_time;
                 }
@@ -203,10 +211,18 @@ static void button_handler_task(void *pvParameter) {
                 if (!(porta_state & BUTTON_SPEED_DEC_PIN)) {
                     speed_dec_press_start = current_time;
                     speed_dec_repeating = false;
+                    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+                    g_treadmill_state.is_adjusting_speed = true;
+                    xSemaphoreGive(g_state_mutex);
                     ui_speed_dec();
                 } else {
                     speed_dec_press_start = 0;
                     speed_dec_repeating = false;
+                    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+                    g_treadmill_state.is_adjusting_speed = false;
+                    g_treadmill_state.speed_adjustment_end_ms = current_time;
+                    xSemaphoreGive(g_state_mutex);
+                    ui_speed_execute();
                 }
             }
             if (!(porta_state & BUTTON_SPEED_DEC_PIN) && speed_dec_press_start > 0) {
@@ -214,7 +230,7 @@ static void button_handler_task(void *pvParameter) {
                     speed_dec_repeating = true;
                     speed_dec_last_repeat = current_time;
                 }
-                if (speed_dec_repeating && (current_time - speed_dec_last_repeat >= REPEAT_INTERVAL_MS)) {
+                if (speed_dec_repeating && (current_time - speed_dec_last_repeat >= 500)) { // 0.5s repeat for speed
                     ui_speed_dec();
                     speed_dec_last_repeat = current_time;
                 }

@@ -43,8 +43,7 @@ extern "C" {
 /**
  * @brief Inicializa el módulo maestro
  *
- * Configura UART y estructuras internas.
- * NO crea tareas todavía.
+ * Configura UART y estructuras internas (mutex).
  *
  * @return ESP_OK si éxito, error en caso contrario
  */
@@ -149,6 +148,13 @@ esp_err_t cm_master_set_training_mode(bool enabled);
  * @return true si hay un error crítico del sensor (sistema bloqueado), false si está OK
  */
 bool cm_master_get_incline_sensor_fault(void);
+
+/**
+ * @brief Funciones de ELEVACIÓN MANUAL (Bypass de error crítico)
+ */
+esp_err_t cm_master_manual_incline_up(void);
+esp_err_t cm_master_manual_incline_down(void);
+esp_err_t cm_master_manual_incline_stop(void);
 
 #ifdef __cplusplus
 }

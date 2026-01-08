@@ -21,8 +21,29 @@
 #include "wifi_manager.h"
 #include "esp_hosted.h"
 #include "cm_master.h"  // CM Protocol Master
+#include "ia_sync.h"
+#include "ia_telemetry.h"
+#include "imu_service.h"
+#include "slave_ota.h"
+
 
 static const char *TAG = "MainApp";
+
+/**
+ * Delayed BLE initialization task.
+ * Waits for the ESP-Hosted transport to fully stabilize before initializing NimBLE.
+ * This prevents HCI timeout errors caused by sending commands to the C6 too early.
+ */
+static void delayed_ble_init_task(void *pvParameters) {
+    ESP_LOGI(TAG, "[BLE DELAY] Waiting 15 seconds for transport to fully stabilize...");
+    vTaskDelay(pdMS_TO_TICKS(15000));  // Increased to 15 seconds to test timing hypothesis
+    
+    ESP_LOGI(TAG, "[BLE DELAY] Starting BLE Client initialization NOW");
+    ble_client_init();
+    ESP_LOGI(TAG, "[BLE DELAY] BLE Client init complete");
+    
+    vTaskDelete(NULL);
+}
 
 // Global variables are defined in treadmill_state.c
 
@@ -46,6 +67,9 @@ void app_main(void) {
         ESP_LOGE(TAG, "esp_hosted_init() failed with error: %d", ret);
         return;
     }
+    
+    // Check and update co-processor if version is 0.0.0
+    check_and_update_slave_if_needed();
 
     // Initialize WiFi Manager for network scanning and credential management
     ret = wifi_manager_init();
@@ -75,6 +99,8 @@ void app_main(void) {
     bsp_display_start_with_config(&cfg);
     bsp_display_backlight_on();
     bsp_display_rotate(NULL, LV_DISP_ROT_270);
+    // Initialize CM Protocol Master early to ensure mutex is ready for button events
+    cm_master_init();
     
     // Initialize UI
     ui_init();
@@ -88,8 +114,11 @@ void app_main(void) {
     // Create UI update task
     xTaskCreate(ui_update_task, "ui_update_task", 8192, NULL, 5, NULL);
 
-    // Initialize BLE Client for Heart Rate Monitor
-    ble_client_init();
+
+
+    // Initialize BLE Client for Heart Rate Monitor (delayed to avoid HCI timeout)
+    // BLE init moved to delayed task to allow C6 transport to stabilize
+    xTaskCreate(delayed_ble_init_task, "delayed_ble", 4096, NULL, 5, NULL);
 
     // Initialize WiFi Client for scanning
     wifi_client_init();
@@ -118,6 +147,27 @@ void app_main(void) {
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "cm_master_start() failed with error: %d", ret);
     }
+
+    // Reinforce log suppression for cache before sync starts
+    esp_log_level_set("cache", ESP_LOG_NONE);
+    // Initialize IA Sync Client
+    ret = ia_sync_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "ia_sync_init() failed with error: %d", ret);
+    }
+
+    // Initialize IA Telemetry Module
+    ret = ia_telemetry_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "ia_telemetry_init() failed with error: %d", ret);
+    }
+
+    // Initialize IMU Service
+    ret = imu_service_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "imu_service_init() failed with error: %d", ret);
+    }
+
 
     ESP_LOGI(TAG, "Inicialización completa.");
 }

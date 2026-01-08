@@ -25,7 +25,9 @@ typedef enum {
     INCLINE_MOTOR_STOPPED,
     INCLINE_MOTOR_UP,
     INCLINE_MOTOR_DOWN,
-    INCLINE_MOTOR_HOMING
+    INCLINE_MOTOR_HOMING,
+    INCLINE_MOTOR_MAN_UP,
+    INCLINE_MOTOR_MAN_DOWN
 } incline_motor_state_t;
 
 // Buffer para líneas UART
@@ -554,6 +556,41 @@ static void process_command(const char *cmd_line) {
         start_incline_calibration();
         send_data_response();  // Responder con estado actual
     }
+    // COMANDOS MANUALES (Bypass de error crítico)
+    else if (strncmp(cmd_line, "MAN_UP=1", 8) == 0) {
+        ESP_LOGI(TAG, "MANUAL OVERRIDE: SUBIR");
+        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+        // Permitir subir si estamos en el fin de carrera O si ya hemos calibrado el sistema (sabemos dónde estamos)
+        if (is_limit_switch_pressed() || g_incline_is_calibrated) {
+             g_incline_motor_state = INCLINE_MOTOR_MAN_UP;
+             gpio_set_level(INCLINE_DIRECTION_PIN, 0); // 0 = arriba
+             gpio_set_level(INCLINE_ON_OFF_PIN, 1);    // 1 = ON
+        } else {
+             ESP_LOGW(TAG, "Subida manual denegada: Sistema no calibrado y no está en 0%%");
+        }
+        xSemaphoreGive(g_speed_mutex);
+        send_data_response();
+    }
+    else if (strncmp(cmd_line, "MAN_DOWN=1", 10) == 0) {
+        ESP_LOGI(TAG, "MANUAL OVERRIDE: BAJAR");
+        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+        if (!is_limit_switch_pressed()) {
+            g_incline_motor_state = INCLINE_MOTOR_MAN_DOWN;
+            gpio_set_level(INCLINE_DIRECTION_PIN, 1); // 1 = abajo
+            gpio_set_level(INCLINE_ON_OFF_PIN, 1);    // 1 = ON
+        } else {
+            ESP_LOGW(TAG, "Bajada manual denegada: Ya se detecta fin de carrera (0%%)");
+        }
+        xSemaphoreGive(g_speed_mutex);
+        send_data_response();
+    }
+    else if (strncmp(cmd_line, "MAN_STOP=1", 10) == 0) {
+        ESP_LOGI(TAG, "MANUAL OVERRIDE: STOP");
+        xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
+        stop_incline_motor();
+        xSemaphoreGive(g_speed_mutex);
+        send_data_response();
+    }
     else {
         ESP_LOGW(TAG, "Comando desconocido o no soportado: %s", cmd_line);
         // No enviamos ACK de error, simplemente ignoramos
@@ -653,18 +690,34 @@ static void incline_control_task(void *pvParameters) {
 
         xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
 
-        // PROTECCIÓN CRÍTICA: Si hay fallo del sensor, no hacer nada
-        if (g_incline_sensor_fault || g_emergency_state) {
+        // PROTECCIÓN CRÍTICA: Si hay fallo del sensor, permitir SOLO modos manuales o homing
+        if (g_emergency_state) {
+            xSemaphoreGive(g_speed_mutex);
+            continue;
+        }
+
+        if (g_incline_sensor_fault && 
+            g_incline_motor_state != INCLINE_MOTOR_MAN_UP && 
+            g_incline_motor_state != INCLINE_MOTOR_MAN_DOWN &&
+            g_incline_motor_state != INCLINE_MOTOR_HOMING &&
+            g_incline_motor_state != INCLINE_MOTOR_STOPPED) {
+            
             xSemaphoreGive(g_speed_mutex);
             continue;
         }
 
         switch (g_incline_motor_state) {
             case INCLINE_MOTOR_STOPPED:
-                if (!g_incline_is_calibrated) {
+                if (g_incline_sensor_fault) {
+                    // PROTECCIÓN: Si hay fallo de sensor, NO iniciar ningún movimiento automático.
+                    // El estado solo cambiará por comandos manuales recibidos en process_command.
+                    break;
+                }
+                
+                if (!g_incline_is_calibrated && !g_incline_sensor_fault) {
                     g_incline_motor_state = INCLINE_MOTOR_HOMING;
                     g_homing_start_time_us = now_us;  // Registrar inicio de homing
-                } else {
+                } else if (g_incline_is_calibrated) {
                     float error = g_target_incline_pct - g_real_incline_pct;
                     if (fabs(error) > 0.1) {
                         if (error > 0) {
@@ -769,6 +822,41 @@ static void incline_control_task(void *pvParameters) {
                             g_real_incline_pct = g_target_incline_pct;
                         }
                     }
+                }
+                break;
+            case INCLINE_MOTOR_MAN_UP:
+                g_real_incline_pct += (delta_ms * INCLINE_SPEED_PCT_PER_MS);
+                g_target_incline_pct = g_real_incline_pct; // Sincronizar target para evitar rebotes al parar
+                if (g_real_incline_pct >= 15.0f) { // Límite hardcodeado de seguridad manual
+                    stop_incline_motor();
+                    g_real_incline_pct = 15.0f;
+                    g_target_incline_pct = 15.0f;
+                }
+                break;
+            case INCLINE_MOTOR_MAN_DOWN:
+                if (is_limit_switch_pressed()) {
+                    ESP_LOGI(TAG, "✓ Fin de carrera detectado en modo MANUAL - Limpiando ERROR");
+                    stop_incline_motor();
+                    g_real_incline_pct = 0.0f;
+                    g_target_incline_pct = 0.0f;
+                    g_incline_is_calibrated = true;
+// ... (rest remains same)
+                    
+                    // LIMPIAR PERSISTENCIA DE ERROR
+                    if (g_incline_sensor_fault) {
+                        g_incline_sensor_fault = false;
+                        nvs_handle_t nvs_handle;
+                        if (nvs_open("storage", NVS_READWRITE, &nvs_handle) == ESP_OK) {
+                            nvs_set_u8(nvs_handle, "incline_fault", 0);
+                            nvs_commit(nvs_handle);
+                            nvs_close(nvs_handle);
+                            ESP_LOGI(TAG, "Error persistente de inclinación BORRADO de NVS");
+                        }
+                    }
+                } else {
+                    g_real_incline_pct -= (delta_ms * INCLINE_SPEED_PCT_PER_MS);
+                    g_target_incline_pct = g_real_incline_pct; // Sincronizar target
+                    if (g_real_incline_pct < -5.0f) g_real_incline_pct = -5.0f; // No dejar que el cálculo se aleje demasiado
                 }
                 break;
         }

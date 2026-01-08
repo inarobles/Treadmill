@@ -82,11 +82,6 @@ static esp_err_t send_line(const char *line) {
 /**
  * @brief Envía comando con formato "CMD=valor\n"
  */
-static esp_err_t send_command(const char *cmd, float value) {
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "%s=%.2f\n", cmd, value);
-    return send_line(buffer);
-}
 
 /**
  * @brief Envía comando con valor entero
@@ -154,16 +149,37 @@ static void process_data_response(const char *line) {
 }
 
 /**
+ * @brief Verifica si una línea contiene solo caracteres ASCII imprimibles
+ */
+static bool is_line_valid(const char *line) {
+    if (!line || strlen(line) < 3) return false;
+    for (int i = 0; line[i] != '\0'; i++) {
+        if ((unsigned char)line[i] < 32 || (unsigned char)line[i] > 126) return false;
+    }
+    return true;
+}
+
+/**
  * @brief Procesa una línea recibida del esclavo
  */
 static void process_response(const char *line) {
+    if (!is_line_valid(line)) {
+        return;
+    }
+
+    // IGNORAR ECHOS: Si la línea contiene SYNC (o variantes con basura), es nuestro propio envío
+    if (strstr(line, "SYNC") != NULL || strstr(line, "Sy") != NULL) {
+        return;
+    }
+
     ESP_LOGD(TAG, "Recibido: %s", line);
 
     if (strncmp(line, "DATA=", 5) == 0) {
         process_data_response(line);
     }
     else {
-        ESP_LOGW(TAG, "Línea desconocida: %s", line);
+        // Solo logueamos como debug si no es DATA= para evitar polución si hay ruido
+        ESP_LOGD(TAG, "Línea desconocida: %s", line);
     }
 }
 
@@ -182,27 +198,31 @@ static void uart_rx_task(void *pvParameters) {
 
     while (1) {
         uint8_t byte;
-        int len = uart_read_bytes(CM_MASTER_UART_PORT, &byte, 1, pdMS_TO_TICKS(100));
+        int len = uart_read_bytes(CM_MASTER_UART_PORT, &byte, 1, pdMS_TO_TICKS(10));
 
         if (len > 0) {
             // Detectar fin de línea
             if (byte == '\n' || byte == '\r') {
                 if (line_pos > 0) {
-                    // Terminar string y procesar respuesta
                     line_buffer[line_pos] = '\0';
                     process_response(line_buffer);
                     line_pos = 0;
                 }
             }
-            // Acumular caracteres (ignorar \r adicionales)
-            else if (byte >= 32 && byte < 127) {  // Solo caracteres imprimibles ASCII
+            // Filtrar ruido: Solo aceptar caracteres ASCII imprimibles
+            else if (byte >= 32 && byte <= 126) {
                 if (line_pos < LINE_BUFFER_SIZE - 1) {
                     line_buffer[line_pos++] = byte;
                 } else {
-                    ESP_LOGW(TAG, "Línea demasiado larga, descartando");
+                    // Si llegamos aquí es que hemos recibido >128 bytes sin un \n
+                    // Probablemente ruido persistente o eco masivo.
+                    // Solo logueamos una vez por ráfaga para no inundar el monitor
+                    ESP_LOGW(TAG, "Buffer RX lleno sin fin de línea. Descartando ráfaga.");
                     line_pos = 0;
+                    uart_flush(CM_MASTER_UART_PORT);
                 }
             }
+            // Si el byte es basura (no ASCII), lo ignoramos silenciosamente para no acumularlo
         }
     }
 }
@@ -258,6 +278,28 @@ static void master_task(void *pvParameters) {
 // FUNCIONES PÚBLICAS (API)
 // ============================================================================
 
+esp_err_t cm_master_init(void) {
+    ESP_LOGI(TAG, "Inicializando mutex del maestro...");
+    if (g_master_mutex == NULL) {
+        g_master_mutex = xSemaphoreCreateMutex();
+        if (g_master_mutex == NULL) {
+            ESP_LOGE(TAG, "Error creando mutex");
+            return ESP_FAIL;
+        }
+    }
+
+    xSemaphoreTake(g_master_mutex, portMAX_DELAY);
+    g_target_speed_kmh = 0.0f;
+    g_target_incline_pct = 0.0f;
+    g_target_head_fan = 0;
+    g_target_chest_fan = 0;
+    g_target_wax_pump = 0;
+    g_training_mode = false;
+    xSemaphoreGive(g_master_mutex);
+
+    return ESP_OK;
+}
+
 esp_err_t cm_master_start(void) {
     ESP_LOGI(TAG, "Iniciando tareas del maestro...");
 
@@ -268,14 +310,7 @@ esp_err_t cm_master_start(void) {
         return ESP_FAIL;
     }
 
-    // Crear mutex si no existe
-    if (g_master_mutex == NULL) {
-        g_master_mutex = xSemaphoreCreateMutex();
-        if (g_master_mutex == NULL) {
-            ESP_LOGE(TAG, "Error creando mutex");
-            return ESP_FAIL;
-        }
-    }
+    // El mutex ya debe haber sido creado en cm_master_init()
 
     // Crear tarea principal del maestro
     ret = xTaskCreate(master_task, "cm_master", 4096, NULL, 6, &g_master_task_handle);
@@ -407,11 +442,13 @@ esp_err_t cm_master_set_relay(uint8_t relay_id, uint8_t state) {
 
 esp_err_t cm_master_set_training_mode(bool enabled) {
     if (g_master_mutex == NULL) {
+        ESP_LOGW(TAG, "cm_master_set_training_mode: Mutex NO inicializado aún");
         return ESP_ERR_INVALID_STATE;
     }
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
     g_training_mode = enabled;
     xSemaphoreGive(g_master_mutex);
+
     ESP_LOGI(TAG, "Training mode: %s", enabled ? "ACTIVADO (entrenando)" : "DESACTIVADO (pantalla inicial)");
     return ESP_OK;
 }
@@ -424,4 +461,19 @@ bool cm_master_get_incline_sensor_fault(void) {
     bool fault = (g_incline_sensor_fault != 0);
     xSemaphoreGive(g_master_mutex);
     return fault;
+}
+
+esp_err_t cm_master_manual_incline_up(void) {
+    ESP_LOGI(TAG, "Enviando MAN_UP=1");
+    return send_command_int("MAN_UP", 1);
+}
+
+esp_err_t cm_master_manual_incline_down(void) {
+    ESP_LOGI(TAG, "Enviando MAN_DOWN=1");
+    return send_command_int("MAN_DOWN", 1);
+}
+
+esp_err_t cm_master_manual_incline_stop(void) {
+    ESP_LOGI(TAG, "Enviando MAN_STOP=1");
+    return send_command_int("MAN_STOP", 1);
 }
