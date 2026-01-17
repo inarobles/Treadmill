@@ -1,5 +1,4 @@
 #include "treadmill_state.h"
-#include "imu_service.h"
 #include "freertos/FreeRTOS.h"
 
 TreadmillState g_treadmill_state = {

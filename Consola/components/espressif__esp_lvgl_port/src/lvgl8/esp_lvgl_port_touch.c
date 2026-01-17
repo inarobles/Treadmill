@@ -9,6 +9,9 @@
 #include "esp_check.h"
 #include "esp_lcd_touch.h"
 #include "esp_lvgl_port.h"
+#if !CONFIG_LV_PORT_USE_SIMULATOR
+extern void acoustic_service_silence_for_touch(void);
+#endif
 
 static const char *TAG = "LVGL";
 
@@ -101,6 +104,9 @@ static void lvgl_port_touchpad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *
         data->point.x = touch_ctx->scale.x * touchpad_x[0];
         data->point.y = touch_ctx->scale.y * touchpad_y[0];
         data->state = LV_INDEV_STATE_PRESSED;
+        
+        // Activar ventana de silencio en el podómetro acústico (300ms)
+        acoustic_service_silence_for_touch();
         
         // Keep logging enabled here to confirm touch detection works
         static uint32_t touch_log_counter = 0;

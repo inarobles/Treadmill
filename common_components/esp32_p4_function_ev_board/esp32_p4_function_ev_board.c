@@ -55,6 +55,8 @@ static i2c_master_bus_handle_t i2c_handle = NULL;  // I2C Handle
 static i2s_chan_handle_t i2s_tx_chan = NULL;
 static i2s_chan_handle_t i2s_rx_chan = NULL;
 static const audio_codec_data_if_t *i2s_data_if = NULL;  /* Codec data interface */
+static const audio_codec_ctrl_if_t *codec_ctrl_if = NULL; /* Shared I2C control interface */
+static const audio_codec_if_t *codec_if = NULL;           /* Shared codec device interface */
 
 /* Can be used for `i2s_std_gpio_config_t` and/or `i2s_std_config_t` initialization */
 #define BSP_I2S_GPIO_CFG       \
@@ -249,40 +251,42 @@ esp_codec_dev_handle_t bsp_audio_codec_speaker_init(void)
     }
     assert(i2s_data_if);
 
-    const audio_codec_gpio_if_t *gpio_if = audio_codec_new_gpio();
+    if (codec_if == NULL) {
+        const audio_codec_gpio_if_t *gpio_if = audio_codec_new_gpio();
 
-    audio_codec_i2c_cfg_t i2c_cfg = {
-        .port = BSP_I2C_NUM,
-        .addr = ES8311_CODEC_DEFAULT_ADDR,
-        .bus_handle = i2c_handle,
-    };
-    const audio_codec_ctrl_if_t *i2c_ctrl_if = audio_codec_new_i2c_ctrl(&i2c_cfg);
-    assert(i2c_ctrl_if);
+        audio_codec_i2c_cfg_t i2c_cfg = {
+            .port = BSP_I2C_NUM,
+            .addr = ES8311_CODEC_DEFAULT_ADDR,
+            .bus_handle = i2c_handle,
+        };
+        codec_ctrl_if = audio_codec_new_i2c_ctrl(&i2c_cfg);
+        assert(codec_ctrl_if);
 
-    esp_codec_dev_hw_gain_t gain = {
-        .pa_voltage = 5.0,
-        .codec_dac_voltage = 3.3,
-    };
+        esp_codec_dev_hw_gain_t gain = {
+            .pa_voltage = 5.0,
+            .codec_dac_voltage = 3.3,
+        };
 
-    es8311_codec_cfg_t es8311_cfg = {
-        .ctrl_if = i2c_ctrl_if,
-        .gpio_if = gpio_if,
-        .codec_mode = ESP_CODEC_DEV_TYPE_OUT,
-        .pa_pin = BSP_POWER_AMP_IO,
-        .pa_reverted = false,
-        .master_mode = false,
-        .use_mclk = true,
-        .digital_mic = false,
-        .invert_mclk = false,
-        .invert_sclk = false,
-        .hw_gain = gain,
-    };
-    const audio_codec_if_t *es8311_dev = es8311_codec_new(&es8311_cfg);
-    assert(es8311_dev);
+        es8311_codec_cfg_t es8311_cfg = {
+            .ctrl_if = codec_ctrl_if,
+            .gpio_if = gpio_if,
+            .codec_mode = ESP_CODEC_DEV_WORK_MODE_BOTH, // Always init hardware for both
+            .pa_pin = BSP_POWER_AMP_IO,
+            .pa_reverted = false,
+            .master_mode = false,
+            .use_mclk = true,
+            .digital_mic = false,
+            .invert_mclk = false,
+            .invert_sclk = false,
+            .hw_gain = gain,
+        };
+        codec_if = es8311_codec_new(&es8311_cfg);
+        assert(codec_if);
+    }
 
     esp_codec_dev_cfg_t codec_dev_cfg = {
         .dev_type = ESP_CODEC_DEV_TYPE_OUT,
-        .codec_if = es8311_dev,
+        .codec_if = codec_if,
         .data_if = i2s_data_if,
     };
     return esp_codec_dev_new(&codec_dev_cfg);
@@ -298,41 +302,43 @@ esp_codec_dev_handle_t bsp_audio_codec_microphone_init(void)
     }
     assert(i2s_data_if);
 
-    const audio_codec_gpio_if_t *gpio_if = audio_codec_new_gpio();
+    if (codec_if == NULL) {
+        const audio_codec_gpio_if_t *gpio_if = audio_codec_new_gpio();
 
-    audio_codec_i2c_cfg_t i2c_cfg = {
-        .port = BSP_I2C_NUM,
-        .addr = ES8311_CODEC_DEFAULT_ADDR,
-        .bus_handle = i2c_handle,
-    };
-    const audio_codec_ctrl_if_t *i2c_ctrl_if = audio_codec_new_i2c_ctrl(&i2c_cfg);
-    assert(i2c_ctrl_if);
+        audio_codec_i2c_cfg_t i2c_cfg = {
+            .port = BSP_I2C_NUM,
+            .addr = ES8311_CODEC_DEFAULT_ADDR,
+            .bus_handle = i2c_handle,
+        };
+        codec_ctrl_if = audio_codec_new_i2c_ctrl(&i2c_cfg);
+        assert(codec_ctrl_if);
 
-    esp_codec_dev_hw_gain_t gain = {
-        .pa_voltage = 5.0,
-        .codec_dac_voltage = 3.3,
-    };
+        esp_codec_dev_hw_gain_t gain = {
+            .pa_voltage = 5.0,
+            .codec_dac_voltage = 3.3,
+        };
 
-    es8311_codec_cfg_t es8311_cfg = {
-        .ctrl_if = i2c_ctrl_if,
-        .gpio_if = gpio_if,
-        .codec_mode = ESP_CODEC_DEV_WORK_MODE_BOTH,
-        .pa_pin = BSP_POWER_AMP_IO,
-        .pa_reverted = false,
-        .master_mode = false,
-        .use_mclk = true,
-        .digital_mic = false,
-        .invert_mclk = false,
-        .invert_sclk = false,
-        .hw_gain = gain,
-    };
+        es8311_codec_cfg_t es8311_cfg = {
+            .ctrl_if = codec_ctrl_if,
+            .gpio_if = gpio_if,
+            .codec_mode = ESP_CODEC_DEV_WORK_MODE_BOTH,
+            .pa_pin = BSP_POWER_AMP_IO,
+            .pa_reverted = false,
+            .master_mode = false,
+            .use_mclk = true,
+            .digital_mic = false,
+            .invert_mclk = false,
+            .invert_sclk = false,
+            .hw_gain = gain,
+        };
 
-    const audio_codec_if_t *es8311_dev = es8311_codec_new(&es8311_cfg);
-    assert(es8311_dev);
+        codec_if = es8311_codec_new(&es8311_cfg);
+        assert(codec_if);
+    }
 
     esp_codec_dev_cfg_t codec_es8311_dev_cfg = {
         .dev_type = ESP_CODEC_DEV_TYPE_IN,
-        .codec_if = es8311_dev,
+        .codec_if = codec_if,
         .data_if = i2s_data_if,
     };
     return esp_codec_dev_new(&codec_es8311_dev_cfg);

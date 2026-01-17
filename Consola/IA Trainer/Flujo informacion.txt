@@ -1,0 +1,107 @@
+1. Arquitectura de Infraestructura (Cloud Bridge)
+El sistema opera bajo un modelo de Capa de Abstracción de Datos para garantizar que las máquinas (Cinta, Remo y Bici) utilicen el mismo núcleo de comunicaciones.
+
+Base de Datos: Google Sheets, actuando como repositorio central de estado y diario histórico.
+
+Pasarela (Gateway): Google Apps Script (GAS) publicado como Web App. Traduce las peticiones HTTPS del ESP32-P4 a operaciones de fila en el Sheet.
+
+Seguridad de Red: Conexión HTTPS directa desde el ESP32-P4 (usando esp_crt_bundle y follow_redirects) eliminando servidores intermedios.
+
+Cerebro (AI Coach): LLM con acceso a la "libreta" (Sheet). Es el responsable único de analizar la telemetría HD bruta y generar el resumen consolidado de la sesión al finalizar la misma.
+
+2. Especificación del Entrenamiento (Descarga: PLAN)
+El entrenamiento se descarga como un objeto JSON estructurado que diferencia la experiencia del usuario de la ejecución técnica de la máquina.
+
+Jerarquía de Control
+Tramos (Nivel Usuario): Divisiones lógicas visibles en la pantalla (ej: Calentamiento, Intervalo).
+
+Bloques (Nivel Máquina): Unidades mínimas de ejecución. Cada bloque contiene:
+
+Variables de Objetivo: 
+- Cinta: Velocidad (v_final) e Inclinación (inc_final).
+- Remo: Potencia (w_final) y Ritmo (v_final).
+- Bici: Inclinación Virtual (inc_final) y Cadencia (cadencia_objetivo).
+
+Gestión de Rampas:
+- Cinta: El ESP32-P4 calcula la progresión lineal para alcanzar los objetivos.
+- Remo/Bici: La rampa es la progresión del esfuerzo del usuario reportada en la telemetría.
+
+Condición Primaria de Fin: Métrica principal para saltar al siguiente bloque (TIEMPO, DISTANCIA, KCAL o BPM).
+
+Condición de Fin por Seguridad (Secundaria): Métrica de tiempo obligatoria que garantiza el fin del bloque si la métrica primaria no se cumple.
+
+3. Especificación de la Telemetría (Subida: REPORT)
+El hardware se enfoca exclusivamente en la captura de alta resolución, delegando el análisis estadístico a la nube.
+
+Captura de Datos
+Frecuencia de Muestreo: 0.5 Hz (una muestra local cada 2 segundos).
+
+Variables capturadas (Valores REALES/INSTANTÁNEOS):
+[CINTA]
+- v: Velocidad real (km/h).
+- i: Inclinación real (%).
+- p: Pulsaciones (BPM).
+- c: Cadencia (Pasos/min).
+- z: Zancada (m).
+
+[REMO]
+- v: Ritmo real (m/s).
+- w: Potencia real (Watts).
+- c: Cadencia real (SPM).
+- p: Pulsaciones (BPM).
+- d: Distancia acumulada (m).
+
+[BICI]
+- v: Velocidad real (km/h).
+- i: Inclinación virtual activa (%).
+- p: Pulsaciones (BPM).
+- c: Cadencia real (RPM).
+- g: Marcha actual (Gear).
+- w: Potencia real (Watts).
+
+Almacenamiento Local: Buffer en la PSRAM del P4. Los datos se suben en fragmentos (chunks) de 30 minutos.
+
+4. El "Loop" de Inteligencia Artificial
+1. Generación: El LLM escribe un PLAN.
+2. Sincronización: La consola descarga el plan y recolecta telemetría localmente.
+3. Telemetría (Reporte Bruto): La consola sube fragmentos JSON puros cada 30 min.
+4. Resumen y Análisis (Cloud-Side): Al marcarse el plan como COMPLETADO, el LLM procesa los fragmentos, calcula promedios y totales, y escribe un resumen narrativo y estadístico en celdas independientes de Google Sheets.
+
+---
+
+ESPECIFICACIÓN DE VARIABLES Y JSONS (ESTÁNDAR MULTI-MÁQUINA)
+
+1. Metadatos de Fila (Google Sheets)
+- timestamp: YYYY-MM-DD HH:MM:SS.
+- tipo_fila: PLAN o REPORT.
+- plan_id: ID único.
+- estado: PENDIENTE, COMPLETADO o ERROR.
+- dispositivo: cinta, remo o bici.
+
+2. Estructura JSON: DESCARGA (PLAN)
+A. Capa de Contexto UI (ui_contexto)
+- nombre_tramo / desc_tramo / desc_bloque.
+
+B. Capa de Control (bloques)
+- v_final / inc_final / w_final / bpm_objetivo / cadencia_objetivo.
+
+3. Estructura JSON: SUBIDA (REPORT HD)
+Telemetría de alta resolución en fragmentos. Variable "parte": Índice del fragmento.
+
+Telemetría de Alta Resolución (telemetria_hd)
+String comprimido con muestras cada 2 segundos:
+Formato Cinta: "v,i,p,c,z; val,val,val,val,val | ..."
+Formato Remo: "v,w,c,p,d; val,val,val,val,val | ..."
+Formato Bici: "v,i,p,c,g,w; val,val,val,val,val,val | ..."
+
+4. Tabla de Referencia de Naming (Coherencia Cross-Platform)
+| Letra | Cinta | Remo | Bici | Unidad |
+| :--- | :--- | :--- | :--- | :--- |
+| **v** | Velocidad | Ritmo (Pace) | Velocidad | km/h o seg/500m |
+| **i** | Inclinación | - | Inclinación | % |
+| **p** | Pulso | Pulso | Pulso | bpm |
+| **c** | Cadencia | Cadencia | Cadencia | ppm, spm o rpm |
+| **z** | Zancada | - | - | metros |
+| **d** | - | Distancia | - | metros |
+| **w** | - | Potencia | Potencia | Watts |
+| **g** | - | - | Marcha | Gear |

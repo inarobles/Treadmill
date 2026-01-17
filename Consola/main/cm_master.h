@@ -25,7 +25,7 @@ extern "C" {
 #define CM_MASTER_UART_PORT     UART_NUM_1
 
 /** Baudrate */
-#define CM_MASTER_BAUD_RATE     115200
+#define CM_MASTER_BAUD_RATE     9600
 
 /** Pin TX (según hardware) */
 #define CM_MASTER_TX_PIN        4

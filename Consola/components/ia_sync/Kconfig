@@ -1,0 +1,31 @@
+menu "IA Sync Client Configuration"
+
+    config IA_SYNC_SCRIPT_URL
+        string "Google Apps Script URL"
+        default "https://script.google.com/macros/s/AKfycbxWuPToqwQfbm_U28g0Of_YdrI7KHlrmRU9Qba2ovG6NlqHNDbnAB00z8mziUt4ufBx/exec"
+        help
+            The deployment URL of the Google Apps Script for syncing training plans.
+
+    choice IA_SYNC_DEVICE_TYPE
+        prompt "Device Type"
+        default IA_SYNC_DEVICE_TYPE_CINTA
+        help
+            Select the type of device this firmware is running on.
+
+        config IA_SYNC_DEVICE_TYPE_CINTA
+            bool "Cinta de Correr"
+        
+        config IA_SYNC_DEVICE_TYPE_REMO
+            bool "Remo"
+
+        config IA_SYNC_DEVICE_TYPE_BICI
+            bool "Bici Estática"
+    endchoice
+
+    config IA_SYNC_DEVICE_STRING
+        string
+        default "cinta" if IA_SYNC_DEVICE_TYPE_CINTA
+        default "remo" if IA_SYNC_DEVICE_TYPE_REMO
+        default "bici" if IA_SYNC_DEVICE_TYPE_BICI
+
+endmenu

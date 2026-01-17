@@ -23,6 +23,7 @@ static const char *TAG = "Audio";
 
 static int16_t *g_beep_buffer = NULL;
 static esp_codec_dev_handle_t g_speaker_handle = NULL;
+static esp_codec_dev_handle_t g_mic_handle = NULL;
 
 // Queue para solicitudes de beep no-bloqueantes
 static QueueHandle_t g_beep_queue = NULL;
@@ -66,6 +67,11 @@ void audio_play_beep(void)
         // No esperar si la queue está llena - simplemente ignorar
         xQueueSend(g_beep_queue, &beep_req, 0);
     }
+}
+
+esp_codec_dev_handle_t audio_get_mic_handle(void)
+{
+    return g_mic_handle;
 }
 
 void audio_set_volume(uint8_t volume)
@@ -114,6 +120,12 @@ esp_err_t audio_init(void)
     if (g_speaker_handle == NULL) {
         ESP_LOGE(TAG, "Fallo al inicializar el altavoz");
         return ESP_FAIL;
+    }
+
+    g_mic_handle = bsp_audio_codec_microphone_init();
+    if (g_mic_handle == NULL) {
+        ESP_LOGW(TAG, "Fallo al inicializar el micrófono (podómetro acústico)");
+        // No retornamos error fatal aquí para permitir que el sistema de audio (beep) funcione
     }
 
     esp_codec_dev_sample_info_t fs = {

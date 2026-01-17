@@ -170,6 +170,10 @@ static void button_handler_task(void *pvParameter) {
                 ESP_LOGI(TAG, "Physical button (bottom-right) pressed: WAX maintenance placeholder.");
                 // No llamamos a upload_to_itsaso viejo
             }
+            if ((porta_changed & BUTTON_STOP_PIN) && !(porta_state & BUTTON_STOP_PIN)) {
+                // Corresponds to SETTINGS button (4th button on the right)
+                ui_open_settings();
+            }
         } else if (ui_is_main_screen_active()) {
             uint32_t current_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
 

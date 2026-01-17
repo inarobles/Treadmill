@@ -23,7 +23,7 @@
 #include "cm_master.h"  // CM Protocol Master
 #include "ia_sync.h"
 #include "ia_telemetry.h"
-#include "imu_service.h"
+#include "acoustic_service.h"
 #include "slave_ota.h"
 
 
@@ -162,10 +162,10 @@ void app_main(void) {
         ESP_LOGE(TAG, "ia_telemetry_init() failed with error: %d", ret);
     }
 
-    // Initialize IMU Service
-    ret = imu_service_init();
+    // Initialize Acoustic Podometer Service (Microphone)
+    ret = acoustic_service_init();
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "imu_service_init() failed with error: %d", ret);
+        ESP_LOGE(TAG, "acoustic_service_init() failed with error: %d", ret);
     }
 
 

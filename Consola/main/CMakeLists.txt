@@ -10,7 +10,7 @@ idf_component_register(SRCS "main.c"
                       "wifi_manager.c"
                       "cm_master.c"
                       "ia_telemetry.c"
-                      "imu_service.c"
+                      "acoustic_service.c"
                       "icon_main.c"
                       "fonts/chivo_mono_100.c"
                       "fonts/chivo_mono_70.c"
@@ -27,9 +27,19 @@ idf_component_register(SRCS "main.c"
                               esp_lcd_jd9365
                               cm_protocol
                               ia_sync
-                              esptool_py
+                esptool_py
                               esp_driver_i2c
 )
+
+target_compile_definitions(${COMPONENT_LIB} PUBLIC 
+    CONFIG_WIFI_RMT_STATIC_RX_BUFFER_NUM=10
+    CONFIG_WIFI_RMT_DYNAMIC_RX_BUFFER_NUM=32
+    CONFIG_WIFI_RMT_TX_BUFFER_TYPE=1
+    CONFIG_WIFI_RMT_DYNAMIC_RX_MGMT_BUF=1
+    CONFIG_WIFI_RMT_ESPNOW_MAX_ENCRYPT_NUM=7
+    CONFIG_SLAVE_IDF_TARGET_ESP32C6=1
+)
+
 
 # Custom flashing for ESP32-C6 slave firmware
 # The binary is for C6, but we flash it to P4's flash (slave_fw partition)

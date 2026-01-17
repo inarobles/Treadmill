@@ -47,7 +47,7 @@ static const char *TAG = "SLAVE";
 // CONFIGURACIÓN UART (a Consola v2.1)
 // ===========================================================================
 #define UART_PORT_NUM       UART_NUM_1
-#define UART_BAUD_RATE      115200
+#define UART_BAUD_RATE      9600
 #define UART_TX_PIN         17  // Asignación v5
 #define UART_RX_PIN         16  // Asignación v5
 #define UART_BUF_SIZE 512
@@ -71,7 +71,7 @@ static const char *TAG = "SLAVE";
 SemaphoreHandle_t g_speed_mutex;
 static bool g_emergency_state = false;
 static uint64_t g_last_command_time_us = 0;
-#define WATCHDOG_TIMEOUT_US (1000 * 1000) // 1000ms (1 segundo)
+#define WATCHDOG_TIMEOUT_US (3000 * 1000) // 3000ms (3 segundos) para tolerar ruido en alta velocidad
 static float g_real_speed_kmh = 0.0f;
 static float g_target_speed_kmh = 0.0f;
 static float g_real_incline_pct = 0.0f;

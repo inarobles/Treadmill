@@ -6,10 +6,8 @@
 #include "esp_log.h"
 #include "esp_heap_caps.h"
 #include "ia_telemetry.h"
-#include "imu_service.h"
-
+#include "acoustic_service.h"
 #include "treadmill_state.h"
-
 #include "cm_master.h"
 
 static const char *TAG = "IA_TELEMETRY";
@@ -46,8 +44,8 @@ static void telemetry_task(void *pvParameters) {
         }
         xSemaphoreGive(g_state_mutex);
 
-        // Cadence from IMU Service
-        float cadence = imu_service_get_cadence();
+        // Cadence from Acoustic Service
+        float cadence = acoustic_service_get_cadence();
         
         // Calculate stride based on speed and cadence
         // stride (m) = (speed (km/h) / 3.6) / (cadence (spm) / 60)

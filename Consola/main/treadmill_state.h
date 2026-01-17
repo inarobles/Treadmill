@@ -43,7 +43,7 @@ typedef struct {
     volatile uint16_t real_pulse;
     volatile bool ble_connected;
 
-    // IMU Data
+    // Steps/Cadence (from Acoustic/Microphone Service)
     uint32_t steps;
     float cadence;
 
@@ -70,7 +70,9 @@ typedef struct {
     bool weight_entered;         // true if user has entered their weight
 
     // Wax maintenance tracking
-    uint32_t total_running_seconds;  // Total accumulated running time (for wax counter)
+    uint32_t total_running_seconds;      // Total accumulated running time (for wax counter)
+    uint32_t last_wax_timestamp;         // UTC timestamp of the last WAX application
+    double total_running_distance_wax_km; // Total distance since last WAX
 
     // AI Plan Execution
     bool plan_running;              // true if an IA plan is being executed

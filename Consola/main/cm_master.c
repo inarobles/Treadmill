@@ -15,6 +15,7 @@
 #include "esp_timer.h"
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
 static const char *TAG = "CM_MASTER";
 
@@ -113,6 +114,20 @@ static void process_data_response(const char *line) {
     float speed, incline, vfd_freq;
     int vfd_fault, fan_head, fan_chest, incline_fault = 0;
 
+    // Validación de formato: debe tener al menos 5 comas y formato numérico
+    int comma_count = 0;
+    const char *p = line;
+    while (*p) {
+        if (*p == ',') comma_count++;
+        p++;
+    }
+    
+    // Debe tener al menos 5 comas (6 campos mínimo)
+    if (comma_count < 5) {
+        ESP_LOGW(TAG, "Error al parsear DATA (formato inválido): %s", line);
+        return;
+    }
+
     // Intentar parsear formato nuevo (7 campos)
     int parsed = sscanf(line, "DATA=%f,%f,%f,%d,%d,%d,%d",
                         &speed, &incline, &vfd_freq,
@@ -120,7 +135,7 @@ static void process_data_response(const char *line) {
 
     // Compatibilidad con formato antiguo (6 campos)
     if (parsed < 6) {
-        ESP_LOGW(TAG, "Error al parsear DATA: %s", line);
+        ESP_LOGW(TAG, "Error al parsear DATA (campos insuficientes): %s", line);
         return;
     }
 
@@ -332,7 +347,11 @@ esp_err_t cm_master_set_speed(float speed_kmh) {
     // g_real_speed_kmh = speed_kmh;  // REMOVED: Optimistic update causaba oscilación cuando sensor=0
     xSemaphoreGive(g_master_mutex);
 
-    ESP_LOGI(TAG, "Velocidad objetivo: %.2f km/h", speed_kmh);
+    static float last_logged_speed = -1.0f;
+    if (fabsf(speed_kmh - last_logged_speed) > 0.09f) {
+        ESP_LOGI(TAG, "Velocidad objetivo: %.2f km/h", speed_kmh);
+        last_logged_speed = speed_kmh;
+    }
     return ESP_OK;
 }
 
@@ -344,7 +363,11 @@ esp_err_t cm_master_set_incline(float incline_pct) {
     g_target_incline_pct = incline_pct;
     xSemaphoreGive(g_master_mutex);
 
-    ESP_LOGI(TAG, "Inclinación objetivo: %.1f%%", incline_pct);
+    static float last_logged_incline = -1.0f;
+    if (fabsf(incline_pct - last_logged_incline) > 0.09f) {
+        ESP_LOGI(TAG, "Inclinación objetivo: %.1f%%", incline_pct);
+        last_logged_incline = incline_pct;
+    }
     return ESP_OK;
 }
 

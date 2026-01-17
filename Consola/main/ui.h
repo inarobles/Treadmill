@@ -41,6 +41,7 @@ void ui_head_toggle(void);
 void ui_weight_entry(void);
 void ui_back_to_training(void);
 void ui_finish_training(void);
+void ui_open_settings(void);
 
 // --- New WiFi UI Functions ---
 // Defined in ui_wifi.c

@@ -214,7 +214,15 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "WIFI_EVENT_STA_START: Initializing connection process.");
         wifi_manager_get_saved_ssids_ordered(s_saved_networks, WIFI_MANAGER_MAX_NETWORKS, &s_num_saved_networks);
         s_connection_attempt_index = 0;
-        try_next_saved_network();
+        
+        if (s_num_saved_networks > 0) {
+            ESP_LOGI(TAG, "Found %d saved networks. Starting connection attempts...", s_num_saved_networks);
+            try_next_saved_network();
+        } else {
+            ESP_LOGI(TAG, "No saved networks found. Waiting for manual user action.");
+            // Just set the fail bit to unblock wait tasks, but don't trigger ui_open_wifi_list()
+            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+        }
 
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED: Connection failed or lost.");
