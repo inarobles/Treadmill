@@ -7,6 +7,9 @@
 #include "ui.h"
 #include "wifi_client.h" // For upload_to_ina/itsaso
 #include "audio.h"       // For audio_play_beep()
+#include "lvgl.h"
+
+extern lv_obj_t *scr_training_select;  // Needed for BLE/WAX screen back button
 
 static const char *TAG = "ButtonHandler";
 
@@ -139,7 +142,7 @@ static void button_handler_task(void *pvParameter) {
                 ui_select_training(1);  // Botón 1 (climb inc) -> Entrenamiento 1
             }
             if ((portb_changed & BUTTON_CLIMB_SET_PIN) && !(portb_state & BUTTON_CLIMB_SET_PIN)) {
-                ui_select_training(2);  // Botón 2 (climb set) -> Entrenamiento 2
+                ui_open_series_config();  // Botón 2 (climb set) -> Definir Entreno (Series)
             }
             if ((portb_changed & BUTTON_CLIMB_DEC_PIN) && !(portb_state & BUTTON_CLIMB_DEC_PIN)) {
                 ui_select_training(3);  // Botón 3 (climb dec) -> Entrenamiento 3
@@ -304,6 +307,26 @@ static void button_handler_task(void *pvParameter) {
                 ESP_LOGI(TAG, "STOP_RESUME button pressed detected: portb_changed=0x%02X, portb_state=0x%02X, prev_portb_state=0x%02X",
                          portb_changed, portb_state, prev_portb_state);
                 ui_back_to_training();
+            }
+        } else if (ui_is_ble_scan_screen_active() || ui_is_wax_screen_active()) {
+            // In BLE or WAX settings screens, any button acts as "back" to return to training select
+            bool button_pressed = false;
+            
+            if ((porta_changed & BUTTON_SPEED_INC_PIN) && !(porta_state & BUTTON_SPEED_INC_PIN)) button_pressed = true;
+            else if ((porta_changed & BUTTON_SPEED_SET_PIN) && !(porta_state & BUTTON_SPEED_SET_PIN)) button_pressed = true;
+            else if ((porta_changed & BUTTON_SPEED_DEC_PIN) && !(porta_state & BUTTON_SPEED_DEC_PIN)) button_pressed = true;
+            else if ((porta_changed & BUTTON_STOP_PIN) && !(porta_state & BUTTON_STOP_PIN)) button_pressed = true;
+            else if ((porta_changed & BUTTON_COOLDOWN_PIN) && !(porta_state & BUTTON_COOLDOWN_PIN)) button_pressed = true;
+            else if ((portb_changed & BUTTON_CLIMB_INC_PIN) && !(portb_state & BUTTON_CLIMB_INC_PIN)) button_pressed = true;
+            else if ((portb_changed & BUTTON_CLIMB_SET_PIN) && !(portb_state & BUTTON_CLIMB_SET_PIN)) button_pressed = true;
+            else if ((portb_changed & BUTTON_CLIMB_DEC_PIN) && !(portb_state & BUTTON_CLIMB_DEC_PIN)) button_pressed = true;
+            else if ((portb_changed & BUTTON_START_PIN) && !(portb_state & BUTTON_START_PIN)) button_pressed = true;
+            else if ((portb_changed & BUTTON_STOP_RESUME_PIN) && !(portb_state & BUTTON_STOP_RESUME_PIN)) button_pressed = true;
+            
+            if (button_pressed) {
+                audio_play_beep();
+                ESP_LOGI(TAG, "Physical button pressed in BLE/WAX screen - returning to training select");
+                lv_scr_load(scr_training_select);
             }
         } else { // Numpad screen
             char pressed_char = 0;

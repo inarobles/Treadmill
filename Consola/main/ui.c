@@ -1,4 +1,4 @@
-#include "ui.h"
+﻿#include "ui.h"
 #ifndef SIMULATOR
 #include "audio.h"
 #include "wifi_client.h"
@@ -13,10 +13,11 @@
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
+#include "esp_timer.h"
 #ifndef SIMULATOR
-#include "ia_sync.h"
 #include "ia_telemetry.h"
 #endif
+#include "ia_sync.h"
 #include "freertos/task.h"
 #ifndef SIMULATOR
 #include "bsp/esp32_p4_function_ev_board.h"
@@ -25,20 +26,6 @@
 #include "acoustic_service.h"
 #else
 // Stubs para el SIMULADOR (evitar errores de declaración implícita y tipos faltantes)
-typedef struct {
-    char tramo_label[64];
-    char bloque_label[64];
-} ia_block_t;
-
-typedef struct {
-    char plan_id[32];
-    int block_count;
-    ia_block_t blocks[1]; // Suficiente para que compile
-} ia_plan_t;
-
-typedef void (*ia_sync_plan_cb_t)(const ia_plan_t *plan, const char *error_msg);
-typedef void (*ia_sync_report_cb_t)(bool success, const char *error_msg);
-
 extern void audio_set_volume(int volume);
 extern void audio_play_beep(void);
 extern void acoustic_service_set_current_speed(float speed);
@@ -51,8 +38,6 @@ extern float acoustic_service_get_measured_noise(void);
 extern void acoustic_service_set_speed_threshold(uint8_t kmh, float threshold);
 extern void acoustic_service_dump_samples(void);
 extern void bsp_display_brightness_set(int brightness);
-extern esp_err_t ia_sync_get_next_plan(const char *user_name, ia_sync_plan_cb_t callback);
-extern esp_err_t ia_sync_upload_report(const char *user, const char *plan_id, const char *telemetry, ia_sync_report_cb_t callback);
 extern void ia_telemetry_stop_session(void);
 extern const char* ia_telemetry_get_current_report(void);
 extern bool is_internet_connected(void);
@@ -78,7 +63,7 @@ const char *TAG = "UI";  // Accesible desde ui_wifi.c
 
 
 const float COOLDOWN_RAMP_RATE_KMH_S = 10.0f / 120.0f; // Rampa lenta de 2 minutos para el cool down
-const float STOP_RAMP_RATE_KMH_S = 5.0f;    // Rampa rápida para detener/reanudar
+const float STOP_RAMP_RATE_KMH_S = 5.0f;    // Rampa rÃ¡pida para detener/reanudar
 const float COOLDOWN_RESUME_RAMP_RATE_KMH_S = 0.1f; // 0.1 km/h cada segundo para reanudar
 
 static uint32_t last_speed_ramp_update_ms = 0;
@@ -172,13 +157,43 @@ static void load_sensitivity_from_nvs(uint8_t *sens) {
 //==================================================================================
 // 2. PUNTEROS GLOBALES A OBJETOS LVGL
 //==================================================================================
-// -- Pantalla de Selección de Entrenamiento --
+// -- Pantalla de SelecciÃ³n de Entrenamiento --
 lv_obj_t *scr_training_select;  // Accesible desde ui_wifi.c
 static lv_obj_t *btn_training_itsaso;
 static lv_obj_t *label_training_itsaso;
 static lv_obj_t *btn_training_ina;
 static lv_obj_t *label_training_ina;
 static lv_timer_t *wifi_check_timer;
+
+typedef struct {
+    int num_vueltas;
+    struct {
+        float speed;
+        int climb;
+        int duration_secs;
+        bool steps_enabled;
+        int spm;
+        bool sound_enabled;
+    } work;
+    struct {
+        float speed;
+        int climb;
+        int duration_secs;
+        bool steps_enabled;
+        int spm;
+        bool sound_enabled;
+    } rest;
+} series_config_t;
+
+static lv_obj_t *scr_series_config;
+static series_config_t g_series_config;
+static lv_obj_t *label_series_count;
+static lv_obj_t *label_series_work_speed, *label_series_work_climb, *label_series_work_time;
+static lv_obj_t *label_series_work_steps, *label_series_work_spm, *label_series_work_sound;
+static lv_obj_t *btn_series_work_steps, *btn_series_work_sound;
+static lv_obj_t *label_series_rest_speed, *label_series_rest_climb, *label_series_rest_time;
+static lv_obj_t *label_series_rest_steps, *label_series_rest_spm, *label_series_rest_sound;
+static lv_obj_t *btn_series_rest_steps, *btn_series_rest_sound;
 
 // -- Calibration State Machine --
 typedef enum {
@@ -244,7 +259,7 @@ static lv_obj_t *label_status_wax;
 LV_IMG_DECLARE(icon_main);
 
 static ia_plan_t g_current_plan;
-// Botones de velocidad e inclinación (para deshabilitación visual)
+// Botones de velocidad e inclinaciÃ³n (para deshabilitaciÃ³n visual)
 static lv_obj_t *btn_speed_inc;
 static lv_obj_t *btn_speed_set;
 static lv_obj_t *btn_speed_dec;
@@ -259,7 +274,7 @@ static int head_value = 0;
 static bool buttons_are_stop_mode = false;
 static bool showing_weight_in_kcal_field = false;
 
-// Variables para lógica inteligente de entrada de velocidad
+// Variables para lÃ³gica inteligente de entrada de velocidad
 static bool waiting_for_second_digit = false;
 static lv_timer_t *speed_input_timeout_timer = NULL;
 static char first_speed_digit = '\0';
@@ -280,7 +295,6 @@ static lv_obj_t *label_speed_kmh_set;
 static lv_obj_t *label_speed_pace_set;
 static lv_obj_t *label_pulse_set;
 static lv_obj_t *label_kcal_set;
-static lv_obj_t *label_stride_set;
 static lv_obj_t *label_stride_set;
 static lv_obj_t *stride_circle; // Generic pointer, used for creation
 static lv_obj_t *stride_circle_main; // Specific pointer for Main Screen circle (for Step Control)
@@ -303,14 +317,19 @@ static float dist_resolution_m = 10.0f;
 static int current_power_index = 0;
 static double last_dist_ref_km = 0;
 
-// --- Step Control Feature Variables ---
-static void create_step_control_screen(void);
-static lv_obj_t *scr_step_control;
-static lv_obj_t *label_step_control_value;
-static lv_obj_t *btn_step_audio_toggle;
-static lv_obj_t *label_step_audio_toggle;
+// --- Overlay Numpad Variables (for Series Configuration) ---
+static void create_overlay_numpad(lv_obj_t *parent);
+static void _show_overlay_numpad(set_mode_t mode);
+static lv_obj_t *overlay_numpad_container;
+static lv_obj_t *overlay_numpad_bg; // Semi-transparent background
+static lv_obj_t *label_overlay_numpad_value;
+static lv_obj_t *label_overlay_numpad_title;
+static lv_obj_t *label_overlay_numpad_unit;
+static char overlay_numpad_buffer[8] = {0}; 
+static set_mode_t overlay_numpad_mode = SET_MODE_NONE;
+
+// --- Step Control Logic ---
 static int step_control_target_spm = 0; // Steps Per Minute
-static char step_input_buffer[4] = {0}; // Buffer for numpad input
 static bool step_control_audio_enabled = false;
 static lv_timer_t *step_control_timer = NULL;
 static bool step_control_visual_state = false; // true = green, false = transparent
@@ -318,6 +337,13 @@ static bool step_control_visual_state = false; // true = green, false = transpar
 // --- Step Control Logic ---
 static void step_control_timer_cb(lv_timer_t *timer) {
     if (!stride_circle_main) return; // Only animate the Main Screen circle
+
+    // Only enable visual/audio feedback if the treadmill is moving
+    if (g_treadmill_state.speed_kmh <= 0.05f) {
+        lv_obj_set_style_bg_opa(stride_circle_main, LV_OPA_TRANSP, 0);
+        step_control_visual_state = false;
+        return;
+    }
 
     step_control_visual_state = !step_control_visual_state;
 
@@ -328,7 +354,6 @@ static void step_control_timer_cb(lv_timer_t *timer) {
         
         if (step_control_audio_enabled) {
             audio_play_beep();
-            // TODO: A shorter, sharper beep might be better for a metronome
         }
     } else {
         // Transparent (off)
@@ -409,6 +434,7 @@ static void create_main_screen(void);
 static void create_set_screen(void);
 static void create_wax_screen(void);
 static void create_app_settings_screen(void);
+static void create_series_config_screen(void);
 static void _switch_to_set_screen_internal(set_mode_t mode);
 static void _switch_to_main_screen_internal(void);
 static void _update_set_display_text_internal(void);
@@ -478,8 +504,8 @@ static void on_plan_received(const ia_plan_t *plan, const char *error_msg) {
 static void on_report_sent(bool success, const char *error_msg) {
     bsp_display_lock(portMAX_DELAY);
     if (success) {
-        ESP_LOGI(TAG, "Reporte enviado con éxito");
-        set_info_text_persistent("¡Entrenamiento guardado! Buen trabajo.");
+        ESP_LOGI(TAG, "Reporte enviado con Ã©xito");
+        set_info_text_persistent("Â¡Entrenamiento guardado! Buen trabajo.");
         
         xSemaphoreTake(g_state_mutex, portMAX_DELAY);
         g_treadmill_state.has_uploaded = true;
@@ -496,7 +522,7 @@ static void on_report_sent(bool success, const char *error_msg) {
 
 
 //==================================================================================
-// 4. TAREA PRINCIPAL DE ACTUALIZACIÓN
+// 4. TAREA PRINCIPAL DE ACTUALIZACIÃ“N
 //==================================================================================
 static void text_area_clear_timer_cb(lv_timer_t *timer) {
     lv_label_set_text(ta_info, "");
@@ -511,27 +537,24 @@ static void wifi_check_timer_cb(lv_timer_t *timer) {
 
     // 1. Actualizar botones de entrenamiento según Internet
     if (internet_connected) {
-        if (btn_training_itsaso && label_training_itsaso) {
-            lv_obj_add_flag(btn_training_itsaso, LV_OBJ_FLAG_CLICKABLE);
-            lv_obj_set_style_text_color(label_training_itsaso, lv_color_hex(0xFFFFFF), 0);
-            lv_label_set_text(label_training_itsaso, "Definir Entreno");
-        }
         if (btn_training_ina && label_training_ina) {
             lv_obj_add_flag(btn_training_ina, LV_OBJ_FLAG_CLICKABLE);
             lv_obj_set_style_text_color(label_training_ina, lv_color_hex(0xFFFFFF), 0);
             lv_label_set_text(label_training_ina, "Descargar Entreno");
         }
     } else {
-        if (btn_training_itsaso && label_training_itsaso) {
-            lv_obj_clear_flag(btn_training_itsaso, LV_OBJ_FLAG_CLICKABLE);
-            lv_obj_set_style_text_color(label_training_itsaso, lv_color_hex(0x000000), 0);
-            lv_label_set_text(label_training_itsaso, "Conectando...");
-        }
         if (btn_training_ina && label_training_ina) {
             lv_obj_clear_flag(btn_training_ina, LV_OBJ_FLAG_CLICKABLE);
             lv_obj_set_style_text_color(label_training_ina, lv_color_hex(0x000000), 0);
             lv_label_set_text(label_training_ina, "Conectando...");
         }
+    }
+    
+    // El botón Itsaso (Definir Entreno) ya no depende de internet, es local.
+    if (btn_training_itsaso && label_training_itsaso) {
+        lv_obj_add_flag(btn_training_itsaso, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_set_style_text_color(label_training_itsaso, lv_color_hex(0xFFFFFF), 0);
+        lv_label_set_text(label_training_itsaso, "Definir Entreno");
     }
 
     // 2. Actualizar Etiqueta WiFi (Abajo)
@@ -634,13 +657,22 @@ void set_info_text(const char *text) {
     }
 }
 
+// Power Filtering State
+static float last_valid_power = 0.0f;
+static bool power_filter_initialized = false;
+
+// ... (existing code)
+
 void ui_update_task(void *pvParameter) {
     const uint32_t UI_UPDATE_INTERVAL_MS = 100;
 #ifndef SIMULATOR
     acoustic_service_init(); 
 #endif
 
-    uint32_t time_ms_counter = 0;
+    // High resolution timer state
+    int64_t last_time_us = esp_timer_get_time();
+    double accumulated_seconds_fraction = 0.0;
+
     static bool was_stopped = true;
     static int prev_speed_int = -1, prev_speed_frac = -1, prev_climb_int = -1;
     static uint32_t prev_elapsed_seconds = 0xFFFFFFFF;
@@ -658,7 +690,16 @@ void ui_update_task(void *pvParameter) {
             heartbeat_counter = 0;
         }
 
-        uint32_t now = xTaskGetTickCount() * portTICK_PERIOD_MS;
+        // Calculate exact delta time
+        int64_t now_us = esp_timer_get_time();
+        float dt_seconds = (float)(now_us - last_time_us) / 1000000.0f;
+        last_time_us = now_us;
+
+        // Sanity check for dt (to avoid huge jumps after pause/debug)
+        if (dt_seconds > 1.0f) dt_seconds = 1.0f; 
+        
+        uint32_t now = (uint32_t)(now_us / 1000); // Keep existing MS logic for timers
+
         char cal_status_text[64] = "";
         bool update_cal_ui = false;
         bool trigger_locked_msg = false;
@@ -690,8 +731,13 @@ void ui_update_task(void *pvParameter) {
         // 1.1 SIMULATOR LOGIC (Internal state updates)
 #ifdef SIMULATOR
         if (lv_scr_act() == scr_main) { 
-            g_treadmill_state.total_distance_km += 0.00033; // ~12 km/h in real-time increments (approx)
-            g_treadmill_state.elapsed_seconds += 1;
+            // Simulator distance update (simplified)
+            g_treadmill_state.total_distance_km += (g_treadmill_state.speed_kmh / 3600.0f) * dt_seconds;
+            accumulated_seconds_fraction += dt_seconds;
+            if (accumulated_seconds_fraction >= 1.0) {
+                g_treadmill_state.elapsed_seconds += 1;
+                accumulated_seconds_fraction -= 1.0;
+            }
             g_treadmill_state.speed_kmh = 12.0f + 6.0f * sinf(g_treadmill_state.elapsed_seconds * 0.1f);
             g_treadmill_state.climb_percent = 3.0f + 3.0f * cosf(g_treadmill_state.elapsed_seconds * 0.05f);
             g_treadmill_state.weight_entered = true; 
@@ -716,6 +762,9 @@ void ui_update_task(void *pvParameter) {
             g_treadmill_state.speed_kmh = 0.0f;
             xSemaphoreGive(g_state_mutex);
             vTaskDelay(pdMS_TO_TICKS(UI_UPDATE_INTERVAL_MS));
+            
+            // Still update timer even if locked to avoid jump on resume
+            last_time_us = esp_timer_get_time();
             continue;
         }
 
@@ -730,39 +779,129 @@ void ui_update_task(void *pvParameter) {
             }
         } 
         else if (g_treadmill_state.is_resuming) {
-            // Aceleración RESUME: El usuario quiere que la gestione el variador (rampa hardware),
+            // AceleraciÃ³n RESUME: El usuario quiere que la gestione el variador (rampa hardware),
             // eliminando la rampa por software (+0.5 km/h por segundo).
             float target = g_treadmill_state.target_speed;
             cm_master_set_speed(target);
             g_treadmill_state.is_resuming = false;
             g_treadmill_state.ramp_mode = RAMP_MODE_NORMAL;
-            ESP_LOGI(TAG, "Aceleración RESUME enviada directamente al variador: %.2f km/h", target);
+            ESP_LOGI(TAG, "AceleraciÃ³n RESUME enviada directamente al variador: %.2f km/h", target);
         }
 
         // 4. ACCUMULATORS
         if (g_treadmill_state.speed_kmh > 0.0f) {
             if (was_stopped) { was_stopped = false; need_restore_weight_buttons = true; }
-            time_ms_counter += UI_UPDATE_INTERVAL_MS;
-            if (time_ms_counter >= 1000) {
-                time_ms_counter -= 1000;
+            
+            // Time Accumulation (precise)
+            accumulated_seconds_fraction += dt_seconds;
+            if (accumulated_seconds_fraction >= 1.0) {
+                accumulated_seconds_fraction -= 1.0;
+                
                 g_treadmill_state.elapsed_seconds++;
                 g_treadmill_state.total_running_seconds++;
                 static uint32_t nvs_save_counter = 0;
                 if (++nvs_save_counter >= 60) { nvs_save_counter = 0; save_wax_counter_to_nvs(g_treadmill_state.total_running_seconds); }
             }
-            double dist_interval = (double)g_treadmill_state.speed_kmh / 3600.0 * (UI_UPDATE_INTERVAL_MS / 1000.0);
+            
+            // Distance Accumulation (precise based on real speed)
+            double dist_interval = (double)g_treadmill_state.speed_kmh / 3600.0 * dt_seconds;
             g_treadmill_state.total_distance_km += dist_interval;
             g_treadmill_state.total_running_distance_wax_km += dist_interval;
 
-            // Power Metrics
+            // --- EJECUCION DE PLAN IA / SERIES ---
+            if (g_treadmill_state.plan_running) {
+                static double plan_tick_accumulator = 0;
+                plan_tick_accumulator += dt_seconds;
+                if (plan_tick_accumulator >= 1.0) {
+                    plan_tick_accumulator -= 1.0;
+                    g_treadmill_state.block_elapsed_seconds++;
+                    
+                    ia_block_t *cur_block = &g_current_plan.blocks[g_treadmill_state.current_block_idx];
+                    bool finished = false;
+                    if (cur_block->primary_cond_type == IA_CONDITION_TIME) {
+                        if (g_treadmill_state.block_elapsed_seconds >= (uint32_t)cur_block->primary_cond_value) finished = true;
+                    }
+                    if (!finished && cur_block->secondary_cond_s > 0) {
+                        if (g_treadmill_state.block_elapsed_seconds >= cur_block->secondary_cond_s) finished = true;
+                    }
+
+                    if (finished) {
+                        g_treadmill_state.current_block_idx++;
+                        if (g_treadmill_state.current_block_idx < g_current_plan.block_count) {
+                            g_treadmill_state.block_elapsed_seconds = 0;
+                            ia_block_t *next = &g_current_plan.blocks[g_treadmill_state.current_block_idx];
+                            
+                            // Aplicar nuevos objetivos
+                            g_treadmill_state.target_speed = next->target_speed;
+                            g_treadmill_state.target_climb_percent = next->target_incline;
+                            cm_master_set_speed(next->target_speed);
+                            cm_master_set_incline(next->target_incline);
+
+                            // Sincronizar Step Control
+                            step_control_target_spm = (next->steps_enabled) ? next->spm : 0;
+                            step_control_audio_enabled = next->sound_enabled;
+                            update_step_control_timer();
+
+                            // Actualizar info en pantalla
+                            char info_buf[128];
+                            snprintf(info_buf, sizeof(info_buf), "%s\n%s", next->tramo_label, next->bloque_label);
+                            lv_label_set_text(ta_info, info_buf);
+                            
+                            ESP_LOGI(TAG, "Plan: switch to block %d (%s)", g_treadmill_state.current_block_idx, next->bloque_label);
+                        } else {
+                            g_treadmill_state.plan_running = false;
+                            set_info_text("Â¡Entrenamiento finalizado!");
+                        }
+                    }
+                }
+            }
+
+            // Power Metrics with Filtering
             float weight_kg = g_treadmill_state.weight_entered ? g_treadmill_state.user_weight_kg : 75.0f;
             float speed_m_min = g_treadmill_state.speed_kmh * 1000.0f / 60.0f;
             float slope_decimal = g_treadmill_state.climb_percent / 100.0f;
             float vo2 = (0.2f * speed_m_min) + (0.9f * speed_m_min * slope_decimal) + 3.5f;
             float current_power_watts = (vo2 * weight_kg / 1000.0f * 5.0f) * 69.73f * 0.25f;
             
+            // --- POWER SPIKE FILTERING ---
+            // If the jump is unrealistic (> 500W change in 0.1s is likely noise unless starting)
+            // But we allow it to stabilize initially.
+            if (!power_filter_initialized) {
+                last_valid_power = current_power_watts;
+                power_filter_initialized = true;
+            } else {
+                float power_delta = current_power_watts - last_valid_power;
+                const float MAX_POWER_JUMP = 500.0f; 
+                if (fabsf(power_delta) > MAX_POWER_JUMP) {
+                    current_power_watts = last_valid_power + (power_delta > 0 ? 10.0f : -10.0f);
+                    ESP_LOGD(TAG, "Power spike: clamping");
+                }
+                last_valid_power = current_power_watts;
+            }
+            
             power_accumulator += current_power_watts;
             power_sample_count++;
+
+            // --- SUMMARY ACCUMULATORS ---
+            // Energy (Joules) = Power (W) * Time (s)
+            g_treadmill_state.accumulated_energy_joules += current_power_watts * dt_seconds;
+
+            // Heartbeats = (BPM / 60) * dt
+            float hr = (float)(g_treadmill_state.ble_connected ? g_treadmill_state.real_pulse : g_treadmill_state.sim_pulse);
+            g_treadmill_state.accumulated_heartbeats += (hr / 60.0f) * dt_seconds;
+
+            // Elevation Gain (m) = Distance (m) * sin(slope)
+            // slope % = tan(angle) * 100 -> angle = atan(slope/100)
+            // sin(angle) approx tan(angle) for small angles, but let's be precise:
+            // Elev gain = distance_km * 1000 * (climb_percent / 100.0) -> This is "rise" based on horizontal run approx.
+            // On a treadmill, grade usually means Rise / Run. So 10% = 10m rise per 100m horizontal.
+            // Distance measured is usually belt length (hypotenuse), but for gym treadmills dist ~ horizontal.
+            // Let's use standard approximation: Rise = Dist * (Percent/100).
+            if (g_treadmill_state.climb_percent > 0.0f) {
+                 double dist_m = dist_interval * 1000.0;
+                 double elev_m = dist_m * (g_treadmill_state.climb_percent / 100.0);
+                 if (elev_m > 0) g_treadmill_state.accumulated_elevation_gain_m += elev_m;
+            }
 
             double dist_delta_km = g_treadmill_state.total_distance_km - last_dist_ref_km;
             if (dist_delta_km >= (dist_resolution_m / 1000.0)) {
@@ -774,10 +913,48 @@ void ui_update_task(void *pvParameter) {
             }
 
             if (g_treadmill_state.weight_entered) {
-                float kcal = (vo2 * g_treadmill_state.user_weight_kg * (UI_UPDATE_INTERVAL_MS/60000.0f)) / 200.0f;
+                float kcal = (vo2 * g_treadmill_state.user_weight_kg * (dt_seconds/60.0f)) / 200.0f;
                 g_treadmill_state.sim_kcal += kcal;
             }
-        } else { was_stopped = true; time_ms_counter = 0; }
+        } else { 
+            // --- STOPPED STATELOGIC ---
+            if (!was_stopped) {
+                 // TRANSITION TO STOP
+                 was_stopped = true;
+                 power_filter_initialized = false;
+                 
+                 // Show Summary ONLY IF we have significant data (>100m or >1 min) to avoid glitches on startup
+                 if (g_treadmill_state.total_distance_km > 0.05 || g_treadmill_state.total_running_seconds > 30) {
+                     char summary_buf[256];
+                     
+                     // Calculate Averages
+                     double total_time_h = g_treadmill_state.total_running_seconds / 3600.0;
+                     double avg_power = (total_time_h > 0) ? (g_treadmill_state.accumulated_energy_joules / g_treadmill_state.total_running_seconds) : 0;
+                     double avg_hr = (total_time_h > 0) ? (g_treadmill_state.accumulated_heartbeats / (total_time_h * 60.0)) : 0;
+                     double eff_beats_km = (g_treadmill_state.total_distance_km > 0) ? (g_treadmill_state.accumulated_heartbeats / g_treadmill_state.total_distance_km) : 0;
+                     int work_kj = (int)(g_treadmill_state.accumulated_energy_joules / 1000.0);
+                     
+                     uint32_t h = g_treadmill_state.total_running_seconds / 3600; 
+                     uint32_t m = (g_treadmill_state.total_running_seconds % 3600) / 60; 
+                     uint32_t s = g_treadmill_state.total_running_seconds % 60;
+
+                     snprintf(summary_buf, sizeof(summary_buf), 
+                         "RESUMEN:\n"
+                         "D:%.2fkm T:%u:%02u:%02u\n"
+                         "Kcal:%d Trb:%dkJ\n"
+                         "Pot:%.0fW Elv:+%.0fm\n"
+                         "HR:%.0f Efic:%.0fb/km",
+                         g_treadmill_state.total_distance_km, h, m, s,
+                         (int)g_treadmill_state.sim_kcal, work_kj,
+                         avg_power, g_treadmill_state.accumulated_elevation_gain_m,
+                         avg_hr, eff_beats_km
+                     );
+                     
+                     set_info_text_persistent(summary_buf);
+                 }
+            }
+            accumulated_seconds_fraction = 0;
+        }
 
         // 5. CALIBRATION SEQUENCER LOGIC
         bool cal_load_settings = false;
@@ -814,13 +991,13 @@ void ui_update_task(void *pvParameter) {
                     if (!acoustic_service_is_calibrating() || (now - s_cal_state_timer > 15000)) {
                         if (!acoustic_service_is_calibrating()) {
                             float noise = acoustic_service_get_measured_noise();
-                            // Enviamos el ruido base (max deviation). El servicio aplicará el offset de seguridad (+0.12)
+                            // Enviamos el ruido base (max deviation). El servicio aplicarÃ¡ el offset de seguridad (+0.12)
                             acoustic_service_set_speed_threshold((uint8_t)s_cal_current_kmh, noise);
                         } else acoustic_service_set_speed_threshold((uint8_t)s_cal_current_kmh, 0.050f);
                         s_cal_seq = CAL_NEXT_STEP;
                     }
 #else
-                    s_cal_seq = CAL_NEXT_STEP; // En el simulador saltamos rápido
+                    s_cal_seq = CAL_NEXT_STEP; // En el simulador saltamos rÃ¡pido
 #endif
                     break;
                 case CAL_NEXT_STEP:
@@ -907,7 +1084,7 @@ void ui_update_task(void *pvParameter) {
                 int q1_val_m = total_val_m / 4;
                 int q3_val_m = (total_val_m * 3) / 4;
 
-                // Dinámica de etiquetas y colores de línea
+                // DinÃ¡mica de etiquetas y colores de lÃ­nea
                 if (mid_val_m < 1000) {
                     lv_label_set_text(label_mid_dist, "");
                     if (v_line_mid) lv_obj_set_style_bg_color(v_line_mid, lv_color_hex(0x444444), 0);
@@ -1019,18 +1196,18 @@ void ui_update_task(void *pvParameter) {
 }
 
 //==================================================================================
-// 5. ACTUALIZACIÓN VISUAL DE BOTONES
+// 5. ACTUALIZACIÃ“N VISUAL DE BOTONES
 //==================================================================================
 
-// Actualiza la opacidad de los botones +/- y SET según el estado RESUME
+// Actualiza la opacidad de los botones +/- y SET segÃºn el estado RESUME
 static void update_button_states_visual(void) {
-    // Leer estado actual con protección de mutex
+    // Leer estado actual con protecciÃ³n de mutex
     xSemaphoreTake(g_state_mutex, portMAX_DELAY);
     bool is_stopped = g_treadmill_state.is_stopped;
     bool is_cooling_down = g_treadmill_state.is_cooling_down;
     xSemaphoreGive(g_state_mutex);
 
-    // Si hay algún RESUME activo (STOP o COOL DOWN), deshabilitar visualmente +/-, SET
+    // Si hay algÃºn RESUME activo (STOP o COOL DOWN), deshabilitar visualmente +/-, SET
     if (is_stopped || is_cooling_down) {
         // Reducir opacidad al 30% para botones deshabilitados
         lv_obj_set_style_opa(btn_speed_inc, LV_OPA_30, 0);
@@ -1041,8 +1218,8 @@ static void update_button_states_visual(void) {
         lv_obj_set_style_opa(btn_climb_dec, LV_OPA_30, 0);
 
         // NO reducir opacidad de los botones END - deben verse completamente opacos en rojo
-        // Solo deshabilitar el botón contrario (el que no es END)
-        // El botón END mantiene su opacidad completa para que se vea el rojo brillante
+        // Solo deshabilitar el botÃ³n contrario (el que no es END)
+        // El botÃ³n END mantiene su opacidad completa para que se vea el rojo brillante
     } else {
         // Restaurar opacidad completa
         lv_obj_set_style_opa(btn_speed_inc, LV_OPA_COVER, 0);
@@ -1157,7 +1334,7 @@ void ui_finish_training(void) {
     g_treadmill_state.is_cooling_down = false;
     g_treadmill_state.is_resuming = false;
     g_treadmill_state.ramp_mode = RAMP_MODE_NORMAL;
-    // NO resetear elapsed_seconds ni total_distance_km - solo el botón "Puesta a cero" debe hacer eso
+    // NO resetear elapsed_seconds ni total_distance_km - solo el botÃ³n "Puesta a cero" debe hacer eso
     bool should_show_upload = g_treadmill_state.has_run_minimum_time &&
                               !g_treadmill_state.has_uploaded &&
                               (g_treadmill_state.selected_training == 2 || g_treadmill_state.selected_training == 3);
@@ -1174,12 +1351,12 @@ void ui_finish_training(void) {
 
     if (should_show_upload) {
         lv_obj_clear_flag(btn_upload_training, LV_OBJ_FLAG_HIDDEN);
-        ESP_LOGI(TAG, "Mostrando botón UPLOAD en pantalla inicial (desde END)");
+        ESP_LOGI(TAG, "Mostrando botÃ³n UPLOAD en pantalla inicial (desde END)");
     } else {
         lv_obj_add_flag(btn_upload_training, LV_OBJ_FLAG_HIDDEN);
     }
 
-    // Volver a la pantalla de selección de entrenamiento
+    // Volver a la pantalla de selecciÃ³n de entrenamiento
     lv_scr_load(scr_training_select);
 
     // Recrear timer WiFi
@@ -1228,7 +1405,7 @@ static void ui_stop_from_cooldown(void) {
     
     cm_master_set_speed(0.0f);
 
-    // --- ACTUALIZACIÓN DE UI A MODO PAUSA ---
+    // --- ACTUALIZACIÃ“N DE UI A MODO PAUSA ---
     lv_label_set_text(label_stop_btn, "RESUME");
     lv_label_set_text(label_cooldown_btn, "END");
     
@@ -1240,7 +1417,7 @@ static void ui_stop_from_cooldown(void) {
     lv_obj_remove_event_cb(btn_cooldown, stop_from_cooldown_event_cb);
     lv_obj_add_event_cb(btn_cooldown, end_event_cb, LV_EVENT_CLICKED, NULL);
     
-    // Estilo rojo para el botón END (tal cual hace el STOP normal)
+    // Estilo rojo para el botÃ³n END (tal cual hace el STOP normal)
     lv_obj_set_style_bg_color(btn_cooldown, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(btn_cooldown, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(label_cooldown_btn, lv_color_hex(0xFFFFFF), 0);
@@ -1286,7 +1463,7 @@ static void upload_training_event_cb(lv_event_t *e) {
     // Cambiar a pantalla de subida
     lv_scr_load(scr_uploading);
 
-    // Parar telemetría y obtener el reporte HD
+    // Parar telemetrÃ­a y obtener el reporte HD
     ia_telemetry_stop_session();
     const char *telemetry_hd = ia_telemetry_get_current_report();
 
@@ -1330,50 +1507,14 @@ static void calibration_event_cb(lv_event_t *e) {
         cm_master_set_training_mode(true);
     } else if (code == LV_EVENT_LONG_PRESSED) {
         audio_play_beep();
-        // Disparar captura de audio para diagnóstico por puerto serie
+        // Disparar captura de audio para diagnÃ³stico por puerto serie
         acoustic_service_dump_samples();
         set_info_text("Capturando 2s de audio... Revisa el monitor serie.");
     }
 }
 
-static void step_control_event_cb(lv_event_t *e) {
-    audio_play_beep();
-    // Initialize buffer and target
-    memset(step_input_buffer, 0, sizeof(step_input_buffer));
-    step_control_target_spm = 0; 
-    
-    // Create screen if it doesn't exist (or just load it, we'll recreate every time to be safe/simple or check if NULL)
-    // For now, let's assume we create it dynamically or it's static. 
-    // Given the pattern, we usually create screens in `ui_init` or on demand. 
-    // Let's create it on demand to save memory if not used, or just create it.
-    // The existing pattern seems to be mixed. `create_app_settings_screen` is called in `ui_init`?
-    // Let's check `ui_init`.
-    // Actually, `create_app_settings_screen` is called effectively.
-    // Let's just create it here if NULL, or assume it's created.
-    // Better: call a create function or load it.
-    
-    // Implementation:
-    if (!scr_step_control) {
-        create_step_control_screen();
-    }
-    
-    // Update label to initial state
-    lv_label_set_text(label_step_control_value, "0");
-    
-    // Update audio toggle visual state
-    if (step_control_audio_enabled) {
-         lv_obj_set_style_bg_color(btn_step_audio_toggle, lv_color_hex(0x00AA00), 0); // Greenish
-         lv_label_set_text(label_step_audio_toggle, "SONIDO: ON");
-    } else {
-         lv_obj_set_style_bg_color(btn_step_audio_toggle, lv_color_hex(0x444444), 0); // Dark
-         lv_label_set_text(label_step_audio_toggle, "SONIDO: OFF");
-    }
-
-    lv_scr_load(scr_step_control);
-}
-
 //==================================================================================
-// 6. FUNCIONES DE CREACIÓN DE INTERFAZ
+// 6. FUNCIONES DE CREACIÃ“N DE INTERFAZ
 //==================================================================================
 static lv_style_t style_title, style_title_column, style_value_main, style_value_secondary, style_unit, style_value_extra_large, style_btn_symbol, style_btn_text, style_btn_premium, style_btn_text_disabled, style_btn_premium_disabled;
 static void create_styles(void) {
@@ -1400,7 +1541,7 @@ static void create_styles(void) {
     lv_style_set_text_color(&style_btn_text, lv_color_hex(0xFFFFFF)); // Blanco por defecto
 
     lv_style_init(&style_btn_text_disabled);
-    lv_style_set_text_color(&style_btn_text_disabled, lv_color_hex(0x000000)); // Negro cuando está desactivo
+    lv_style_set_text_color(&style_btn_text_disabled, lv_color_hex(0x000000)); // Negro cuando estÃ¡ desactivo
     lv_style_set_text_opa(&style_btn_text_disabled, LV_OPA_COVER); // Sin difuminado
 
     lv_style_init(&style_btn_symbol);
@@ -1490,7 +1631,7 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     lv_obj_set_width(unit_kcal, 250);
     lv_obj_set_style_text_align(unit_kcal, LV_TEXT_ALIGN_RIGHT, 0);
 
-    // Guardar referencias según la pantalla
+    // Guardar referencias segÃºn la pantalla
     if (parent == scr_main) {
         unit_kcal_main = unit_kcal;
         stride_circle_main = stride_circle; // Capture the main screen circle
@@ -1513,7 +1654,7 @@ static UIPanels create_common_ui_elements(lv_obj_t *parent) {
     lv_obj_set_width(unit_dist, 300);
     lv_obj_set_style_text_align(unit_dist, LV_TEXT_ALIGN_RIGHT, 0);
 
-    // --- COLUMNA DE INCLINACIÓN (CLIMB) --- - Subido 4mm (22px)
+    // --- COLUMNA DE INCLINACIÃ“N (CLIMB) --- - Subido 4mm (22px)
     lv_obj_t *label_climb_title = lv_label_create(parent);
     lv_obj_add_style(label_climb_title, &style_title_column, 0);
     lv_obj_set_style_text_color(label_climb_title, lv_color_hex(0x888888), 0); // Gray like "Percent"
@@ -1734,7 +1875,7 @@ static void create_ble_scan_screen(void) {
 }
 
 
-// CALLBACKS PARA PANTALLA DE SELECCIÓN DE ENTRENAMIENTO
+// CALLBACKS PARA PANTALLA DE SELECCIÃ“N DE ENTRENAMIENTO
 //==================================================================================
 /*
 static void upload_event_cb(lv_event_t *e) {
@@ -1774,7 +1915,7 @@ static void back_to_training_select_event_cb(lv_event_t *e) {
     xSemaphoreTake(g_state_mutex, portMAX_DELAY);
     g_treadmill_state.plan_running = false;
     xSemaphoreGive(g_state_mutex);
-    ESP_LOGI(TAG, "Saliendo de pantalla principal - Training mode, Telemetría y Plan desactivados");
+    ESP_LOGI(TAG, "Saliendo de pantalla principal - Training mode, TelemetrÃ­a y Plan desactivados");
 
     // Limpiar timer de WiFi si existe
     if (wifi_check_timer) {
@@ -1784,7 +1925,7 @@ static void back_to_training_select_event_cb(lv_event_t *e) {
     // Resetear timestamp WiFi
     wifi_connected_timestamp = 0;
 
-    // Verificar si se debe mostrar el botón UPLOAD al volver a la pantalla inicial
+    // Verificar si se debe mostrar el botÃ³n UPLOAD al volver a la pantalla inicial
     xSemaphoreTake(g_state_mutex, portMAX_DELAY);
     bool should_show_upload = g_treadmill_state.has_run_minimum_time &&
                               !g_treadmill_state.has_uploaded &&
@@ -1793,7 +1934,7 @@ static void back_to_training_select_event_cb(lv_event_t *e) {
 
     if (should_show_upload) {
         lv_obj_clear_flag(btn_upload_training, LV_OBJ_FLAG_HIDDEN);
-        ESP_LOGI(TAG, "Mostrando botón UPLOAD en pantalla inicial");
+        ESP_LOGI(TAG, "Mostrando botÃ³n UPLOAD en pantalla inicial");
     } else {
         lv_obj_add_flag(btn_upload_training, LV_OBJ_FLAG_HIDDEN);
     }
@@ -1879,22 +2020,32 @@ static void training_free_event_cb(lv_event_t *e) {
 
 static void training_itsaso_event_cb(lv_event_t *e) {
     audio_play_beep();
-    ESP_LOGI(TAG, "Entrenamiento Itsaso seleccionado - iniciando descarga");
-
-    // Limpiar timer de WiFi
-    if (wifi_check_timer) {
-        lv_timer_del(wifi_check_timer);
-        wifi_check_timer = NULL;
+    
+    // Initialize defaults for the configuration if it's the first time
+    if (g_series_config.num_vueltas == 0) {
+        g_series_config.num_vueltas = 1;
+        g_series_config.work.speed = 10.0f;
+        g_series_config.work.climb = 0;
+        g_series_config.work.duration_secs = 60;
+        g_series_config.work.steps_enabled = false;
+        g_series_config.work.spm = 180;
+        g_series_config.work.sound_enabled = false;
+        
+        g_series_config.rest.speed = 5.0f;
+        g_series_config.rest.climb = 0;
+        g_series_config.rest.duration_secs = 30;
+        g_series_config.rest.steps_enabled = false;
+        g_series_config.rest.spm = 120;
+        g_series_config.rest.sound_enabled = false;
     }
 
-    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
-    g_treadmill_state.selected_training = 2;
-    g_treadmill_state.has_run_minimum_time = false;
-    g_treadmill_state.has_uploaded = false;
-    g_treadmill_state.has_shown_welcome_message = false;
-    xSemaphoreGive(g_state_mutex);
-    lv_scr_load(scr_loading);
-    ia_sync_get_next_plan("Itsaso", on_plan_received);
+    if (!scr_series_config) {
+        create_series_config_screen();
+    } else {
+        // Update the label if screen already exists
+        lv_label_set_text_fmt(label_series_count, "%d", g_series_config.num_vueltas);
+    }
+    lv_scr_load(scr_series_config);
 }
 
 static void training_ina_event_cb(lv_event_t *e) {
@@ -1942,7 +2093,7 @@ static void reset_training_event_cb(lv_event_t *e) {
     g_treadmill_state.target_speed = 0.0f;
     g_treadmill_state.speed_before_stop = 0.0f;
     
-    // Si hay un plan en ejecución, lo reseteamos también
+    // Si hay un plan en ejecuciÃ³n, lo reseteamos tambiÃ©n
     g_treadmill_state.plan_running = false;
     g_treadmill_state.current_block_idx = 0;
     g_treadmill_state.block_elapsed_seconds = 0;
@@ -2013,7 +2164,7 @@ static void reset_training_event_cb(lv_event_t *e) {
 }
 
 //==================================================================================
-// CREACIÓN DE PANTALLA DE SELECCIÓN
+// CREACIÃ“N DE PANTALLA DE SELECCIÃ“N
 //==================================================================================
 static void create_training_select_screen(void) {
     scr_training_select = lv_obj_create(NULL);
@@ -2038,7 +2189,7 @@ static void create_training_select_screen(void) {
     lv_obj_set_style_pad_bottom(btn_container, margin, 0);
     lv_obj_set_style_pad_gap(btn_container, 20, 0);
 
-    // Botón 1: Entrenamiento libre
+    // BotÃ³n 1: Entrenamiento libre
     btn = lv_btn_create(btn_container);
     lv_obj_set_size(btn, left_btn_w, btn_h);
     lv_obj_add_style(btn, &style_btn_premium, 0); 
@@ -2058,12 +2209,12 @@ static void create_training_select_screen(void) {
     label_training_itsaso = lv_label_create(btn_training_itsaso);
     lv_obj_add_style(label_training_itsaso, &style_btn_text, 0);
     lv_obj_set_style_bg_opa(label_training_itsaso, 0, 0); 
-    lv_label_set_text(label_training_itsaso, "Conectando...");
+    lv_label_set_text(label_training_itsaso, "Definir Entreno");
     lv_obj_center(label_training_itsaso);
-    lv_obj_clear_flag(btn_training_itsaso, LV_OBJ_FLAG_CLICKABLE); // Deshabilitado lógicamente
-    lv_obj_set_style_text_color(label_training_itsaso, lv_color_hex(0x000000), 0); // Negro inicial
+    lv_obj_add_flag(btn_training_itsaso, LV_OBJ_FLAG_CLICKABLE); // Ahora siempre disponible
+    lv_obj_set_style_text_color(label_training_itsaso, lv_color_hex(0xFFFFFF), 0); // Blanco inicial
 
-    // Botón 3: Entrenamiento Ina
+    // BotÃ³n 3: Entrenamiento Ina
     btn_training_ina = lv_btn_create(btn_container);
     lv_obj_set_size(btn_training_ina, left_btn_w, btn_h);
     lv_obj_add_style(btn_training_ina, &style_btn_premium, 0); 
@@ -2074,10 +2225,10 @@ static void create_training_select_screen(void) {
     lv_obj_set_style_bg_opa(label_training_ina, 0, 0); 
     lv_label_set_text(label_training_ina, "Conectando...");
     lv_obj_center(label_training_ina);
-    lv_obj_clear_flag(btn_training_ina, LV_OBJ_FLAG_CLICKABLE); // Deshabilitado lógicamente
+    lv_obj_clear_flag(btn_training_ina, LV_OBJ_FLAG_CLICKABLE); // Deshabilitado lÃ³gicamente
     lv_obj_set_style_text_color(label_training_ina, lv_color_hex(0x000000), 0); // Negro inicial
 
-    // Botón 4: Puesta a cero (idéntico en tamaño y diseño)
+    // BotÃ³n 4: Puesta a cero (idÃ©ntico en tamaÃ±o y diseÃ±o)
     btn = lv_btn_create(btn_container);
     lv_obj_set_size(btn, left_btn_w, btn_h);
     lv_obj_add_style(btn, &style_btn_premium, 0); 
@@ -2148,7 +2299,7 @@ static void create_training_select_screen(void) {
     lv_obj_add_style(btn_upload_training, &style_btn_premium, 0); 
     lv_obj_add_style(btn_upload_training, &style_btn_premium_disabled, LV_STATE_DISABLED); 
     lv_obj_add_event_cb(btn_upload_training, upload_training_event_cb, LV_EVENT_CLICKED, NULL);
-    // Aplicar color rojo sólido
+    // Aplicar color rojo sÃ³lido
     lv_obj_set_style_bg_color(btn_upload_training, lv_color_hex(0xCC0000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(btn_upload_training, lv_color_hex(0xCC0000), LV_PART_MAIN | LV_STATE_DISABLED);
     lv_obj_set_style_opa(btn_upload_training, LV_OPA_COVER, LV_STATE_DISABLED); // Forzar opacidad total
@@ -2190,7 +2341,7 @@ static void create_training_select_screen(void) {
 }
 
 //==================================================================================
-// CREACIÓN DE PANTALLA DE CARGA
+// CREACIÃ“N DE PANTALLA DE CARGA
 //==================================================================================
 static void create_loading_screen(void) {
     scr_loading = lv_obj_create(NULL);
@@ -2258,11 +2409,11 @@ static void create_main_screen(void) {
     lv_obj_set_style_pad_all(dark_box, 0, 0); // Crucial for pixel-perfect alignment
     lv_obj_clear_flag(dark_box, LV_OBJ_FLAG_SCROLLABLE);
 
-    // División en 100 franjas (99 líneas) - Todas exactamente iguales (8px de espacio + 1px de línea)
+    // DivisiÃ³n en 100 franjas (99 lÃ­neas) - Todas exactamente iguales (8px de espacio + 1px de lÃ­nea)
     for (int i = 1; i < 100; i++) {
         lv_obj_t *v_line = lv_obj_create(dark_box);
         lv_obj_set_size(v_line, 1, 190);
-        lv_obj_set_pos(v_line, i * 9 - 1, 0); // Stride de 9px garantiza 8px de espacio entre líneas
+        lv_obj_set_pos(v_line, i * 9 - 1, 0); // Stride de 9px garantiza 8px de espacio entre lÃ­neas
         
         // Initial setup for scale 1km: all lines dark gray
         lv_obj_set_style_bg_color(v_line, lv_color_hex(0x444444), 0);
@@ -2287,9 +2438,9 @@ static void create_main_screen(void) {
         lv_obj_set_pos(power_dots[i], i * 9 + 2, 0); 
     }
 
-    // Crear la línea continua que une los puntos
+    // Crear la lÃ­nea continua que une los puntos
     power_line = lv_line_create(dark_box);
-    lv_obj_set_style_line_width(power_line, 1, 0); // Línea fina
+    lv_obj_set_style_line_width(power_line, 1, 0); // LÃ­nea fina
     lv_obj_set_style_line_color(power_line, lv_color_hex(0x00FF00), 0); // Mismo verde
     lv_obj_set_style_line_opa(power_line, LV_OPA_COVER, 0);
     lv_obj_add_flag(power_line, LV_OBJ_FLAG_HIDDEN); // Oculta al inicio
@@ -2336,7 +2487,7 @@ static void create_main_screen(void) {
     btn_climb_set = lv_btn_create(left_col); lv_obj_set_size(btn_climb_set, btn_w, btn_h); lv_obj_add_style(btn_climb_set, &style_btn_premium, 0); lv_obj_add_style(btn_climb_set, &style_btn_premium_disabled, LV_STATE_DISABLED); lv_obj_add_event_cb(btn_climb_set, set_climb_event_cb, LV_EVENT_CLICKED, NULL); l = lv_label_create(btn_climb_set); lv_obj_add_style(l, &style_btn_text, 0); lv_label_set_text(l, "SELEC"); lv_obj_center(l);
     btn_climb_dec = lv_btn_create(left_col); lv_obj_set_size(btn_climb_dec, btn_w, btn_h); lv_obj_add_style(btn_climb_dec, &style_btn_premium, 0); lv_obj_add_style(btn_climb_dec, &style_btn_premium_disabled, LV_STATE_DISABLED); lv_obj_add_event_cb(btn_climb_dec, climb_dec_event_cb, LV_EVENT_CLICKED, NULL); l = lv_label_create(btn_climb_dec); lv_obj_add_style(l, &style_btn_symbol, 0); lv_label_set_text(l, LV_SYMBOL_MINUS); lv_obj_center(l);
 
-    // Botón CHEST
+    // BotÃ³n CHEST
     btn = lv_btn_create(left_col);
     lv_obj_set_size(btn, btn_w, btn_h);
     lv_obj_add_style(btn, &style_btn_premium, 0);
@@ -2350,18 +2501,18 @@ static void create_main_screen(void) {
     lv_obj_set_style_bg_opa(l, 0, 0); // Asegurar que el label no tenga fondo (evita recuadro gris)
     lv_label_set_text(l, "VENT.\nPECHO");
     lv_obj_set_style_text_align(l, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_add_flag(l, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botón
+    lv_obj_add_flag(l, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botÃ³n
     label_chest_value = lv_label_create(btn);
     lv_obj_add_style(label_chest_value, &style_btn_text, 0);
     lv_label_set_text(label_chest_value, "0");
-    lv_obj_add_flag(label_chest_value, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botón
+    lv_obj_add_flag(label_chest_value, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botÃ³n
 
     btn_stop = lv_btn_create(left_col); lv_obj_set_size(btn_stop, btn_w, btn_h); lv_obj_add_style(btn_stop, &style_btn_premium, 0); lv_obj_add_style(btn_stop, &style_btn_premium_disabled, LV_STATE_DISABLED);
     label_stop_btn = lv_label_create(btn_stop);
     lv_obj_add_style(label_stop_btn, &style_btn_text, 0);
     lv_label_set_text(label_stop_btn, "STOP");
     lv_obj_center(label_stop_btn);
-    // Callback se añadirá después según weight_entered
+    // Callback se aÃ±adirÃ¡ despuÃ©s segÃºn weight_entered
 
     lv_obj_t * right_col = lv_obj_create(scr_main);
     lv_obj_remove_style_all(right_col);
@@ -2377,7 +2528,7 @@ static void create_main_screen(void) {
     btn_speed_set = lv_btn_create(right_col); lv_obj_set_size(btn_speed_set, btn_w, btn_h); lv_obj_add_style(btn_speed_set, &style_btn_premium, 0); lv_obj_add_style(btn_speed_set, &style_btn_premium_disabled, LV_STATE_DISABLED); lv_obj_add_event_cb(btn_speed_set, set_speed_event_cb, LV_EVENT_CLICKED, NULL); l = lv_label_create(btn_speed_set); lv_obj_add_style(l, &style_btn_text, 0); lv_label_set_text(l, "SELEC"); lv_obj_center(l);
     btn_speed_dec = lv_btn_create(right_col); lv_obj_set_size(btn_speed_dec, btn_w, btn_h); lv_obj_add_style(btn_speed_dec, &style_btn_premium, 0); lv_obj_add_style(btn_speed_dec, &style_btn_premium_disabled, LV_STATE_DISABLED); lv_obj_add_event_cb(btn_speed_dec, speed_dec_event_cb, LV_EVENT_ALL, NULL); l = lv_label_create(btn_speed_dec); lv_obj_add_style(l, &style_btn_symbol, 0); lv_label_set_text(l, LV_SYMBOL_MINUS); lv_obj_center(l);
 
-    // Botón HEAD
+    // BotÃ³n HEAD
     btn = lv_btn_create(right_col);
     lv_obj_set_size(btn, btn_w, btn_h);
     lv_obj_add_style(btn, &style_btn_premium, 0);
@@ -2391,11 +2542,11 @@ static void create_main_screen(void) {
     lv_obj_set_style_bg_opa(l, 0, 0); // Asegurar que el label no tenga fondo (evita recuadro gris)
     lv_label_set_text(l, "VENT.\nCARA");
     lv_obj_set_style_text_align(l, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_add_flag(l, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botón
+    lv_obj_add_flag(l, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botÃ³n
     label_head_value = lv_label_create(btn);
     lv_obj_add_style(label_head_value, &style_btn_text, 0);
     lv_label_set_text(label_head_value, "0");
-    lv_obj_add_flag(label_head_value, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botón
+    lv_obj_add_flag(label_head_value, LV_OBJ_FLAG_EVENT_BUBBLE);  // Permitir que eventos pasen al botÃ³n
 
     btn_cooldown = lv_btn_create(right_col); lv_obj_set_size(btn_cooldown, btn_w, btn_h); lv_obj_add_style(btn_cooldown, &style_btn_premium, 0); lv_obj_add_style(btn_cooldown, &style_btn_premium_disabled, LV_STATE_DISABLED);
     label_cooldown_btn = lv_label_create(btn_cooldown);
@@ -2433,7 +2584,7 @@ static void create_set_screen(void) {
     label_stride_set = panels.stride_label;
     ta_info_set = panels.info_label;
 
-    // --- Creación del teclado numérico ---
+    // --- CreaciÃ³n del teclado numÃ©rico ---
     const int btn_w = 120, btn_h = 136;
     const int margin = 20;
     lv_obj_t *btn, *l;
@@ -2491,7 +2642,7 @@ static void create_wax_screen(void) {
     lv_obj_clear_flag(scr_wax, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_bg_color(scr_wax, lv_color_black(), 0);
 
-    // Título
+    // TÃ­tulo
     lv_obj_t *title = lv_label_create(scr_wax);
     lv_obj_add_style(title, &style_title, 0);
     lv_label_set_text(title, "MANTENIMIENTO WAX");
@@ -2578,7 +2729,7 @@ static void create_wax_screen(void) {
     lv_label_set_text(l_stop, "PARAR CINTA");
     lv_obj_center(l_stop);
 
-    // Botón Volver (más abajo, mismo tamaño que los de control)
+    // BotÃ³n Volver (mÃ¡s abajo, mismo tamaÃ±o que los de control)
     btn_wax_back = lv_btn_create(scr_wax);
     lv_obj_set_size(btn_wax_back, 240, 70); // Identical to others
     lv_obj_add_style(btn_wax_back, &style_btn_premium, 0);
@@ -2603,14 +2754,14 @@ static void create_shutdown_screen(void) {
     lv_obj_t *label = lv_label_create(scr_shutdown);
     lv_obj_set_style_text_color(label, lv_color_white(), 0);
     lv_obj_set_style_text_font(label, &lv_font_montserrat_32, 0);
-    lv_label_set_text(label, "Entrenamiento enviado con éxito,\npuedes apagar la cinta con seguridad.");
+    lv_label_set_text(label, "Entrenamiento enviado con Ã©xito,\npuedes apagar la cinta con seguridad.");
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_center(label);
 }
 
 
 //==================================================================================
-// 7. FUNCIONES DE GESTIÓN DE PANTALLA Y CURSOR
+// 7. FUNCIONES DE GESTIÃ“N DE PANTALLA Y CURSOR
 //==================================================================================
 
 // Callback para timeout de entrada de velocidad (5 segundos)
@@ -2627,40 +2778,44 @@ static void speed_input_timeout_cb(lv_timer_t *timer) {
 
     g_treadmill_state.set_digit_index = 1;
     
-    // Confirmar automáticamente
+    // Confirmar automÃ¡ticamente
     ui_confirm_set_value();
 }
 
 static void _update_set_display_text_internal(void) {
     char display_buf[10];
+    char d1 = (g_treadmill_state.set_digit_index > 0) ? g_treadmill_state.set_buffer[0] : '-';
+    char d2 = (g_treadmill_state.set_digit_index > 1) ? g_treadmill_state.set_buffer[1] : '-';
+    char d3 = (g_treadmill_state.set_digit_index > 2) ? g_treadmill_state.set_buffer[2] : '-';
 
-    if (g_treadmill_state.set_mode == SET_MODE_WEIGHT || g_treadmill_state.set_mode == SET_MODE_CLIMB) {
-        // Para peso e inclinación usamos 2 dígitos (decenas y unidades)
-        char d1 = (g_treadmill_state.set_digit_index > 0) ? g_treadmill_state.set_buffer[0] : '-';
-        char d2 = (g_treadmill_state.set_digit_index > 1) ? g_treadmill_state.set_buffer[1] : '-';
+    char cursor = g_treadmill_state.blink_state ? '_' : ' ';
+    if (g_treadmill_state.set_digit_index == 0) d1 = cursor;
+    else if (g_treadmill_state.set_digit_index == 1) d2 = cursor;
+    else if (g_treadmill_state.set_digit_index == 2) d3 = cursor;
 
-        char cursor = g_treadmill_state.blink_state ? '-' : ' ';
-        if (g_treadmill_state.set_digit_index == 0) d1 = cursor;
-        else if (g_treadmill_state.set_digit_index == 1) d2 = cursor;
-
+    if (g_treadmill_state.set_mode == SET_MODE_WEIGHT) {
         sprintf(display_buf, "%c%c", d1, d2);
-
-        if (g_treadmill_state.set_mode == SET_MODE_WEIGHT) {
-            lv_label_set_text(label_kcal_set, display_buf);  // Mostramos el peso en el campo de kcal
-        } else {
-            lv_label_set_text(label_climb_percent_set, display_buf);  // Mostramos inclinación
-        }
-    } else {
-        // Para velocidad usamos 2 dígitos sin decimal
-        char d1 = (g_treadmill_state.set_digit_index > 0) ? g_treadmill_state.set_buffer[0] : '-';
-        char d2 = (g_treadmill_state.set_digit_index > 1) ? g_treadmill_state.set_buffer[1] : '-';
-
-        char cursor = g_treadmill_state.blink_state ? '-' : ' ';
-        if (g_treadmill_state.set_digit_index == 0) d1 = cursor;
-        else if (g_treadmill_state.set_digit_index == 1) d2 = cursor;
-
+        lv_label_set_text(label_kcal_set, display_buf);
+    } 
+    else if (g_treadmill_state.set_mode == SET_MODE_CLIMB || g_treadmill_state.set_mode == SET_MODE_SERIES_WORK_CLIMB || g_treadmill_state.set_mode == SET_MODE_SERIES_REST_CLIMB) {
+        sprintf(display_buf, "%c%c", d1, d2);
+        lv_label_set_text(label_climb_percent_set, display_buf);
+    }
+    else if (g_treadmill_state.set_mode == SET_MODE_SPEED || g_treadmill_state.set_mode == SET_MODE_SERIES_WORK_SPEED || g_treadmill_state.set_mode == SET_MODE_SERIES_REST_SPEED) {
         sprintf(display_buf, "%c%c", d1, d2);
         lv_label_set_text(label_speed_kmh_set, display_buf);
+    }
+    else if (g_treadmill_state.set_mode == SET_MODE_SERIES_WORK_TIME || g_treadmill_state.set_mode == SET_MODE_SERIES_REST_TIME) {
+        // Time uses 3 digits
+        sprintf(display_buf, "%c%c%c", d1, d2, d3);
+        // Note: we don't have a label_time_set that looks like "--:--:--" for digit-by-digit entry easily
+        // but we can use label_time_set and show the seconds there.
+        lv_label_set_text(label_time_set, display_buf);
+    }
+    else if (g_treadmill_state.set_mode == SET_MODE_SERIES_WORK_SPM || g_treadmill_state.set_mode == SET_MODE_SERIES_REST_SPM) {
+        // SPM uses 3 digits
+        sprintf(display_buf, "%c%c%c", d1, d2, d3);
+        lv_label_set_text(label_stride_set, display_buf);
     }
 }
 
@@ -2692,9 +2847,31 @@ static void _switch_to_set_screen_internal(set_mode_t mode) {
         lv_label_set_text(unit_kcal_set, "Kcal");
     } else if (mode == SET_MODE_WEIGHT) {
         lv_label_set_text(ta_info_set, "Introduce tu peso (2 digitos: decenas y unidades).");
-        // El peso se muestra en label_kcal_set mediante _update_set_display_text_internal()
-        // Cambiar la unidad a "kg"
         lv_label_set_text(unit_kcal_set, "kg");
+    } else if (mode == SET_MODE_SERIES_WORK_SPEED) {
+        lv_label_set_text(ta_info_set, "Introduce VELOCIDAD de TRABAJO (km/h).");
+        lv_label_set_text(unit_kcal_set, "Kcal");
+    } else if (mode == SET_MODE_SERIES_WORK_CLIMB) {
+        lv_label_set_text(ta_info_set, "Introduce INCLINACION de TRABAJO (%).");
+        lv_label_set_text(unit_kcal_set, "Kcal");
+    } else if (mode == SET_MODE_SERIES_WORK_TIME) {
+        lv_label_set_text(ta_info_set, "Introduce TIEMPO de TRABAJO (segundos).");
+        lv_label_set_text(unit_kcal_set, "Kcal");
+    } else if (mode == SET_MODE_SERIES_WORK_SPM) {
+        lv_label_set_text(ta_info_set, "Introduce CADENCIA de TRABAJO (SPM).");
+        lv_label_set_text(unit_kcal_set, "Kcal");
+    } else if (mode == SET_MODE_SERIES_REST_SPEED) {
+        lv_label_set_text(ta_info_set, "Introduce VELOCIDAD de DESCANSO (km/h).");
+        lv_label_set_text(unit_kcal_set, "Kcal");
+    } else if (mode == SET_MODE_SERIES_REST_CLIMB) {
+        lv_label_set_text(ta_info_set, "Introduce INCLINACION de DESCANSO (%).");
+        lv_label_set_text(unit_kcal_set, "Kcal");
+    } else if (mode == SET_MODE_SERIES_REST_TIME) {
+        lv_label_set_text(ta_info_set, "Introduce TIEMPO de DESCANSO (segundos).");
+        lv_label_set_text(unit_kcal_set, "Kcal");
+    } else if (mode == SET_MODE_SERIES_REST_SPM) {
+        lv_label_set_text(ta_info_set, "Introduce CADENCIA de DESCANSO (SPM).");
+        lv_label_set_text(unit_kcal_set, "Kcal");
     }
 }
 
@@ -2716,7 +2893,7 @@ static void _switch_to_main_screen_internal(void) {
         lv_label_set_text(unit_kcal_main, "Kcal");
     }
 
-    // Forzar actualización de los displays con los valores actuales confirmados
+    // Forzar actualizaciÃ³n de los displays con los valores actuales confirmados
     int speed_int = (int)g_treadmill_state.speed_kmh;
     int speed_frac = (int)fabs((g_treadmill_state.speed_kmh - speed_int) * 10);
     lv_label_set_text_fmt(label_speed_kmh_set, "%d.%d", speed_int, speed_frac);
@@ -2725,220 +2902,339 @@ static void _switch_to_main_screen_internal(void) {
     lv_label_set_text_fmt(label_climb_percent_set, "%d", climb_int);
 }
 
-// --- Callbacks for Step Control Screen ---
 
-static void step_control_back_event_cb(lv_event_t *e) {
-    audio_play_beep();
-    lv_scr_load(scr_app_settings);
-}
+// --- Overlay Numpad Callbacks ---
 
-static void step_control_confirm_cb(lv_event_t *e) {
-    audio_play_beep();
-    // Parse buffer to int
-    int spm = atoi(step_input_buffer);
-    step_control_target_spm = spm;
-    
-    // Update timer
-    update_step_control_timer();
-    
-    // Return to App Settings (or Main? User didn't specify, but "back" logic usually goes to previous)
-    // Actually, if we want to see the circle, we should probably go to the Main Screen?
-    // User said: "el círculo... se rellenará... Además habrá un botón ACTIVAR SONIDO..."
-    // Usually "Confirm" applies changes. "Back" cancels.
-    // Let's apply and go back to App Settings, user can then go to Main.
-    // Or better: Go directly to Main Screen to "see" the result immediately?
-    // Let's go to App Settings for consistency, user can exit.
-    
-    lv_scr_load(scr_app_settings);
-}
-
-static void step_control_numpad_cb(lv_event_t *e) {
+// Overlay Numpad Callbacks
+static void overlay_numpad_cb(lv_event_t *e) {
     lv_obj_t *btn = lv_event_get_target(e);
     const char *txt = lv_label_get_text(lv_obj_get_child(btn, 0));
-    
     audio_play_beep();
     
+    int len = strlen(overlay_numpad_buffer);
+
     if (strcmp(txt, "DEL") == 0) {
-        // Delete last char
-        int len = strlen(step_input_buffer);
-        if (len > 0) {
-            step_input_buffer[len - 1] = '\0';
+        if (len > 0) overlay_numpad_buffer[len - 1] = '\0';
+    } 
+    else if (strcmp(txt, ".") == 0) {
+        // Only for speed and if not already present
+        if ((overlay_numpad_mode == SET_MODE_SERIES_WORK_SPEED || overlay_numpad_mode == SET_MODE_SERIES_REST_SPEED) && 
+            !strchr(overlay_numpad_buffer, '.') && len < 4) {
+            strcat(overlay_numpad_buffer, ".");
         }
-    } else {
-        // Append number if buffer not full
-        int len = strlen(step_input_buffer);
-        if (len < 3) { // Max 3 digits (e.g. 999)
-            strcat(step_input_buffer, txt);
+    }
+    else {
+        // Digit entry
+        if (overlay_numpad_mode == SET_MODE_SERIES_WORK_TIME || overlay_numpad_mode == SET_MODE_SERIES_REST_TIME) {
+            // Shift-left logic: max 4 digits (MMSS)
+            if (len < 4) {
+                strcat(overlay_numpad_buffer, txt);
+            }
+        } else {
+            // Normal entry
+            int max_len = 3; // Default (SPM)
+            if (overlay_numpad_mode == SET_MODE_SERIES_WORK_CLIMB || overlay_numpad_mode == SET_MODE_SERIES_REST_CLIMB) max_len = 2;
+            if (overlay_numpad_mode == SET_MODE_SERIES_WORK_SPEED || overlay_numpad_mode == SET_MODE_SERIES_REST_SPEED) max_len = 4; // e.g. 19.5
+
+            if (len < max_len) {
+                strcat(overlay_numpad_buffer, txt);
+            }
         }
     }
     
-    // Update label
-    if (strlen(step_input_buffer) == 0) {
-        lv_label_set_text(label_step_control_value, "0");
+    // Update display label
+    if (strlen(overlay_numpad_buffer) == 0) {
+        lv_label_set_text(label_overlay_numpad_value, "0");
+    } else if (overlay_numpad_mode == SET_MODE_SERIES_WORK_TIME || overlay_numpad_mode == SET_MODE_SERIES_REST_TIME) {
+        // Format as MM:SS
+        char fmt[8];
+        int l = strlen(overlay_numpad_buffer);
+        if (l == 1) sprintf(fmt, "00:0%s", overlay_numpad_buffer);
+        else if (l == 2) sprintf(fmt, "00:%s", overlay_numpad_buffer);
+        else if (l == 3) sprintf(fmt, "0%c:%s", overlay_numpad_buffer[0], &overlay_numpad_buffer[1]);
+        else if (l == 4) sprintf(fmt, "%c%c:%c%c", overlay_numpad_buffer[0], overlay_numpad_buffer[1], overlay_numpad_buffer[2], overlay_numpad_buffer[3]);
+        lv_label_set_text(label_overlay_numpad_value, fmt);
     } else {
-        lv_label_set_text(label_step_control_value, step_input_buffer);
+        lv_label_set_text(label_overlay_numpad_value, overlay_numpad_buffer);
     }
 }
 
-static void step_control_audio_toggle_cb(lv_event_t *e) {
-    step_control_audio_enabled = !step_control_audio_enabled;
+static void overlay_numpad_cancel_cb(lv_event_t *e) {
+    audio_play_beep();
+    // Hide overlay without saving
+    lv_obj_add_flag(overlay_numpad_bg, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(overlay_numpad_container, LV_OBJ_FLAG_HIDDEN);
+}
+
+static void overlay_numpad_confirm_cb(lv_event_t *e) {
     audio_play_beep();
     
-    if (step_control_audio_enabled) {
-         lv_obj_set_style_bg_color(btn_step_audio_toggle, lv_color_hex(0x00AA00), 0);
-         lv_label_set_text(label_step_audio_toggle, "SONIDO: ON");
+    float val = 0;
+    if (overlay_numpad_mode == SET_MODE_SERIES_WORK_TIME || overlay_numpad_mode == SET_MODE_SERIES_REST_TIME) {
+        // MM:SS format -> seconds
+        int mm = 0, ss = 0;
+        if (strlen(overlay_numpad_buffer) >= 3) {
+            char ss_str[3], mm_str[3];
+            int len = strlen(overlay_numpad_buffer);
+            strcpy(ss_str, &overlay_numpad_buffer[len-2]);
+            int mm_len = len - 2;
+            if (mm_len > 2) mm_len = 2; // Safety check
+            memcpy(mm_str, overlay_numpad_buffer, mm_len);
+            mm_str[mm_len] = '\0';
+            mm = atoi(mm_str);
+            ss = atoi(ss_str);
+        } else {
+            ss = atoi(overlay_numpad_buffer);
+        }
+        val = (float)(mm * 60 + ss);
     } else {
-         lv_obj_set_style_bg_color(btn_step_audio_toggle, lv_color_hex(0x444444), 0);
-         lv_label_set_text(label_step_audio_toggle, "SONIDO: OFF");
+        val = atof(overlay_numpad_buffer);
     }
+
+    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+    switch (overlay_numpad_mode) {
+        case SET_MODE_SERIES_WORK_SPEED: 
+            if (val > MAX_SPEED_KMH) val = MAX_SPEED_KMH;
+            if (val < 1.0f) val = 1.0f;
+            g_series_config.work.speed = val; 
+            break;
+        case SET_MODE_SERIES_WORK_CLIMB: 
+            if (val > MAX_CLIMB_PERCENT) val = MAX_CLIMB_PERCENT;
+            g_series_config.work.climb = (int)val; 
+            break;
+        case SET_MODE_SERIES_WORK_TIME:  
+            g_series_config.work.duration_secs = (uint32_t)val; 
+            break;
+        case SET_MODE_SERIES_WORK_SPM:   
+            g_series_config.work.spm = (int)val; 
+            break;
+        case SET_MODE_SERIES_REST_SPEED: 
+            if (val > MAX_SPEED_KMH) val = MAX_SPEED_KMH;
+            if (val < 0.5f) val = 0.5f; // Rest can be slower
+            g_series_config.rest.speed = val; 
+            break;
+        case SET_MODE_SERIES_REST_CLIMB: 
+            if (val > MAX_CLIMB_PERCENT) val = MAX_CLIMB_PERCENT;
+            g_series_config.rest.climb = (int)val; 
+            break;
+        case SET_MODE_SERIES_REST_TIME:  
+            g_series_config.rest.duration_secs = (uint32_t)val; 
+            break;
+        case SET_MODE_SERIES_REST_SPM:   
+            g_series_config.rest.spm = (int)val; 
+            break;
+        default: 
+            break;
+    }
+    xSemaphoreGive(g_state_mutex);
+
+    // Update labels on series screen
+    bsp_display_lock(portMAX_DELAY);
+    switch (overlay_numpad_mode) {
+        case SET_MODE_SERIES_WORK_SPEED: lv_label_set_text_fmt(label_series_work_speed, "Speed: %.1f", g_series_config.work.speed); break;
+        case SET_MODE_SERIES_WORK_CLIMB: lv_label_set_text_fmt(label_series_work_climb, "Incline: %d", g_series_config.work.climb); break;
+        case SET_MODE_SERIES_WORK_TIME: {
+            int mm = g_series_config.work.duration_secs / 60;
+            int ss = g_series_config.work.duration_secs % 60;
+            lv_label_set_text_fmt(label_series_work_time, "Time: %02d:%02d", mm, ss);
+            break;
+        }
+        case SET_MODE_SERIES_WORK_SPM:   lv_label_set_text_fmt(label_series_work_spm, "SPM: %d", g_series_config.work.spm); break;
+        case SET_MODE_SERIES_REST_SPEED: lv_label_set_text_fmt(label_series_rest_speed, "Speed: %.1f", g_series_config.rest.speed); break;
+        case SET_MODE_SERIES_REST_CLIMB: lv_label_set_text_fmt(label_series_rest_climb, "Incline: %d", g_series_config.rest.climb); break;
+        case SET_MODE_SERIES_REST_TIME: {
+            int mm = g_series_config.rest.duration_secs / 60;
+            int ss = g_series_config.rest.duration_secs % 60;
+            lv_label_set_text_fmt(label_series_rest_time, "Time: %02d:%02d", mm, ss);
+            break;
+        }
+        case SET_MODE_SERIES_REST_SPM:   lv_label_set_text_fmt(label_series_rest_spm, "SPM: %d", g_series_config.rest.spm); break;
+        default: break;
+    }
+    bsp_display_unlock();
+    
+    // Hide overlay
+    lv_obj_add_flag(overlay_numpad_bg, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(overlay_numpad_container, LV_OBJ_FLAG_HIDDEN);
 }
 
-static void create_step_control_screen(void) {
-    scr_step_control = lv_obj_create(NULL);
-    lv_obj_set_style_bg_color(scr_step_control, lv_color_black(), 0);
+static void _show_overlay_numpad(set_mode_t mode) {
+    overlay_numpad_mode = mode;
+    memset(overlay_numpad_buffer, 0, sizeof(overlay_numpad_buffer));
     
-    lv_obj_t * title = lv_label_create(scr_step_control);
-    lv_obj_add_style(title, &style_title, 0);
-    lv_label_set_text(title, "CONTROL DE PASOS (SPM)");
-    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 30);
+    // Set title and unit based on mode
+    const char *title = "CONFIGURACION";
+    const char *unit = "";
+
+    switch (mode) {
+        case SET_MODE_SERIES_WORK_SPEED: title = "TRABAJO: VELOCIDAD V2"; unit = "km/h"; break;
+        case SET_MODE_SERIES_WORK_CLIMB: title = "TRABAJO: INCLINACION"; unit = "%"; break;
+        case SET_MODE_SERIES_WORK_TIME:  title = "TRABAJO: TIEMPO"; unit = "mm:ss"; break;
+        case SET_MODE_SERIES_WORK_SPM:   title = "TRABAJO: CADENCIA"; unit = "SPM"; break;
+        case SET_MODE_SERIES_REST_SPEED: title = "DESCANSO: VELOCIDAD"; unit = "km/h"; break;
+        case SET_MODE_SERIES_REST_CLIMB: title = "DESCANSO: INCLINACION"; unit = "%"; break;
+        case SET_MODE_SERIES_REST_TIME:  title = "DESCANSO: TIEMPO"; unit = "mm:ss"; break;
+        case SET_MODE_SERIES_REST_SPM:   title = "DESCANSO: CADENCIA"; unit = "SPM"; break;
+        default: 
+            title = "CONFIGURACION"; unit = ""; 
+            break;
+    }
+
+    lv_label_set_text(label_overlay_numpad_title, title);
+    lv_label_set_text(label_overlay_numpad_unit, unit);
+    lv_label_set_text(label_overlay_numpad_value, "0");
+
+    // Position overlay based on which column is being edited
+    // WORK fields -> show on RIGHT (over REST column)
+    // REST fields -> show on LEFT (over WORK column)
+    bool is_work_field = (mode >= SET_MODE_SERIES_WORK_SPEED && mode <= SET_MODE_SERIES_WORK_SPM);
     
-    // Display Value
-    lv_obj_t * cont_val = lv_obj_create(scr_step_control);
-    lv_obj_set_size(cont_val, 300, 100);
-    lv_obj_align(cont_val, LV_ALIGN_TOP_MID, 0, 100);
+    if (is_work_field) {
+        // Position over REST column (right side, bottom aligned)
+        lv_obj_align(overlay_numpad_container, LV_ALIGN_BOTTOM_RIGHT, -90, -143);
+    } else {
+        // Position over WORK column (left/center, bottom aligned)
+        lv_obj_align(overlay_numpad_container, LV_ALIGN_BOTTOM_LEFT, 340, -143);
+    }
+
+    // Show the overlay
+    lv_obj_clear_flag(overlay_numpad_bg, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(overlay_numpad_container, LV_OBJ_FLAG_HIDDEN);
+}
+
+static void create_overlay_numpad(lv_obj_t *parent) {
+    // Create semi-transparent background overlay
+    overlay_numpad_bg = lv_obj_create(parent);
+    lv_obj_set_size(overlay_numpad_bg, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_pos(overlay_numpad_bg, 0, 0);
+    lv_obj_set_style_bg_color(overlay_numpad_bg, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(overlay_numpad_bg, LV_OPA_50, 0);
+    lv_obj_set_style_border_width(overlay_numpad_bg, 0, 0);
+    lv_obj_add_flag(overlay_numpad_bg, LV_OBJ_FLAG_HIDDEN); // Initially hidden
+    
+    // Create numpad container
+    overlay_numpad_container = lv_obj_create(parent);
+    lv_obj_set_size(overlay_numpad_container, 400, 550);
+    lv_obj_set_style_bg_color(overlay_numpad_container, lv_color_hex(0x1A1A1A), 0);
+    lv_obj_set_style_radius(overlay_numpad_container, 15, 0);
+    lv_obj_set_style_border_color(overlay_numpad_container, lv_color_hex(0x00AA00), 0);
+    lv_obj_set_style_border_width(overlay_numpad_container, 3, 0);
+    lv_obj_clear_flag(overlay_numpad_container, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(overlay_numpad_container, LV_OBJ_FLAG_HIDDEN); // Initially hidden
+    
+    // Title
+    label_overlay_numpad_title = lv_label_create(overlay_numpad_container);
+    lv_obj_add_style(label_overlay_numpad_title, &style_btn_text, 0);
+    lv_obj_set_style_text_font(label_overlay_numpad_title, &lv_font_montserrat_20, 0);
+    lv_obj_align(label_overlay_numpad_title, LV_ALIGN_TOP_MID, 0, 15);
+    
+    // Display Value Container (Centered, 300px wide)
+    lv_obj_t * cont_val = lv_obj_create(overlay_numpad_container);
+    lv_obj_set_size(cont_val, 300, 60);
+    lv_obj_align(cont_val, LV_ALIGN_TOP_MID, 0, 50);
     lv_obj_set_style_bg_color(cont_val, lv_color_hex(0x222222), 0);
     lv_obj_set_style_border_color(cont_val, lv_color_white(), 0);
     lv_obj_set_style_border_width(cont_val, 2, 0);
+    lv_obj_clear_flag(cont_val, LV_OBJ_FLAG_SCROLLABLE);
     
-    label_step_control_value = lv_label_create(cont_val);
-    lv_obj_add_style(label_step_control_value, &style_value_main, 0);
-    lv_label_set_text(label_step_control_value, "0");
-    lv_obj_center(label_step_control_value);
+    label_overlay_numpad_value = lv_label_create(cont_val);
+    lv_obj_add_style(label_overlay_numpad_value, &style_value_main, 0);
+    lv_obj_set_style_text_font(label_overlay_numpad_value, &lv_font_montserrat_32, 0);
+    lv_label_set_text(label_overlay_numpad_value, "0");
+    lv_obj_align(label_overlay_numpad_value, LV_ALIGN_CENTER, -15, 0); // Offset left to make room for units
+
+
+    // Units (INSIDE the container, aligned right)
+    label_overlay_numpad_unit = lv_label_create(cont_val);
+    lv_obj_add_style(label_overlay_numpad_unit, &style_unit, 0);
+    lv_obj_set_style_text_font(label_overlay_numpad_unit, &lv_font_montserrat_14, 0); // Smaller font for units
+    lv_obj_align(label_overlay_numpad_unit, LV_ALIGN_RIGHT_MID, -10, 0);
+
+
     
-    // Numpad Container
-    lv_obj_t * numpad_cont = lv_obj_create(scr_step_control);
-    lv_obj_set_size(numpad_cont, 400, 320);
-    lv_obj_align(numpad_cont, LV_ALIGN_CENTER, 0, 50); // Centered below value
+    // Numpad Grid (Higher position to avoid bottom overlap)
+    lv_obj_t * numpad_cont = lv_obj_create(overlay_numpad_container);
+    lv_obj_set_size(numpad_cont, 320, 260);
+    lv_obj_align(numpad_cont, LV_ALIGN_TOP_MID, 0, 115);
     lv_obj_set_style_bg_opa(numpad_cont, 0, 0);
     lv_obj_set_style_border_opa(numpad_cont, 0, 0);
     lv_obj_clear_flag(numpad_cont, LV_OBJ_FLAG_SCROLLABLE);
     
-    // Create Grid 3x4
-    const int btn_w = 100;
-    const int btn_h = 70;
-    const int gap = 10;
+    const int btn_w = 95;
+    const int btn_h = 52;
+    const int gap = 8;
     
-    // Row 1: 1 2 3
-    for(int i=1; i<=3; i++) {
+    // Buttons 1-9
+    for(int i=1; i<=9; i++) {
+        int row = (i-1)/3;
+        int col = (i-1)%3;
         lv_obj_t * btn = lv_btn_create(numpad_cont);
         lv_obj_set_size(btn, btn_w, btn_h);
-        lv_obj_align(btn, LV_ALIGN_TOP_LEFT, (i-1)*(btn_w+gap), 0);
+        lv_obj_set_pos(btn, -10 + col*(btn_w+gap), row*(btn_h+gap)); // Applied -10px offset to shift left
         lv_obj_add_style(btn, &style_btn_premium, 0);
-        lv_obj_add_event_cb(btn, step_control_numpad_cb, LV_EVENT_CLICKED, NULL);
-        
+        lv_obj_add_event_cb(btn, overlay_numpad_cb, LV_EVENT_CLICKED, NULL);
         lv_obj_t * l = lv_label_create(btn);
         lv_obj_add_style(l, &style_btn_text, 0);
         lv_label_set_text_fmt(l, "%d", i);
         lv_obj_center(l);
     }
     
-    // Row 2: 4 5 6
-    for(int i=1; i<=3; i++) {
-        lv_obj_t * btn = lv_btn_create(numpad_cont);
-        lv_obj_set_size(btn, btn_w, btn_h);
-        lv_obj_align(btn, LV_ALIGN_TOP_LEFT, (i-1)*(btn_w+gap), btn_h+gap);
-        lv_obj_add_style(btn, &style_btn_premium, 0);
-        lv_obj_add_event_cb(btn, step_control_numpad_cb, LV_EVENT_CLICKED, NULL);
-        
-        lv_obj_t * l = lv_label_create(btn);
-        lv_obj_add_style(l, &style_btn_text, 0);
-        lv_label_set_text_fmt(l, "%d", i+3);
-        lv_obj_center(l);
-    }
-    
-    // Row 3: 7 8 9
-    for(int i=1; i<=3; i++) {
-        lv_obj_t * btn = lv_btn_create(numpad_cont);
-        lv_obj_set_size(btn, btn_w, btn_h);
-        lv_obj_align(btn, LV_ALIGN_TOP_LEFT, (i-1)*(btn_w+gap), (btn_h+gap)*2);
-        lv_obj_add_style(btn, &style_btn_premium, 0);
-        lv_obj_add_event_cb(btn, step_control_numpad_cb, LV_EVENT_CLICKED, NULL);
-        
-        lv_obj_t * l = lv_label_create(btn);
-        lv_obj_add_style(l, &style_btn_text, 0);
-        lv_label_set_text_fmt(l, "%d", i+6);
-        lv_obj_center(l);
-    }
-    
-    // Row 4: 0, DEL
-    // 0
+    // Bottom row: . 0 DEL
+    lv_obj_t * btnDot = lv_btn_create(numpad_cont);
+    lv_obj_set_size(btnDot, btn_w, btn_h);
+    lv_obj_set_pos(btnDot, -10 + 0*(btn_w+gap), 3*(btn_h+gap));
+    lv_obj_add_style(btnDot, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btnDot, overlay_numpad_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * lDot = lv_label_create(btnDot);
+    lv_obj_add_style(lDot, &style_btn_text, 0);
+    lv_label_set_text(lDot, ".");
+    lv_obj_center(lDot);
+
     lv_obj_t * btn0 = lv_btn_create(numpad_cont);
     lv_obj_set_size(btn0, btn_w, btn_h);
-    lv_obj_align(btn0, LV_ALIGN_TOP_LEFT, 1*(btn_w+gap), (btn_h+gap)*3); // Center column
+    lv_obj_set_pos(btn0, -10 + 1*(btn_w+gap), 3*(btn_h+gap));
     lv_obj_add_style(btn0, &style_btn_premium, 0);
-    lv_obj_add_event_cb(btn0, step_control_numpad_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(btn0, overlay_numpad_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t * l0 = lv_label_create(btn0);
     lv_obj_add_style(l0, &style_btn_text, 0);
     lv_label_set_text(l0, "0");
     lv_obj_center(l0);
     
-    // DEL (Right of 0)
     lv_obj_t * btnDel = lv_btn_create(numpad_cont);
     lv_obj_set_size(btnDel, btn_w, btn_h);
-    lv_obj_align(btnDel, LV_ALIGN_TOP_LEFT, 2*(btn_w+gap), (btn_h+gap)*3);
+    lv_obj_set_pos(btnDel, -10 + 2*(btn_w+gap), 3*(btn_h+gap));
     lv_obj_add_style(btnDel, &style_btn_premium, 0);
-    // Red color for delete
     lv_obj_set_style_bg_color(btnDel, lv_color_hex(0xAA0000), 0);
-    lv_obj_add_event_cb(btnDel, step_control_numpad_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(btnDel, overlay_numpad_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t * lDel = lv_label_create(btnDel);
     lv_obj_add_style(lDel, &style_btn_text, 0);
     lv_label_set_text(lDel, "DEL");
     lv_obj_center(lDel);
 
-
-    // Buttons Bottom (Audio, Cancel, Confirm)
-    
-    // AUDIO TOGGLE (Left)
-    btn_step_audio_toggle = lv_btn_create(scr_step_control);
-    lv_obj_set_size(btn_step_audio_toggle, 250, 80);
-    lv_obj_align(btn_step_audio_toggle, LV_ALIGN_BOTTOM_LEFT, 40, -40);
-    lv_obj_add_style(btn_step_audio_toggle, &style_btn_premium, 0);
-    lv_obj_add_event_cb(btn_step_audio_toggle, step_control_audio_toggle_cb, LV_EVENT_CLICKED, NULL);
-    
-    label_step_audio_toggle = lv_label_create(btn_step_audio_toggle);
-    lv_obj_add_style(label_step_audio_toggle, &style_btn_text, 0);
-    lv_label_set_text(label_step_audio_toggle, "SONIDO: OFF");
-    lv_obj_center(label_step_audio_toggle);
-
-    
-    // CONFIRM (Right)
-    lv_obj_t * btnConfirm = lv_btn_create(scr_step_control);
-    lv_obj_set_size(btnConfirm, 250, 80);
-    lv_obj_align(btnConfirm, LV_ALIGN_BOTTOM_RIGHT, -40, -40);
+    // CONFIRM button (Centered with respect to columns)
+    lv_obj_t * btnConfirm = lv_btn_create(overlay_numpad_container);
+    lv_obj_set_size(btnConfirm, 150, 52);
+    lv_obj_align(btnConfirm, LV_ALIGN_BOTTOM_RIGHT, -20, -30);
     lv_obj_add_style(btnConfirm, &style_btn_premium, 0);
-    lv_obj_set_style_bg_color(btnConfirm, lv_color_hex(0x007700), 0); // Greenish
-    lv_obj_add_event_cb(btnConfirm, step_control_confirm_cb, LV_EVENT_CLICKED, NULL);
-    
+    lv_obj_set_style_bg_color(btnConfirm, lv_color_hex(0x007700), 0);
+    lv_obj_add_event_cb(btnConfirm, overlay_numpad_confirm_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_t * lConf = lv_label_create(btnConfirm);
     lv_obj_add_style(lConf, &style_btn_text, 0);
-    lv_label_set_text(lConf, "CONFIRMAR");
+    lv_obj_set_style_text_font(lConf, &lv_font_montserrat_24, 0);
+    lv_label_set_text(lConf, "OK");
     lv_obj_center(lConf);
     
-    // CANCEL / BACK (Top Right or Bottom Center?)
-    // Let's put Back at Top Left like others? Or just assume Confirm/Cancel pattern?
-    // Let's perform a "Cancel" button below numpad or similar.
-    // Or just a Back button.
-    
-    lv_obj_t * btnBack = lv_btn_create(scr_step_control);
-    lv_obj_set_size(btnBack, 150, 60);
-    lv_obj_align(btnBack, LV_ALIGN_TOP_LEFT, 20, 20);
-    lv_obj_add_style(btnBack, &style_btn_premium, 0);
-    lv_obj_add_event_cb(btnBack, step_control_back_event_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_t * lBack = lv_label_create(btnBack);
-    lv_obj_add_style(lBack, &style_btn_text, 0);
-    lv_label_set_text(lBack, "VOLVER");
-    lv_obj_center(lBack);
-
+    // CANCEL button (Centered with respect to columns)
+    lv_obj_t * btnCancel = lv_btn_create(overlay_numpad_container);
+    lv_obj_set_size(btnCancel, 150, 52);
+    lv_obj_align(btnCancel, LV_ALIGN_BOTTOM_LEFT, 20, -30);
+    lv_obj_add_style(btnCancel, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btnCancel, overlay_numpad_cancel_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * lCancel = lv_label_create(btnCancel);
+    lv_obj_add_style(lCancel, &style_btn_text, 0);
+    lv_obj_set_style_text_font(lCancel, &lv_font_montserrat_24, 0);
+    lv_label_set_text(lCancel, "CANCELAR");
+    lv_obj_center(lCancel);
 }
 
 static void create_app_settings_screen(void) {
@@ -3065,19 +3361,6 @@ static void create_app_settings_screen(void) {
     lv_obj_set_style_text_align(lbl_cal, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_center(lbl_cal);
 
-    // --- BOTON CONTROL DE PASOS (New) ---
-    lv_obj_t * btn_step_ctrl = lv_btn_create(scr_app_settings);
-    lv_obj_set_size(btn_step_ctrl, 350, 100);
-    lv_obj_add_style(btn_step_ctrl, &style_btn_premium, 0);
-    lv_obj_align(btn_step_ctrl, LV_ALIGN_CENTER, -360, 180); // Aligned with brightness
-    lv_obj_add_event_cb(btn_step_ctrl, step_control_event_cb, LV_EVENT_CLICKED, NULL);
-
-    lv_obj_t * lbl_step = lv_label_create(btn_step_ctrl);
-    lv_obj_add_style(lbl_step, &style_btn_text, 0);
-    lv_label_set_text(lbl_step, "CONTROL\nDE PASOS");
-    lv_obj_set_style_text_align(lbl_step, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_center(lbl_step);
-
     // --- SLIDER DE SENSIBILIDAD ---
     lv_obj_t * cont_sens = lv_obj_create(scr_app_settings);
     lv_obj_set_size(cont_sens, 500, 100);
@@ -3156,7 +3439,7 @@ static void create_calibration_screen(void) {
 
 
 void ui_init(void) {
-    // 1. Inicializar estado y valores de sesión (50% por defecto)
+    // 1. Inicializar estado y valores de sesiÃ³n (50% por defecto)
     uint8_t sens_val = 50;
     load_sensitivity_from_nvs(&sens_val);
 
@@ -3188,8 +3471,9 @@ void ui_init(void) {
     create_wax_screen();
     create_shutdown_screen();
     create_wifi_screens();
-    create_app_settings_screen(); // Ahora usará los valores de g_treadmill_state que ya son 50
+    create_app_settings_screen(); // Ahora usarÃ¡ los valores de g_treadmill_state que ya son 50
     create_calibration_screen();
+    create_series_config_screen();
 
     lv_scr_load(scr_training_select);
 }
@@ -3206,9 +3490,9 @@ void ui_speed_inc(void) {
     if (!g_treadmill_state.is_stopped && !g_treadmill_state.is_cooling_down) {
         should_beep = true;
 
-        // --- LÓGICA SIMPLIFICADA PARA AJUSTE DELAYED ---
+        // --- LÃ“GICA SIMPLIFICADA PARA AJUSTE DELAYED ---
         if (g_treadmill_state.target_speed < 0.5f) {
-            // Si la velocidad es < 0.5, la primera pulsación salta a 0.5
+            // Si la velocidad es < 0.5, la primera pulsaciÃ³n salta a 0.5
             new_target_speed = 0.5f;
         } else {
             // Incrementar siempre de 0.1 en 0.1
@@ -3225,7 +3509,7 @@ void ui_speed_inc(void) {
 
     // Enviar comando al esclavo via RS485
     if (should_beep) {
-        // cm_master_set_speed(new_target_speed); // Eliminado: se ejecutará al soltar el botón
+        // cm_master_set_speed(new_target_speed); // Eliminado: se ejecutarÃ¡ al soltar el botÃ³n
         audio_play_beep();
     }
 }
@@ -3238,7 +3522,7 @@ void ui_speed_dec(void) {
     if (!g_treadmill_state.is_stopped && !g_treadmill_state.is_cooling_down) {
         should_beep = true;
 
-        // --- LÓGICA SIMPLIFICADA PARA AJUSTE DELAYED ---
+        // --- LÃ“GICA SIMPLIFICADA PARA AJUSTE DELAYED ---
         new_target_speed = g_treadmill_state.target_speed - 0.1f;
         g_treadmill_state.ramp_mode = RAMP_MODE_NORMAL;
 
@@ -3251,7 +3535,7 @@ void ui_speed_dec(void) {
 
     // Enviar comando al esclavo via RS485
     if (should_beep) {
-        // cm_master_set_speed(new_target_speed); // Eliminado: se ejecutará al soltar el botón
+        // cm_master_set_speed(new_target_speed); // Eliminado: se ejecutarÃ¡ al soltar el botÃ³n
         audio_play_beep();
     }
 }
@@ -3263,8 +3547,8 @@ void ui_speed_execute(void) {
     xSemaphoreGive(g_state_mutex);
 
     cm_master_set_speed(target_speed);
-    acoustic_service_set_current_speed(target_speed); // <--- CRÍTICO: Avisar al podómetro
-    ESP_LOGI("UI", "ui_speed_execute: Comando de velocidad enviado al motor y podómetro: %.1f km/h", target_speed);
+    acoustic_service_set_current_speed(target_speed); // <--- CRÃTICO: Avisar al podÃ³metro
+    ESP_LOGI("UI", "ui_speed_execute: Comando de velocidad enviado al motor y podÃ³metro: %.1f km/h", target_speed);
 }
 
 void ui_climb_inc(void) {
@@ -3331,7 +3615,7 @@ void ui_stop_resume(void) {
         g_treadmill_state.is_cooling_down = false;
         g_treadmill_state.is_resuming = true;
         g_treadmill_state.cooldown_level = 0;
-        // La velocidad objetivo vuelve a ser la que había antes de empezar el cool down
+        // La velocidad objetivo vuelve a ser la que habÃ­a antes de empezar el cool down
         float resume_speed = g_treadmill_state.speed_before_stop;
         g_treadmill_state.target_speed = resume_speed;
         g_treadmill_state.ramp_mode = RAMP_MODE_COOLDOWN_RESUME;
@@ -3361,10 +3645,10 @@ void ui_stop_resume(void) {
         
         ESP_LOGI(TAG, "RESUME activado desde pausa (rampa inverter)");
         xSemaphoreGive(g_state_mutex);
-        // La aceleración la gestionará el variador directamente tras la llamada en ui_update_task
+        // La aceleraciÃ³n la gestionarÃ¡ el variador directamente tras la llamada en ui_update_task
     }
 
-    // --- ACTUALIZACIÓN DE UI ---
+    // --- ACTUALIZACIÃ“N DE UI ---
     bsp_display_lock(portMAX_DELAY);
     if (was_cooling_down || was_stopped) {
         // Volvemos a modo NORMAL
@@ -3397,7 +3681,7 @@ void ui_stop_resume(void) {
         lv_obj_remove_event_cb(btn_cooldown, end_event_cb);
         lv_obj_add_event_cb(btn_cooldown, end_event_cb, LV_EVENT_CLICKED, NULL);
         
-        // Estilo rojo para el botón END
+        // Estilo rojo para el botÃ³n END
         lv_obj_set_style_bg_color(btn_cooldown, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_bg_opa(btn_cooldown, LV_OPA_COVER, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_color(label_cooldown_btn, lv_color_hex(0xFFFFFF), 0);
@@ -3428,7 +3712,7 @@ void ui_cool_down(void) {
         // Reducir 1/3 -> Queda el 66.6%
         float drop_speed = current_speed * (2.0f / 3.0f);
         // Redondear a .0 o .5 (ej: 6.6 -> 6.5, 7.3 -> 7.5? El usuario dijo "redondeando a .0 o .5")
-        // Usamos roundf(x * 2) / 2 para redondear al 0.5 más cercano.
+        // Usamos roundf(x * 2) / 2 para redondear al 0.5 mÃ¡s cercano.
         float rounded_speed = roundf(drop_speed * 2.0f) / 2.0f;
         if (rounded_speed < 0.5f && current_speed > 0.5f) rounded_speed = 0.5f;
 
@@ -3444,7 +3728,7 @@ void ui_cool_down(void) {
         cm_master_set_speed(rounded_speed);
         xSemaphoreTake(g_state_mutex, portMAX_DELAY);
 
-        // --- 2. Rampa de inclinación ---
+        // --- 2. Rampa de inclinaciÃ³n ---
         // Nivel 1: 0.5 km/h cada 15 segundos -> 0.033 km/h/s
         float time_to_stop_s = rounded_speed / (0.5f / 15.0f);
         if (time_to_stop_s > 1.0f) {
@@ -3459,12 +3743,12 @@ void ui_cool_down(void) {
         
         ESP_LOGI(TAG, "Cool Down iniciado. Drop: %.1f -> %.1f. Nivel 1 (30s). Actuador -> 0%%", current_speed, rounded_speed);
         
-        // Aplicar bajada de inclinación inmediata (objetivo)
+        // Aplicar bajada de inclinaciÃ³n inmediata (objetivo)
         xSemaphoreGive(g_state_mutex);
         cm_master_set_incline(0.0f);
         xSemaphoreTake(g_state_mutex, portMAX_DELAY);
     } else {
-        // Ya estamos en Cool Down, subir nivel (máx 3)
+        // Ya estamos en Cool Down, subir nivel (mÃ¡x 3)
         if (g_treadmill_state.cooldown_level < 3) {
             g_treadmill_state.cooldown_level++;
             ESP_LOGI(TAG, "Cool Down nivel incrementado: %d", g_treadmill_state.cooldown_level);
@@ -3474,9 +3758,9 @@ void ui_cool_down(void) {
     int current_level = g_treadmill_state.cooldown_level;
     xSemaphoreGive(g_state_mutex);
 
-    // --- ACTUALIZACIÓN DE UI ---
+    // --- ACTUALIZACIÃ“N DE UI ---
     bsp_display_lock(portMAX_DELAY);
-    // Botón Izquierdo: RESUME
+    // BotÃ³n Izquierdo: RESUME
     lv_label_set_text(label_stop_btn, "RESUME");
     lv_obj_set_style_text_align(label_stop_btn, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_remove_event_cb(btn_stop, stop_resume_event_cb);
@@ -3485,7 +3769,7 @@ void ui_cool_down(void) {
     lv_obj_remove_local_style_prop(btn_stop, LV_STYLE_BG_COLOR, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_remove_local_style_prop(btn_stop, LV_STYLE_BG_OPA, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // Botón Derecho: COOL DOWN + o END
+    // BotÃ³n Derecho: COOL DOWN + o END
     if (current_level < 3) {
         lv_label_set_text(label_cooldown_btn, "COOL\nDOWN\n+");
         lv_obj_remove_event_cb(btn_cooldown, end_event_cb);
@@ -3494,14 +3778,14 @@ void ui_cool_down(void) {
         lv_obj_remove_local_style_prop(btn_cooldown, LV_STYLE_BG_COLOR, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_remove_local_style_prop(btn_cooldown, LV_STYLE_BG_OPA, LV_PART_MAIN | LV_STATE_DEFAULT);
     } else {
-        // Nivel 3 -> Botón STOP (Idéntico al STOP normal)
+        // Nivel 3 -> BotÃ³n STOP (IdÃ©ntico al STOP normal)
         lv_label_set_text(label_cooldown_btn, "STOP");
         lv_obj_remove_event_cb(btn_cooldown, cool_down_event_cb);
         lv_obj_remove_event_cb(btn_cooldown, end_event_cb);
         lv_obj_remove_event_cb(btn_cooldown, stop_from_cooldown_event_cb);
         lv_obj_add_event_cb(btn_cooldown, stop_from_cooldown_event_cb, LV_EVENT_CLICKED, NULL);
         
-        // Estilo normal (gris), quitar el rojo si venía de un estado anterior (aunque level 3 es nuevo)
+        // Estilo normal (gris), quitar el rojo si venÃ­a de un estado anterior (aunque level 3 es nuevo)
         lv_obj_remove_local_style_prop(btn_cooldown, LV_STYLE_BG_COLOR, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_remove_local_style_prop(btn_cooldown, LV_STYLE_BG_OPA, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_text_color(label_cooldown_btn, lv_color_hex(0xFFFFFF), 0);
@@ -3552,10 +3836,10 @@ void ui_set_climb(void) {
 
 static bool _handle_numpad_press_internal(char digit) {
     if (g_treadmill_state.set_mode == SET_MODE_WEIGHT) {
-        // Peso: Siempre requiere 2 dígitos
+        // Peso: Siempre requiere 2 dÃ­gitos
         if (g_treadmill_state.set_digit_index >= 2) return false;
 
-        // Validar que no exceda el máximo (200)
+        // Validar que no exceda el mÃ¡ximo (200)
         char temp_buffer[3];
         strncpy(temp_buffer, g_treadmill_state.set_buffer, g_treadmill_state.set_digit_index);
         temp_buffer[g_treadmill_state.set_digit_index] = digit;
@@ -3563,7 +3847,7 @@ static bool _handle_numpad_press_internal(char digit) {
 
         float proposed_value = atof(temp_buffer);
         if (proposed_value > 200.0f) {
-            ESP_LOGI(TAG, "Dígito inválido '%c'. El peso propuesto %.0f excede el máximo 200", digit, proposed_value);
+            ESP_LOGI(TAG, "DÃ­gito invÃ¡lido '%c'. El peso propuesto %.0f excede el mÃ¡ximo 200", digit, proposed_value);
             return false;
         }
 
@@ -3575,14 +3859,14 @@ static bool _handle_numpad_press_internal(char digit) {
         return (g_treadmill_state.set_digit_index >= 2);
     } 
     else if (g_treadmill_state.set_mode == SET_MODE_SPEED || g_treadmill_state.set_mode == SET_MODE_CLIMB) {
-        // Velocidad e Inclinación: Lógica inteligente compartida
-        // FORMATO: 0, 2-9 -> Inmediato. 1 -> Espera segundo dígito.
+        // Velocidad e InclinaciÃ³n: LÃ³gica inteligente compartida
+        // FORMATO: 0, 2-9 -> Inmediato. 1 -> Espera segundo dÃ­gito.
         
         bool is_climb = (g_treadmill_state.set_mode == SET_MODE_CLIMB);
         float max_val = is_climb ? MAX_CLIMB_PERCENT : MAX_SPEED_KMH;
 
         if (waiting_for_second_digit) {
-            // Ya tenemos el primer dígito '1', este es el segundo (0-5 para climb, 0-9 para speed)
+            // Ya tenemos el primer dÃ­gito '1', este es el segundo (0-5 para climb, 0-9 para speed)
             if (speed_input_timeout_timer) {
                 lv_timer_del(speed_input_timeout_timer);
                 speed_input_timeout_timer = NULL;
@@ -3596,7 +3880,7 @@ static bool _handle_numpad_press_internal(char digit) {
             
             float proposed_value = atof(temp_buffer);
             if (proposed_value > max_val) {
-                ESP_LOGI(TAG, "%s %.1f excede el máximo %.1f", is_climb?"Inclinacion":"Velocidad", proposed_value, max_val);
+                ESP_LOGI(TAG, "%s %.1f excede el mÃ¡ximo %.1f", is_climb?"Inclinacion":"Velocidad", proposed_value, max_val);
                 return false;
             }
             
@@ -3606,9 +3890,9 @@ static bool _handle_numpad_press_internal(char digit) {
             return true;
             
         } else {
-            // Primer dígito
+            // Primer dÃ­gito
             if (digit == '1') {
-                // Esperar segundo dígito
+                // Esperar segundo dÃ­gito
                 waiting_for_second_digit = true;
                 first_speed_digit = '1';
                 g_treadmill_state.set_buffer[0] = '1';
@@ -3625,7 +3909,7 @@ static bool _handle_numpad_press_internal(char digit) {
                 // Inmediato (0, 2-9)
                 float val = (float)(digit - '0');
                 if (val > max_val) {
-                    ESP_LOGI(TAG, "%s %.1f excede el máximo %.1f", is_climb?"Inclinacion":"Velocidad", val, max_val);
+                    ESP_LOGI(TAG, "%s %.1f excede el mÃ¡ximo %.1f", is_climb?"Inclinacion":"Velocidad", val, max_val);
                     return false;
                 }
                 g_treadmill_state.set_buffer[0] = digit;
@@ -3635,6 +3919,40 @@ static bool _handle_numpad_press_internal(char digit) {
                 return true;
             }
         }
+    }
+    else if (g_treadmill_state.set_mode >= SET_MODE_SERIES_WORK_SPEED && g_treadmill_state.set_mode <= SET_MODE_SERIES_REST_SPM) {
+        // Series Configuration: mostly 2 or 3 digits
+        int max_digits = 2;
+        float max_val = 99.0f;
+
+        if (g_treadmill_state.set_mode == SET_MODE_SERIES_WORK_TIME || 
+            g_treadmill_state.set_mode == SET_MODE_SERIES_REST_TIME ||
+            g_treadmill_state.set_mode == SET_MODE_SERIES_WORK_SPM ||
+            g_treadmill_state.set_mode == SET_MODE_SERIES_REST_SPM) 
+        {
+            max_digits = 3;
+            max_val = 999.0f;
+        }
+
+        if (g_treadmill_state.set_mode == SET_MODE_SERIES_WORK_SPEED || g_treadmill_state.set_mode == SET_MODE_SERIES_REST_SPEED) max_val = MAX_SPEED_KMH;
+        if (g_treadmill_state.set_mode == SET_MODE_SERIES_WORK_CLIMB || g_treadmill_state.set_mode == SET_MODE_SERIES_REST_CLIMB) max_val = MAX_CLIMB_PERCENT;
+
+        if (g_treadmill_state.set_digit_index >= max_digits) return false;
+
+        // Validar rango propuesto
+        char temp[5];
+        strncpy(temp, g_treadmill_state.set_buffer, g_treadmill_state.set_digit_index);
+        temp[g_treadmill_state.set_digit_index] = digit;
+        temp[g_treadmill_state.set_digit_index + 1] = '\0';
+        float val = atof(temp);
+        if (val > max_val) return false;
+
+        g_treadmill_state.set_buffer[g_treadmill_state.set_digit_index] = digit;
+        g_treadmill_state.set_digit_index++;
+        g_treadmill_state.set_buffer[g_treadmill_state.set_digit_index] = '\0';
+
+        _update_set_display_text_internal();
+        return (g_treadmill_state.set_digit_index >= max_digits);
     }
     return false;
 }
@@ -3648,7 +3966,7 @@ bool ui_handle_numpad_press(char digit) {
     bool should_confirm = result && (g_treadmill_state.set_mode != SET_MODE_NONE);
     xSemaphoreGive(g_state_mutex);
     
-    // Si está completo Y el modo es válido, auto-confirmar
+    // Si estÃ¡ completo Y el modo es vÃ¡lido, auto-confirmar
     if (should_confirm) {
         ui_confirm_set_value();
     }
@@ -3657,9 +3975,9 @@ bool ui_handle_numpad_press(char digit) {
 }
 
 void ui_confirm_set_value(void) {
-    // Evitar doble confirmación
+    // Evitar doble confirmaciÃ³n
     if (confirming_in_progress) {
-        ESP_LOGI(TAG, "ui_confirm_set_value: Ya hay una confirmación en progreso, ignorando");
+        ESP_LOGI(TAG, "ui_confirm_set_value: Ya hay una confirmaciÃ³n en progreso, ignorando");
         return;
     }
     confirming_in_progress = true;
@@ -3667,16 +3985,16 @@ void ui_confirm_set_value(void) {
     xSemaphoreTake(g_state_mutex, portMAX_DELAY);
 
     if (g_treadmill_state.set_mode == SET_MODE_WEIGHT) {
-        // Para peso, el valor es directo (sin división por 10)
+        // Para peso, el valor es directo (sin divisiÃ³n por 10)
         float weight = atof(g_treadmill_state.set_buffer);
-        if (weight < 30.0f) weight = 30.0f;  // Mínimo 30 kg
-        if (weight > 200.0f) weight = 200.0f; // Máximo 200 kg
+        if (weight < 30.0f) weight = 30.0f;  // MÃ­nimo 30 kg
+        if (weight > 200.0f) weight = 200.0f; // MÃ¡ximo 200 kg
         g_treadmill_state.user_weight_kg = weight;
         // Marcar que el usuario ha introducido el peso
         g_treadmill_state.weight_entered = true;
 
-        // Los botones WEIGHT y BACK se mantienen para permitir corrección
-        // Solo se cambiarán cuando la cinta empiece a moverse
+        // Los botones WEIGHT y BACK se mantienen para permitir correcciÃ³n
+        // Solo se cambiarÃ¡n cuando la cinta empiece a moverse
 
         char weight_msg[80];
         sprintf(weight_msg, "Peso: %dkg - Selecciona una velocidad para comenzar", (int)weight);
@@ -3697,18 +4015,54 @@ void ui_confirm_set_value(void) {
         bool is_speed_mode = false;
 
         if (g_treadmill_state.set_mode == SET_MODE_SPEED) {
-            // Velocidad: 2 dígitos enteros (ej: "14" = 14.0 km/h)
+            // Velocidad: 2 dÃ­gitos enteros (ej: "14" = 14.0 km/h)
             final_value = atof(g_treadmill_state.set_buffer);
             if (final_value > MAX_SPEED_KMH) final_value = MAX_SPEED_KMH;
             g_treadmill_state.ramp_mode = RAMP_MODE_NORMAL;
             g_treadmill_state.target_speed = final_value;
             is_speed_mode = true;
         } else if (g_treadmill_state.set_mode == SET_MODE_CLIMB) {
-            // Inclinación: 2 dígitos sin dividir (ej: "05" = 5%)
+            // InclinaciÃ³n: 2 dÃ­gitos sin dividir (ej: "05" = 5%)
             final_value = atof(g_treadmill_state.set_buffer);
             if (final_value > MAX_CLIMB_PERCENT) final_value = MAX_CLIMB_PERCENT;
             g_treadmill_state.target_climb_percent = final_value;
             is_speed_mode = false;
+        } else if (g_treadmill_state.set_mode >= SET_MODE_SERIES_WORK_SPEED && g_treadmill_state.set_mode <= SET_MODE_SERIES_REST_SPM) {
+            int val = atoi(g_treadmill_state.set_buffer);
+            switch (g_treadmill_state.set_mode) {
+                case SET_MODE_SERIES_WORK_SPEED: g_series_config.work.speed = (float)val; break;
+                case SET_MODE_SERIES_WORK_CLIMB: g_series_config.work.climb = val; break;
+                case SET_MODE_SERIES_WORK_TIME:  g_series_config.work.duration_secs = val; break;
+                case SET_MODE_SERIES_WORK_SPM:   g_series_config.work.spm = val; break;
+                case SET_MODE_SERIES_REST_SPEED: g_series_config.rest.speed = (float)val; break;
+                case SET_MODE_SERIES_REST_CLIMB: g_series_config.rest.climb = val; break;
+                case SET_MODE_SERIES_REST_TIME:  g_series_config.rest.duration_secs = val; break;
+                case SET_MODE_SERIES_REST_SPM:   g_series_config.rest.spm = val; break;
+                default: break;
+            }
+            xSemaphoreGive(g_state_mutex);
+            // Si venimos de la pantalla de configuraciÃ³n de series, volvemos a ella
+            if (!scr_series_config) create_series_config_screen();
+            
+            // Actualizar labels en la pantalla de series
+            bsp_display_lock(portMAX_DELAY);
+            switch (g_treadmill_state.set_mode) {
+                case SET_MODE_SERIES_WORK_SPEED: lv_label_set_text_fmt(label_series_work_speed, "Speed: %.1f", g_series_config.work.speed); break;
+                case SET_MODE_SERIES_WORK_CLIMB: lv_label_set_text_fmt(label_series_work_climb, "Incline: %d", g_series_config.work.climb); break;
+                case SET_MODE_SERIES_WORK_TIME:  lv_label_set_text_fmt(label_series_work_time, "Time: %d s", g_series_config.work.duration_secs); break;
+                case SET_MODE_SERIES_WORK_SPM:   lv_label_set_text_fmt(label_series_work_spm, "SPM: %d", g_series_config.work.spm); break;
+                case SET_MODE_SERIES_REST_SPEED: lv_label_set_text_fmt(label_series_rest_speed, "Speed: %.1f", g_series_config.rest.speed); break;
+                case SET_MODE_SERIES_REST_CLIMB: lv_label_set_text_fmt(label_series_rest_climb, "Incline: %d", g_series_config.rest.climb); break;
+                case SET_MODE_SERIES_REST_TIME:  lv_label_set_text_fmt(label_series_rest_time, "Time: %d s", g_series_config.rest.duration_secs); break;
+                case SET_MODE_SERIES_REST_SPM:   lv_label_set_text_fmt(label_series_rest_spm, "SPM: %d", g_series_config.rest.spm); break;
+                default: break;
+            }
+            bsp_display_unlock();
+
+            _switch_to_set_screen_internal(SET_MODE_NONE);
+            lv_scr_load(scr_series_config);
+            confirming_in_progress = false;
+            return;
         } else {
             // Caso inesperado (ej: SET_MODE_NONE)
             ESP_LOGW(TAG, "ui_confirm_set_value: Modo inesperado %d, abortando", g_treadmill_state.set_mode);
@@ -3724,7 +4078,7 @@ void ui_confirm_set_value(void) {
             ESP_LOGI(TAG, "Enviando VELOCIDAD: %.1f km/h", final_value);
             cm_master_set_speed(final_value);
         } else {
-            ESP_LOGI(TAG, "Enviando INCLINACIÓN: %.1f %%", final_value);
+            ESP_LOGI(TAG, "Enviando INCLINACIÃ“N: %.1f %%", final_value);
             cm_master_set_incline(final_value);
         }
 
@@ -3736,7 +4090,7 @@ void ui_confirm_set_value(void) {
             int speed_frac = (int)((final_value - speed_int) * 10);
             lv_label_set_text_fmt(label_speed_kmh, "%d.%d", speed_int, speed_frac);
 
-            // Actualizar pace (min:seg por km) - M:SS con límite 9:59
+            // Actualizar pace (min:seg por km) - M:SS con lÃ­mite 9:59
             if (final_value > 6.01f) {
                 float pace_min_per_km = 60.0f / final_value;
                 int pace_m = (int)pace_min_per_km;
@@ -3769,7 +4123,7 @@ void ui_confirm_set_value(void) {
     lv_scr_load(scr_main);
     xSemaphoreGive(g_state_mutex);
     
-    // Limpiar bandera de confirmación
+    // Limpiar bandera de confirmaciÃ³n
     confirming_in_progress = false;
 }
 
@@ -3828,7 +4182,7 @@ void ui_loading_complete(void) {
 
     lv_scr_load(scr_main);
 
-    // ACTIVAR TRAINING MODE (entrando a pantalla principal después de descarga)
+    // ACTIVAR TRAINING MODE (entrando a pantalla principal despuÃ©s de descarga)
     cm_master_set_training_mode(true);
     ESP_LOGI(TAG, "Entrando a pantalla principal - Training mode activado");
 }
@@ -3881,7 +4235,7 @@ void ui_chest_toggle(void) {
     cm_master_set_fan(0x02, next_state);
 
     // NO actualizar la UI inmediatamente, esperar respuesta del slave
-    // La actualización se hará en ui_update_task() cuando llegue RSP_STATUS
+    // La actualizaciÃ³n se harÃ¡ en ui_update_task() cuando llegue RSP_STATUS
 }
 
 void ui_head_toggle(void) {
@@ -3894,7 +4248,7 @@ void ui_head_toggle(void) {
     cm_master_set_fan(0x01, next_state);
 
     // NO actualizar la UI inmediatamente, esperar respuesta del slave
-    // La actualización se hará en ui_update_task() cuando llegue RSP_STATUS
+    // La actualizaciÃ³n se harÃ¡ en ui_update_task() cuando llegue RSP_STATUS
 }
 
 static void wax_event_cb(lv_event_t *e) {
@@ -3979,20 +4333,20 @@ static void wax_back_event_cb(lv_event_t *e) {
 
 void ui_weight_entry(void) {
     ESP_LOGI(TAG, "ui_weight_entry: buttons_are_stop_mode=%d", buttons_are_stop_mode);
-    // Verificar si los botones están en modo STOP/COOL DOWN
+    // Verificar si los botones estÃ¡n en modo STOP/COOL DOWN
     if (buttons_are_stop_mode) {
         xSemaphoreTake(g_state_mutex, portMAX_DELAY);
         bool is_stopped = g_treadmill_state.is_stopped;
         int cd_level = g_treadmill_state.cooldown_level;
         xSemaphoreGive(g_state_mutex);
 
-        // Si estamos en STOP (Pausa), el botón derecho es END
+        // Si estamos en STOP (Pausa), el botÃ³n derecho es END
         if (is_stopped) {
             ESP_LOGI(TAG, "ui_weight_entry: llamando ui_finish_training() (is_stopped=true)");
             audio_play_beep();
             ui_finish_training();
         } else if (cd_level >= 3) {
-            // En Nivel 3 el botón derecho es STOP (Pausar cinta)
+            // En Nivel 3 el botÃ³n derecho es STOP (Pausar cinta)
             ESP_LOGI(TAG, "ui_weight_entry: llamando ui_stop_from_cooldown() (level=%d)", cd_level);
             ui_stop_from_cooldown();
         } else {
@@ -4010,16 +4364,16 @@ void ui_weight_entry(void) {
 }
 
 void ui_back_to_training(void) {
-    // Verificar si los botones están en modo STOP/COOL DOWN
+    // Verificar si los botones estÃ¡n en modo STOP/COOL DOWN
     ESP_LOGI(TAG, "ui_back_to_training ENTRY: buttons_are_stop_mode=%d, tick=%lu",
              buttons_are_stop_mode, (unsigned long)xTaskGetTickCount());
     if (buttons_are_stop_mode) {
-        // Actuar como STOP (botón izquierdo)
+        // Actuar como STOP (botÃ³n izquierdo)
         ESP_LOGI(TAG, "ui_back_to_training: llamando ui_stop_resume()");
         ui_stop_resume();
         ESP_LOGI(TAG, "ui_back_to_training: ui_stop_resume() completado");
     } else {
-        // Actuar como BACK: volver a selección de entrenamientos
+        // Actuar como BACK: volver a selecciÃ³n de entrenamientos
         audio_play_beep();
         bsp_display_lock(portMAX_DELAY);
         if (wifi_check_timer) {
@@ -4042,10 +4396,10 @@ void ui_select_training(int training_number) {
     g_treadmill_state.has_run_minimum_time = false;
     g_treadmill_state.has_uploaded = false;
     g_treadmill_state.has_shown_welcome_message = false;
-    g_treadmill_state.target_climb_percent = 0.0f; // Resetear inclinación objetivo
+    g_treadmill_state.target_climb_percent = 0.0f; // Resetear inclinaciÃ³n objetivo
     xSemaphoreGive(g_state_mutex);
 
-    // Enviar comando de reset de inclinación al esclavo
+    // Enviar comando de reset de inclinaciÃ³n al esclavo
     cm_master_set_incline(0.0f);
 
     // Limpiar timer de WiFi
@@ -4058,37 +4412,36 @@ void ui_select_training(int training_number) {
 
     switch(training_number) {
         case 1:
-            ESP_LOGI(TAG, "Entrenamiento libre seleccionado (botón físico)");
+            ESP_LOGI(TAG, "Entrenamiento libre seleccionado (botÃ³n fÃ­sico)");
             bsp_display_lock(portMAX_DELAY);
             lv_scr_load(scr_main);
             cm_master_set_training_mode(true);  // ACTIVAR TRAINING MODE
-            ESP_LOGI(TAG, "Training mode activado (botón físico)");
+            ESP_LOGI(TAG, "Training mode activado (botÃ³n fÃ­sico)");
             set_info_text_persistent("Selecciona una velocidad para comenzar");
             bsp_display_unlock();
             break;
         case 2:
-            ESP_LOGI(TAG, "Entrenamiento Itsaso seleccionado (botón físico) - iniciando descarga IA");
+            ESP_LOGI(TAG, "Entrenamiento Itsaso seleccionado (botÃ³n fÃ­sico) - iniciando descarga IA");
             bsp_display_lock(portMAX_DELAY);
             lv_scr_load(scr_loading);  // Pantalla negra durante descarga
             bsp_display_unlock();
             ia_sync_get_next_plan("Itsaso", on_plan_received);
             break;
         case 3:
-            ESP_LOGI(TAG, "Entrenamiento Ina seleccionado (botón físico) - iniciando descarga IA");
+            ESP_LOGI(TAG, "Entrenamiento Ina seleccionado (botÃ³n fÃ­sico) - iniciando descarga IA");
             bsp_display_lock(portMAX_DELAY);
             lv_scr_load(scr_loading);  // Pantalla negra durante descarga
             bsp_display_unlock();
             ia_sync_get_next_plan("Ina", on_plan_received);
             break;
         default:
-            ESP_LOGW(TAG, "Número de entrenamiento inválido: %d", training_number);
+            ESP_LOGW(TAG, "NÃºmero de entrenamiento invÃ¡lido: %d", training_number);
             break;
     }
 }
-// WiFi selector callback - wrapper that calls ui_open_wifi_selector
 static void wifi_selector_event_cb(lv_event_t *e) {
     audio_play_beep();
-    ESP_LOGI(TAG, "Botón WiFi presionado - abriendo lista de redes");
+    ESP_LOGI(TAG, "BotÃ³n WiFi presionado - abriendo lista de redes");
     ui_open_wifi_list();
 }
 
@@ -4097,4 +4450,419 @@ void ui_open_settings(void) {
     bsp_display_lock(portMAX_DELAY);
     lv_scr_load(scr_app_settings);
     bsp_display_unlock();
+}
+
+static void series_config_back_event_cb(lv_event_t *e) {
+    audio_play_beep();
+    lv_scr_load(scr_training_select);
+}
+
+static void series_config_start_event_cb(lv_event_t *e) {
+    audio_play_beep();
+    
+    // Generar ia_plan_t a partir de g_series_config
+    ia_plan_t plan;
+    memset(&plan, 0, sizeof(plan));
+    strcpy(plan.plan_id, "Series_Manual");
+    plan.block_count = g_series_config.num_vueltas * 2;
+    
+    for (int i = 0; i < g_series_config.num_vueltas; i++) {
+        // Bloque de TRABAJO
+        int w_idx = i * 2;
+        plan.blocks[w_idx].target_speed = g_series_config.work.speed;
+        plan.blocks[w_idx].target_incline = (float)g_series_config.work.climb;
+        plan.blocks[w_idx].primary_cond_type = IA_CONDITION_TIME;
+        plan.blocks[w_idx].primary_cond_value = (float)g_series_config.work.duration_secs;
+        plan.blocks[w_idx].spm = g_series_config.work.spm;
+        plan.blocks[w_idx].steps_enabled = g_series_config.work.steps_enabled;
+        plan.blocks[w_idx].sound_enabled = g_series_config.work.sound_enabled;
+        snprintf(plan.blocks[w_idx].tramo_label, 63, "SERIE %d/%d", i+1, g_series_config.num_vueltas);
+        strcpy(plan.blocks[w_idx].bloque_label, "TRABAJO");
+
+        // Bloque de DESCANSO
+        int r_idx = i * 2 + 1;
+        plan.blocks[r_idx].target_speed = g_series_config.rest.speed;
+        plan.blocks[r_idx].target_incline = (float)g_series_config.rest.climb;
+        plan.blocks[r_idx].primary_cond_type = IA_CONDITION_TIME;
+        plan.blocks[r_idx].primary_cond_value = (float)g_series_config.rest.duration_secs;
+        plan.blocks[r_idx].spm = g_series_config.rest.spm;
+        plan.blocks[r_idx].steps_enabled = g_series_config.rest.steps_enabled;
+        plan.blocks[r_idx].sound_enabled = g_series_config.rest.sound_enabled;
+        snprintf(plan.blocks[r_idx].tramo_label, 63, "SERIE %d/%d", i+1, g_series_config.num_vueltas);
+        strcpy(plan.blocks[r_idx].bloque_label, "DESCANSO");
+    }
+    
+    // Cargar plan y empezar
+    on_plan_received(&plan, NULL);
+    
+    xSemaphoreTake(g_state_mutex, portMAX_DELAY);
+    g_treadmill_state.plan_running = true;
+    xSemaphoreGive(g_state_mutex);
+
+    // Mandar comandos iniciales
+    cm_master_set_speed(plan.blocks[0].target_speed);
+    cm_master_set_incline(plan.blocks[0].target_incline);
+    
+    // Sincronizar Step Control inicial
+    step_control_target_spm = (plan.blocks[0].steps_enabled) ? plan.blocks[0].spm : 0;
+    step_control_audio_enabled = plan.blocks[0].sound_enabled;
+    update_step_control_timer();
+}
+
+static void series_num_inc_cb(lv_event_t *e) {
+    audio_play_beep();
+    if (g_series_config.num_vueltas < 99) g_series_config.num_vueltas++;
+    lv_label_set_text_fmt(label_series_count, "%d", g_series_config.num_vueltas);
+}
+
+static void series_num_dec_cb(lv_event_t *e) {
+    audio_play_beep();
+    if (g_series_config.num_vueltas > 1) g_series_config.num_vueltas--;
+    lv_label_set_text_fmt(label_series_count, "%d", g_series_config.num_vueltas);
+}
+
+static void series_field_event_cb(lv_event_t *e) {
+    set_mode_t mode = (set_mode_t)(uintptr_t)lv_event_get_user_data(e);
+    audio_play_beep();
+    _show_overlay_numpad(mode);
+}
+
+static void series_work_steps_event_cb(lv_event_t *e) {
+    g_series_config.work.steps_enabled = !g_series_config.work.steps_enabled;
+    audio_play_beep();
+    if (g_series_config.work.steps_enabled) {
+        lv_obj_set_style_bg_color(btn_series_work_steps, lv_color_hex(0x00AA00), 0);
+        lv_label_set_text(label_series_work_steps, "STEPS: ON");
+    } else {
+        lv_obj_set_style_bg_color(btn_series_work_steps, lv_color_hex(0x444444), 0);
+        lv_label_set_text(label_series_work_steps, "STEPS: OFF");
+    }
+}
+
+static void series_work_sound_event_cb(lv_event_t *e) {
+    g_series_config.work.sound_enabled = !g_series_config.work.sound_enabled;
+    audio_play_beep();
+    if (g_series_config.work.sound_enabled) {
+        lv_obj_set_style_bg_color(btn_series_work_sound, lv_color_hex(0x00AA00), 0);
+        lv_label_set_text(label_series_work_sound, "SOUND: ON");
+    } else {
+        lv_obj_set_style_bg_color(btn_series_work_sound, lv_color_hex(0x444444), 0);
+        lv_label_set_text(label_series_work_sound, "SOUND: OFF");
+    }
+}
+
+static void series_rest_steps_event_cb(lv_event_t *e) {
+    g_series_config.rest.steps_enabled = !g_series_config.rest.steps_enabled;
+    audio_play_beep();
+    if (g_series_config.rest.steps_enabled) {
+        lv_obj_set_style_bg_color(btn_series_rest_steps, lv_color_hex(0x00AA00), 0);
+        lv_label_set_text(label_series_rest_steps, "STEPS: ON");
+    } else {
+        lv_obj_set_style_bg_color(btn_series_rest_steps, lv_color_hex(0x444444), 0);
+        lv_label_set_text(label_series_rest_steps, "STEPS: OFF");
+    }
+}
+
+static void series_rest_sound_event_cb(lv_event_t *e) {
+    g_series_config.rest.sound_enabled = !g_series_config.rest.sound_enabled;
+    audio_play_beep();
+    if (g_series_config.rest.sound_enabled) {
+        lv_obj_set_style_bg_color(btn_series_rest_sound, lv_color_hex(0x00AA00), 0);
+        lv_label_set_text(label_series_rest_sound, "SOUND: ON");
+    } else {
+        lv_obj_set_style_bg_color(btn_series_rest_sound, lv_color_hex(0x444444), 0);
+        lv_label_set_text(label_series_rest_sound, "SOUND: OFF");
+    }
+}
+
+static void create_series_config_screen(void) {
+    scr_series_config = lv_obj_create(NULL);
+    lv_obj_set_style_bg_color(scr_series_config, lv_color_black(), 0);
+    lv_obj_clear_flag(scr_series_config, LV_OBJ_FLAG_SCROLLABLE);
+
+    lv_obj_t * title = lv_label_create(scr_series_config);
+    lv_obj_add_style(title, &style_title, 0);
+    lv_label_set_text(title, "DEFINIR ENTRENAMIENTO");
+    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 30);
+
+    const int col_w = 400;
+
+    // --- COLUMNA IZQUIERDA: SERIES ---
+    lv_obj_t * left_col = lv_obj_create(scr_series_config);
+    lv_obj_set_size(left_col, 200, 500);
+    lv_obj_align(left_col, LV_ALIGN_LEFT_MID, 40, -38);
+    lv_obj_set_style_bg_opa(left_col, 0, 0);
+    lv_obj_set_style_border_opa(left_col, 0, 0);
+    lv_obj_set_flex_flow(left_col, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(left_col, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_gap(left_col, 30, 0);
+
+    lv_obj_t * l_v_title = lv_label_create(left_col);
+    lv_obj_add_style(l_v_title, &style_btn_text, 0);
+    lv_label_set_text(l_v_title, "SERIES");
+
+    lv_obj_t * btn_inc = lv_btn_create(left_col);
+    lv_obj_set_size(btn_inc, 100, 100);
+    lv_obj_add_style(btn_inc, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_inc, series_num_inc_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * l_inc = lv_label_create(btn_inc);
+    lv_obj_add_style(l_inc, &style_btn_symbol, 0);
+    lv_label_set_text(l_inc, LV_SYMBOL_PLUS);
+    lv_obj_center(l_inc);
+
+    label_series_count = lv_label_create(left_col);
+    lv_obj_add_style(label_series_count, &style_value_main, 0);
+    lv_label_set_text_fmt(label_series_count, "%d", g_series_config.num_vueltas);
+
+    lv_obj_t * btn_dec = lv_btn_create(left_col);
+    lv_obj_set_size(btn_dec, 100, 100);
+    lv_obj_add_style(btn_dec, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_dec, series_num_dec_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * l_dec = lv_label_create(btn_dec);
+    lv_obj_add_style(l_dec, &style_btn_symbol, 0);
+    lv_label_set_text(l_dec, LV_SYMBOL_MINUS);
+    lv_obj_center(l_dec);
+
+    // --- COLUMNA CENTRAL: TRABAJO ---
+    lv_obj_t * mid_col = lv_obj_create(scr_series_config);
+    lv_obj_set_size(mid_col, col_w, 550);
+    lv_obj_align(mid_col, LV_ALIGN_CENTER, -100, -18);
+    lv_obj_set_style_bg_color(mid_col, lv_color_hex(0x1A1A1A), 0);
+    lv_obj_set_style_radius(mid_col, 15, 0);
+    lv_obj_set_style_border_color(mid_col, lv_color_hex(0x00AA00), 0);
+    lv_obj_set_style_border_width(mid_col, 2, 0);
+    lv_obj_set_flex_flow(mid_col, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(mid_col, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_all(mid_col, 15, 0);
+    lv_obj_set_style_pad_gap(mid_col, 15, 0);
+
+    lv_obj_t * l_work = lv_label_create(mid_col);
+    lv_obj_add_style(l_work, &style_btn_text, 0);
+    lv_obj_set_style_text_color(l_work, lv_color_hex(0x00FF00), 0);
+    lv_label_set_text(l_work, "TRABAJO");
+
+    // Speed
+    lv_obj_t * btn_w_speed = lv_btn_create(mid_col);
+    lv_obj_set_size(btn_w_speed, 350, 60);
+    lv_obj_add_style(btn_w_speed, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_w_speed, series_field_event_cb, LV_EVENT_CLICKED, (void*)(uintptr_t)SET_MODE_SERIES_WORK_SPEED);
+    label_series_work_speed = lv_label_create(btn_w_speed);
+    lv_obj_add_style(label_series_work_speed, &style_btn_text, 0);
+    char speed_buf[32];
+    snprintf(speed_buf, sizeof(speed_buf), "Speed: %.1f", g_series_config.work.speed);
+    lv_label_set_text(label_series_work_speed, speed_buf);
+    lv_obj_center(label_series_work_speed);
+
+    // Incline
+    lv_obj_t * btn_w_climb = lv_btn_create(mid_col);
+    lv_obj_set_size(btn_w_climb, 350, 60);
+    lv_obj_add_style(btn_w_climb, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_w_climb, series_field_event_cb, LV_EVENT_CLICKED, (void*)(uintptr_t)SET_MODE_SERIES_WORK_CLIMB);
+    label_series_work_climb = lv_label_create(btn_w_climb);
+    lv_obj_add_style(label_series_work_climb, &style_btn_text, 0);
+    lv_label_set_text_fmt(label_series_work_climb, "Incline: %d", g_series_config.work.climb);
+    lv_obj_center(label_series_work_climb);
+
+    // Time
+    lv_obj_t * btn_w_time = lv_btn_create(mid_col);
+    lv_obj_set_size(btn_w_time, 350, 60);
+    lv_obj_add_style(btn_w_time, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_w_time, series_field_event_cb, LV_EVENT_CLICKED, (void*)(uintptr_t)SET_MODE_SERIES_WORK_TIME);
+    label_series_work_time = lv_label_create(btn_w_time);
+    lv_obj_add_style(label_series_work_time, &style_btn_text, 0);
+    int w_mins = g_series_config.work.duration_secs / 60;
+    int w_secs = g_series_config.work.duration_secs % 60;
+    lv_label_set_text_fmt(label_series_work_time, "Time: %02d:%02d", w_mins, w_secs);
+    lv_obj_center(label_series_work_time);
+
+    // Divider
+    lv_obj_t * sep1 = lv_obj_create(mid_col); lv_obj_set_size(sep1, 300, 2); lv_obj_set_style_bg_color(sep1, lv_color_hex(0x444444), 0);
+
+    // Steps Toggle
+    btn_series_work_steps = lv_btn_create(mid_col);
+    lv_obj_set_size(btn_series_work_steps, 350, 60);
+    lv_obj_add_style(btn_series_work_steps, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_series_work_steps, series_work_steps_event_cb, LV_EVENT_CLICKED, NULL);
+    label_series_work_steps = lv_label_create(btn_series_work_steps);
+    lv_obj_add_style(label_series_work_steps, &style_btn_text, 0);
+    lv_label_set_text(label_series_work_steps, g_series_config.work.steps_enabled ? "STEPS: ON" : "STEPS: OFF");
+    lv_obj_center(label_series_work_steps);
+    if(g_series_config.work.steps_enabled) lv_obj_set_style_bg_color(btn_series_work_steps, lv_color_hex(0x00AA00), 0);
+
+    // SPM
+    lv_obj_t * btn_w_spm = lv_btn_create(mid_col);
+    lv_obj_set_size(btn_w_spm, 350, 60);
+    lv_obj_add_style(btn_w_spm, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_w_spm, series_field_event_cb, LV_EVENT_CLICKED, (void*)(uintptr_t)SET_MODE_SERIES_WORK_SPM);
+    label_series_work_spm = lv_label_create(btn_w_spm);
+    lv_obj_add_style(label_series_work_spm, &style_btn_text, 0);
+    lv_label_set_text_fmt(label_series_work_spm, "SPM: %d", (int)g_series_config.work.spm);
+    lv_obj_center(label_series_work_spm);
+
+    // Sound Toggle
+    btn_series_work_sound = lv_btn_create(mid_col);
+    lv_obj_set_size(btn_series_work_sound, 350, 60);
+    lv_obj_add_style(btn_series_work_sound, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_series_work_sound, series_work_sound_event_cb, LV_EVENT_CLICKED, NULL);
+    label_series_work_sound = lv_label_create(btn_series_work_sound);
+    lv_obj_add_style(label_series_work_sound, &style_btn_text, 0);
+    lv_label_set_text(label_series_work_sound, g_series_config.work.sound_enabled ? "SOUND: ON" : "SOUND: OFF");
+    lv_obj_center(label_series_work_sound);
+    if(g_series_config.work.sound_enabled) lv_obj_set_style_bg_color(btn_series_work_sound, lv_color_hex(0x00AA00), 0);
+
+
+    // --- COLUMNA DERECHA: DESCANSO ---
+    lv_obj_t * right_col = lv_obj_create(scr_series_config);
+    lv_obj_set_size(right_col, col_w, 550);
+    lv_obj_align(right_col, LV_ALIGN_CENTER, 350, -18);
+    lv_obj_set_style_bg_color(right_col, lv_color_hex(0x1A1A1A), 0);
+    lv_obj_set_style_radius(right_col, 15, 0);
+    lv_obj_set_style_border_color(right_col, lv_color_hex(0xAA0000), 0);
+    lv_obj_set_style_border_width(right_col, 2, 0);
+    lv_obj_set_flex_flow(right_col, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(right_col, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_all(right_col, 15, 0);
+    lv_obj_set_style_pad_gap(right_col, 15, 0);
+
+    lv_obj_t * l_rest = lv_label_create(right_col);
+    lv_obj_add_style(l_rest, &style_btn_text, 0);
+    lv_obj_set_style_text_color(l_rest, lv_color_hex(0xFF0000), 0);
+    lv_label_set_text(l_rest, "DESCANSO");
+
+    // Speed
+    lv_obj_t * btn_r_speed = lv_btn_create(right_col);
+    lv_obj_set_size(btn_r_speed, 350, 60);
+    lv_obj_add_style(btn_r_speed, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_r_speed, series_field_event_cb, LV_EVENT_CLICKED, (void*)(uintptr_t)SET_MODE_SERIES_REST_SPEED);
+    label_series_rest_speed = lv_label_create(btn_r_speed);
+    lv_obj_add_style(label_series_rest_speed, &style_btn_text, 0);
+    char rest_speed_buf[32];
+    snprintf(rest_speed_buf, sizeof(rest_speed_buf), "Speed: %.1f", g_series_config.rest.speed);
+    lv_label_set_text(label_series_rest_speed, rest_speed_buf);
+    lv_obj_center(label_series_rest_speed);
+
+    // Incline
+    lv_obj_t * btn_r_climb = lv_btn_create(right_col);
+    lv_obj_set_size(btn_r_climb, 350, 60);
+    lv_obj_add_style(btn_r_climb, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_r_climb, series_field_event_cb, LV_EVENT_CLICKED, (void*)(uintptr_t)SET_MODE_SERIES_REST_CLIMB);
+    label_series_rest_climb = lv_label_create(btn_r_climb);
+    lv_obj_add_style(label_series_rest_climb, &style_btn_text, 0);
+    lv_label_set_text_fmt(label_series_rest_climb, "Incline: %d", g_series_config.rest.climb);
+    lv_obj_center(label_series_rest_climb);
+
+    // Time
+    lv_obj_t * btn_r_time = lv_btn_create(right_col);
+    lv_obj_set_size(btn_r_time, 350, 60);
+    lv_obj_add_style(btn_r_time, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_r_time, series_field_event_cb, LV_EVENT_CLICKED, (void*)(uintptr_t)SET_MODE_SERIES_REST_TIME);
+    label_series_rest_time = lv_label_create(btn_r_time);
+    lv_obj_add_style(label_series_rest_time, &style_btn_text, 0);
+    int r_mins = g_series_config.rest.duration_secs / 60;
+    int r_secs = g_series_config.rest.duration_secs % 60;
+    lv_label_set_text_fmt(label_series_rest_time, "Time: %02d:%02d", r_mins, r_secs);
+    lv_obj_center(label_series_rest_time);
+
+    // Divider
+    lv_obj_t * sep2 = lv_obj_create(right_col); lv_obj_set_size(sep2, 300, 2); lv_obj_set_style_bg_color(sep2, lv_color_hex(0x444444), 0);
+
+    // Steps Toggle
+    btn_series_rest_steps = lv_btn_create(right_col);
+    lv_obj_set_size(btn_series_rest_steps, 350, 60);
+    lv_obj_add_style(btn_series_rest_steps, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_series_rest_steps, series_rest_steps_event_cb, LV_EVENT_CLICKED, NULL);
+    label_series_rest_steps = lv_label_create(btn_series_rest_steps);
+    lv_obj_add_style(label_series_rest_steps, &style_btn_text, 0);
+    lv_label_set_text(label_series_rest_steps, g_series_config.rest.steps_enabled ? "STEPS: ON" : "STEPS: OFF");
+    lv_obj_center(label_series_rest_steps);
+    if(g_series_config.rest.steps_enabled) lv_obj_set_style_bg_color(btn_series_rest_steps, lv_color_hex(0x00AA00), 0);
+
+    // SPM
+    lv_obj_t * btn_r_spm = lv_btn_create(right_col);
+    lv_obj_set_size(btn_r_spm, 350, 60);
+    lv_obj_add_style(btn_r_spm, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_r_spm, series_field_event_cb, LV_EVENT_CLICKED, (void*)(uintptr_t)SET_MODE_SERIES_REST_SPM);
+    label_series_rest_spm = lv_label_create(btn_r_spm);
+    lv_obj_add_style(label_series_rest_spm, &style_btn_text, 0);
+    lv_label_set_text_fmt(label_series_rest_spm, "SPM: %d", (int)g_series_config.rest.spm);
+    lv_obj_center(label_series_rest_spm);
+
+    // Sound Toggle
+    btn_series_rest_sound = lv_btn_create(right_col);
+    lv_obj_set_size(btn_series_rest_sound, 350, 60);
+    lv_obj_add_style(btn_series_rest_sound, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_series_rest_sound, series_rest_sound_event_cb, LV_EVENT_CLICKED, NULL);
+    label_series_rest_sound = lv_label_create(btn_series_rest_sound);
+    lv_obj_add_style(label_series_rest_sound, &style_btn_text, 0);
+    lv_label_set_text(label_series_rest_sound, g_series_config.rest.sound_enabled ? "SOUND: ON" : "SOUND: OFF");
+    lv_obj_center(label_series_rest_sound);
+    if(g_series_config.rest.sound_enabled) lv_obj_set_style_bg_color(btn_series_rest_sound, lv_color_hex(0x00AA00), 0);
+
+
+    // --- FOOTER BUTTONS ---
+    lv_obj_t * btn_back_f = lv_btn_create(scr_series_config);
+    lv_obj_set_size(btn_back_f, 300, 80);
+    lv_obj_align(btn_back_f, LV_ALIGN_BOTTOM_LEFT, 40, -20);
+    lv_obj_add_style(btn_back_f, &style_btn_premium, 0);
+    lv_obj_add_event_cb(btn_back_f, series_config_back_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * l_back_f = lv_label_create(btn_back_f);
+    lv_obj_add_style(l_back_f, &style_btn_text, 0);
+    lv_label_set_text(l_back_f, "ATRAS");
+    lv_obj_center(l_back_f);
+
+    lv_obj_t * btn_start = lv_btn_create(scr_series_config);
+    lv_obj_set_size(btn_start, 300, 80);
+    lv_obj_align(btn_start, LV_ALIGN_BOTTOM_RIGHT, -40, -20);
+    lv_obj_add_style(btn_start, &style_btn_premium, 0);
+    lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x007700), 0);
+    lv_obj_add_event_cb(btn_start, series_config_start_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * l_start = lv_label_create(btn_start);
+    lv_obj_add_style(l_start, &style_btn_text, 0);
+    lv_label_set_text(l_start, "COMENZAR");
+    lv_obj_center(l_start);
+    
+    // Create overlay numpad (initially hidden)
+    create_overlay_numpad(scr_series_config);
+}
+
+//==================================================================================
+// SCREEN STATE DETECTION FUNCTIONS
+//==================================================================================
+
+bool ui_is_ble_scan_screen_active(void) {
+    return (lv_scr_act() == scr_ble_scan);
+}
+
+bool ui_is_wax_screen_active(void) {
+    return (lv_scr_act() == scr_wax);
+}
+
+void ui_open_series_config(void) {
+    audio_play_beep();
+    
+    // Initialize defaults for the configuration if it's the first time
+    if (g_series_config.num_vueltas == 0) {
+        g_series_config.num_vueltas = 1;
+        g_series_config.work.speed = 10.0f;
+        g_series_config.work.climb = 0;
+        g_series_config.work.duration_secs = 60;
+        g_series_config.work.steps_enabled = false;
+        g_series_config.work.spm = 180;
+        g_series_config.work.sound_enabled = false;
+        
+        g_series_config.rest.speed = 5.0f;
+        g_series_config.rest.climb = 0;
+        g_series_config.rest.duration_secs = 30;
+        g_series_config.rest.steps_enabled = false;
+        g_series_config.rest.spm = 120;
+        g_series_config.rest.sound_enabled = false;
+    }
+
+    if (!scr_series_config) {
+        create_series_config_screen();
+    } else {
+        // Update the label if screen already exists
+        lv_label_set_text_fmt(label_series_count, "%d", g_series_config.num_vueltas);
+    }
+    lv_scr_load(scr_series_config);
 }

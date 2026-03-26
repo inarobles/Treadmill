@@ -13,7 +13,15 @@ typedef enum {
     SET_MODE_NONE,
     SET_MODE_SPEED,
     SET_MODE_CLIMB,
-    SET_MODE_WEIGHT
+    SET_MODE_WEIGHT,
+    SET_MODE_SERIES_WORK_SPEED,
+    SET_MODE_SERIES_WORK_CLIMB,
+    SET_MODE_SERIES_WORK_TIME,
+    SET_MODE_SERIES_WORK_SPM,
+    SET_MODE_SERIES_REST_SPEED,
+    SET_MODE_SERIES_REST_CLIMB,
+    SET_MODE_SERIES_REST_TIME,
+    SET_MODE_SERIES_REST_SPM
 } set_mode_t;
 
 typedef enum {
@@ -80,6 +88,11 @@ typedef struct {
     uint32_t block_elapsed_seconds;  // seconds elapsed in the current block
     double block_distance_km;       // distance accumulated in current block
     float block_kcal;               // kcal accumulated in current block
+
+    // Summary Metrics Accumulators
+    double accumulated_energy_joules;    // Total mechanical work
+    double accumulated_elevation_gain_m; // Total positive elevation
+    double accumulated_heartbeats;       // Total heartbeats (integral of pulse)
 
     // Speed Adjustment logic
     bool is_adjusting_speed;         // true while SPEED button is held

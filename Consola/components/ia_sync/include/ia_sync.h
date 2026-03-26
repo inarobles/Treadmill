@@ -12,7 +12,7 @@ extern "C" {
 // --- Data Structures ---
 
 // Defines the maximum number of blocks we expect in a plan (adjust as needed for RAM usage)
-#define IA_SYNC_MAX_BLOCKS 20
+#define IA_SYNC_MAX_BLOCKS 100
 
 typedef enum {
     IA_CONDITION_TIME,
@@ -30,6 +30,11 @@ typedef struct {
     float primary_cond_value;
     uint32_t secondary_cond_s;
 
+    // Steps Control integration
+    uint32_t spm;
+    bool steps_enabled;
+    bool sound_enabled;
+
     char tramo_label[64];
     char bloque_label[64];
 } ia_block_t;
@@ -39,7 +44,6 @@ typedef struct {
     int block_count;
     ia_block_t blocks[IA_SYNC_MAX_BLOCKS];
     char raw_json[4096]; // Buffer for debug/display
-    // Add metadata if needed (e.g., total duration, description)
 } ia_plan_t;
 
 // Callback types for asynchronous events

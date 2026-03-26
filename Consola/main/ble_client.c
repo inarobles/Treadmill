@@ -50,6 +50,7 @@ static bool g_is_scanning = false;
 static bool g_user_initiated_disconnect = false;  // Flag to prevent auto-reconnect after manual scan
 static TaskHandle_t g_reconnect_task_handle = NULL;
 static SemaphoreHandle_t g_ble_state_mutex = NULL;  // Protects g_is_scanning and g_user_initiated_disconnect
+static bool g_ble_synced = false;                 // Tracks if NimBLE is synced with controller
 
 
 // Forward declarations
@@ -69,14 +70,8 @@ static int ble_client_on_service_disc(uint16_t conn_handle, const struct ble_gat
  * @brief Starts a new BLE scan for devices advertising the Heart Rate service.
  */
 void ble_client_start_scan(ble_device_found_callback_t cb) {
-    bool is_scanning = false;
-    if (g_ble_state_mutex && xSemaphoreTake(g_ble_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
-        is_scanning = g_is_scanning;
-        xSemaphoreGive(g_ble_state_mutex);
-    }
-
-    if (is_scanning) {
-        ESP_LOGW(TAG, "Scan already in progress.");
+    if (!ble_client_is_ready()) {
+        ESP_LOGW(TAG, "Cannot start scan: BLE not initialized or synced yet.");
         return;
     }
 
@@ -106,10 +101,12 @@ void ble_client_start_scan(ble_device_found_callback_t cb) {
     ble_client_scan_internal();
 }
 
-/**
- * @brief Connects to a specific BLE device using its address.
- */
 void ble_client_connect(ble_addr_t addr) {
+    if (!ble_client_is_ready()) {
+        ESP_LOGW(TAG, "Cannot connect: BLE not initialized or synced yet.");
+        return;
+    }
+
     if (g_conn_handle != BLE_HS_CONN_HANDLE_NONE) {
         ESP_LOGW(TAG, "Already connected or connecting.");
         return;
@@ -197,6 +194,15 @@ bool ble_client_load_saved_device(ble_addr_t *addr) {
     
     ESP_LOGI(TAG, "Successfully loaded saved device address from NVS.");
     return true;
+}
+
+bool ble_client_is_ready(void) {
+    bool ready = false;
+    if (g_ble_state_mutex && xSemaphoreTake(g_ble_state_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+        ready = g_ble_synced;
+        xSemaphoreGive(g_ble_state_mutex);
+    }
+    return ready;
 }
 
 
@@ -440,6 +446,11 @@ static void ble_client_on_sync(void) {
     int rc;
     ESP_LOGI(TAG, "BLE Host synced.");
 
+    if (g_ble_state_mutex && xSemaphoreTake(g_ble_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+        g_ble_synced = true;
+        xSemaphoreGive(g_ble_state_mutex);
+    }
+
     rc = ble_hs_id_infer_auto(0, &g_own_addr_type);
     if (rc != 0) {
         ESP_LOGE(TAG, "Error determining address type; rc=%d", rc);
@@ -467,6 +478,10 @@ static void ble_client_on_sync(void) {
 static void ble_client_on_reset(int reason)
 {
     ESP_LOGE(TAG, "Resetting state; reason=%d", reason);
+    if (g_ble_state_mutex && xSemaphoreTake(g_ble_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+        g_ble_synced = false;
+        xSemaphoreGive(g_ble_state_mutex);
+    }
 }
 
 /**

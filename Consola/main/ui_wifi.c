@@ -33,6 +33,10 @@ static char g_last_connected_ssid[WIFI_MANAGER_MAX_SSID_LEN] = {0};
 static int g_last_connected_rssi = 0;
 static bool g_wifi_is_scanning = false;  // Flag to prevent timer calls during scan
 
+// Persistent storage for filtered networks (used by event callbacks)
+static wifi_network_info_t g_filtered_networks[WIFI_MANAGER_MAX_NETWORKS];
+static uint16_t g_num_filtered_networks = 0;
+
 // --- Forward declarations ---
 void ui_open_wifi_list(void);
 static void build_wifi_list(void);
@@ -148,7 +152,7 @@ void create_wifi_screens(void) {
     wifi_password_textarea = lv_textarea_create(scr_wifi_password);
     lv_obj_set_size(wifi_password_textarea, LV_PCT(90), 60);
     lv_obj_align(wifi_password_textarea, LV_ALIGN_TOP_MID, 0, 20);
-    lv_textarea_set_password_mode(wifi_password_textarea, true);
+    lv_textarea_set_password_mode(wifi_password_textarea, false);
     lv_textarea_set_one_line(wifi_password_textarea, true);
     lv_obj_set_style_text_font(wifi_password_textarea, &lv_font_montserrat_20, 0);
 
@@ -208,22 +212,21 @@ static void build_wifi_list(void) {
     uint16_t num_saved_networks = 0;
     wifi_manager_get_saved_ssids(saved_networks, WIFI_MANAGER_MAX_NETWORKS, &num_saved_networks);
 
-    // --- Filter Scanned Networks ---
-    wifi_network_info_t filtered_networks[WIFI_MANAGER_MAX_NETWORKS];
-    uint16_t num_filtered_networks = 0;
+    // --- Filter Scanned Networks (use global to persist for event callbacks) ---
+    g_num_filtered_networks = 0;
     for (int i = 0; i < g_num_scanned_networks; i++) {
         bool found = false;
-        for (int j = 0; j < num_filtered_networks; j++) {
-            if (strcmp(g_scanned_networks[i].ssid, filtered_networks[j].ssid) == 0) {
+        for (int j = 0; j < g_num_filtered_networks; j++) {
+            if (strcmp(g_scanned_networks[i].ssid, g_filtered_networks[j].ssid) == 0) {
                 found = true;
-                if (g_scanned_networks[i].rssi > filtered_networks[j].rssi) {
-                    filtered_networks[j] = g_scanned_networks[i];
+                if (g_scanned_networks[i].rssi > g_filtered_networks[j].rssi) {
+                    g_filtered_networks[j] = g_scanned_networks[i];
                 }
                 break;
             }
         }
         if (!found) {
-            filtered_networks[num_filtered_networks++] = g_scanned_networks[i];
+            g_filtered_networks[g_num_filtered_networks++] = g_scanned_networks[i];
         }
     }
 
@@ -245,8 +248,8 @@ static void build_wifi_list(void) {
     // 2. Available Networks
     create_section_title(main_container, "Redes Disponibles:");
     bool has_available = false;
-    for (int i = 0; i < num_filtered_networks; i++) {
-        if (strcmp(current_ssid, filtered_networks[i].ssid) != 0) {
+    for (int i = 0; i < g_num_filtered_networks; i++) {
+        if (strcmp(current_ssid, g_filtered_networks[i].ssid) != 0) {
             has_available = true;
 
             lv_obj_t *item = lv_obj_create(main_container);
@@ -256,17 +259,17 @@ static void build_wifi_list(void) {
             lv_obj_set_flex_align(item, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 
             lv_obj_t *ssid_label = lv_label_create(item);
-            lv_label_set_text_fmt(ssid_label, "%s (%d)", filtered_networks[i].ssid, filtered_networks[i].rssi);
+            lv_label_set_text_fmt(ssid_label, "%s (%d)", g_filtered_networks[i].ssid, g_filtered_networks[i].rssi);
             lv_obj_set_flex_grow(ssid_label, 1);
 
             lv_obj_t *btn_connect = lv_btn_create(item);
-            lv_obj_add_event_cb(btn_connect, wifi_network_connect_cb, LV_EVENT_CLICKED, &filtered_networks[i]);
+            lv_obj_add_event_cb(btn_connect, wifi_network_connect_cb, LV_EVENT_CLICKED, &g_filtered_networks[i]);
             lv_obj_t *label_connect = lv_label_create(btn_connect);
             lv_label_set_text(label_connect, "Conectar");
 
             bool is_saved = false;
             for (int j = 0; j < num_saved_networks; j++) {
-                if (strcmp(filtered_networks[i].ssid, saved_networks[j].ssid) == 0) {
+                if (strcmp(g_filtered_networks[i].ssid, saved_networks[j].ssid) == 0) {
                     is_saved = true;
                     break;
                 }
@@ -274,13 +277,13 @@ static void build_wifi_list(void) {
 
             if (is_saved) {
                 lv_obj_t *btn_edit = lv_btn_create(item);
-                lv_obj_add_event_cb(btn_edit, saved_network_edit_cb, LV_EVENT_CLICKED, (void*)filtered_networks[i].ssid);
+                lv_obj_add_event_cb(btn_edit, saved_network_edit_cb, LV_EVENT_CLICKED, (void*)g_filtered_networks[i].ssid);
                 lv_obj_t *label_edit = lv_label_create(btn_edit);
                 lv_label_set_text(label_edit, "Editar");
 
                 lv_obj_t *btn_del = lv_btn_create(item);
                 lv_obj_set_style_bg_color(btn_del, lv_palette_main(LV_PALETTE_RED), 0);
-                lv_obj_add_event_cb(btn_del, saved_network_delete_cb, LV_EVENT_CLICKED, (void*)filtered_networks[i].ssid);
+                lv_obj_add_event_cb(btn_del, saved_network_delete_cb, LV_EVENT_CLICKED, (void*)g_filtered_networks[i].ssid);
                 lv_obj_t *label_del = lv_label_create(btn_del);
                 lv_label_set_text(label_del, "Borrar");
             }
@@ -297,8 +300,8 @@ static void build_wifi_list(void) {
     bool has_saved = false;
     for (int i = 0; i < num_saved_networks; i++) {
         bool is_scanned = false;
-        for (int j = 0; j < num_filtered_networks; j++) {
-            if (strcmp(saved_networks[i].ssid, filtered_networks[j].ssid) == 0) {
+        for (int j = 0; j < g_num_filtered_networks; j++) {
+            if (strcmp(saved_networks[i].ssid, g_filtered_networks[j].ssid) == 0) {
                 is_scanned = true;
                 break;
             }

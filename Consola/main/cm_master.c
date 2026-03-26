@@ -140,8 +140,22 @@ static void process_data_response(const char *line) {
     }
 
     xSemaphoreTake(g_master_mutex, portMAX_DELAY);
-    g_real_speed_kmh = speed;
-    g_current_incline_pct = incline;
+    
+    // Smooth filtering (EMA) to reject glitches (e.g. 0.2km/h drops)
+    // alpha = 0.3 means we trust the new value 30% and history 70%
+    if (g_real_speed_kmh == 0.0f) {
+         g_real_speed_kmh = speed; // Initialize immediately if 0
+    } else {
+         g_real_speed_kmh = (g_real_speed_kmh * 0.7f) + (speed * 0.3f);
+    }
+
+    // Also smooth incline to prevent power path spikes
+    if (g_current_incline_pct == 0.0f) {
+        g_current_incline_pct = incline;
+    } else {
+        g_current_incline_pct = (g_current_incline_pct * 0.7f) + (incline * 0.3f);
+    }
+    
     g_vfd_freq_hz = vfd_freq;
     g_vfd_fault = (uint8_t)vfd_fault;
     g_head_fan_state = (uint8_t)fan_head;

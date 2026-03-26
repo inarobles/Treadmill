@@ -42,6 +42,11 @@ void ui_weight_entry(void);
 void ui_back_to_training(void);
 void ui_finish_training(void);
 void ui_open_settings(void);
+void ui_open_series_config(void);  // Open series configuration screen
+
+// Screen detection functions for button handler
+bool ui_is_ble_scan_screen_active(void);
+bool ui_is_wax_screen_active(void);
 
 // --- New WiFi UI Functions ---
 // Defined in ui_wifi.c

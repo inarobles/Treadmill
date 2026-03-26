@@ -15,6 +15,12 @@ typedef void (*ble_device_found_callback_t)(const char* name, ble_addr_t addr);
 void ble_client_init(void);
 
 /**
+ * @brief Checks if the BLE client is fully initialized and synced.
+ * @return true if ready for operations, false otherwise.
+ */
+bool ble_client_is_ready(void);
+
+/**
  * @brief Starts a new BLE scan for devices advertising the Heart Rate service.
  *
  * @param cb The callback function to be invoked for each device found.
