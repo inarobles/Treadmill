@@ -26,6 +26,7 @@
 
 #include "treadmill_state.h"
 #include "ble_client.h"
+#include "ble_ftms.h"
 
 static const char *TAG = "NIMBLE_BLE_CLIENT";
 
@@ -457,7 +458,10 @@ static void ble_client_on_sync(void) {
         return;
     }
 
-    // --- NEW: Auto-connect to saved device ---
+    // Start FTMS advertising (server role) so fitness apps can find us
+    ble_ftms_start_advertising();
+
+    // --- Auto-connect to saved HRM device (client role) ---
     ble_addr_t saved_addr;
     if (ble_client_load_saved_device(&saved_addr)) {
         ble_client_connect(saved_addr);
@@ -556,8 +560,11 @@ void ble_client_init(void) {
     ble_hs_cfg.sm_io_cap = BLE_HS_IO_NO_INPUT_OUTPUT;
     ble_hs_cfg.sm_sc = 0;
 
-    const char *device_name = "p4-treadmill-console";
+    const char *device_name = "Treadmill";
     ble_svc_gap_device_name_set(device_name);
+
+    // Register FTMS GATT server (must be before nimble_port_freertos_init)
+    ble_ftms_init();
 
     nimble_port_freertos_init(ble_host_task);
 

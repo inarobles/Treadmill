@@ -1,4 +1,4 @@
-﻿#include "ui.h"
+#include "ui.h"
 #ifndef SIMULATOR
 #include "audio.h"
 #include "wifi_client.h"
@@ -6,6 +6,7 @@
 #endif
 #include "treadmill_state.h"
 #include "ble_client.h"
+#include "ble_ftms.h"
 #include "cm_master.h"
 #include "esp_log.h"
 #include <math.h>
@@ -682,6 +683,7 @@ void ui_update_task(void *pvParameter) {
     static int prev_steps = -1, prev_kcal = -1;
     static bool need_restore_weight_buttons = false;
     static uint32_t heartbeat_counter = 0;
+    static uint32_t ftms_notify_counter = 0;  // Counter for FTMS BLE speed notifications
 
     while (1) {
         heartbeat_counter++;
@@ -916,12 +918,21 @@ void ui_update_task(void *pvParameter) {
                 float kcal = (vo2 * g_treadmill_state.user_weight_kg * (dt_seconds/60.0f)) / 200.0f;
                 g_treadmill_state.sim_kcal += kcal;
             }
+
+            // Send FTMS BLE speed notification every ~1 second (10 × 100ms)
+            ftms_notify_counter++;
+            if (ftms_notify_counter >= 10) {
+                ftms_notify_counter = 0;
+                ble_ftms_update_speed(g_treadmill_state.speed_kmh);
+            }
         } else { 
             // --- STOPPED STATELOGIC ---
             if (!was_stopped) {
                  // TRANSITION TO STOP
                  was_stopped = true;
                  power_filter_initialized = false;
+                 ftms_notify_counter = 0;
+                 ble_ftms_update_speed(0.0f);  // Notify FTMS clients that speed is now 0
                  
                  // Show Summary ONLY IF we have significant data (>100m or >1 min) to avoid glitches on startup
                  if (g_treadmill_state.total_distance_km > 0.05 || g_treadmill_state.total_running_seconds > 30) {
