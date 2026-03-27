@@ -47,7 +47,7 @@ static const char *TAG = "SLAVE";
 // CONFIGURACIÓN UART (a Consola v2.1)
 // ===========================================================================
 #define UART_PORT_NUM       UART_NUM_1
-#define UART_BAUD_RATE      9600
+#define UART_BAUD_RATE      115200
 #define UART_TX_PIN         17  // Asignación v5
 #define UART_RX_PIN         16  // Asignación v5
 #define UART_BUF_SIZE 512
@@ -644,12 +644,28 @@ static void uart_rx_task(void *pvParameters) {
 
 static void speed_update_task(void *pvParameters) {
     ESP_LOGI(TAG, "Tarea de actualización de velocidad iniciada (calculada desde VFD)");
+    static float last_valid_speed = 0.0f;  // Fix 3: último valor bueno para filtro anti-glitch
+
     for (;;) {
         vTaskDelay(pdMS_TO_TICKS(SPEED_UPDATE_INTERVAL_MS)); // 500ms
 
         // Obtener frecuencia real del VFD (leída por vfd_control_task)
         float vfd_freq_hz = vfd_driver_get_real_freq_hz();
         float new_real_speed = vfd_freq_hz * (6.4f / 50.0f);
+
+        // Fix 3: Filtro anti-glitch. La rampa del VFD es ~1.3 km/h/s, con muestreo
+        // cada 500ms el cambio máximo legítimo es ~0.65 km/h. Un bajón de >30%
+        // en un solo ciclo es ruido/glitch de lectura Modbus, no movimiento real.
+        if (last_valid_speed > 1.0f) {
+            float change_pct = fabsf(new_real_speed - last_valid_speed) / last_valid_speed;
+            if (change_pct > 0.30f) {
+                ESP_LOGW(TAG, "Glitch de velocidad filtrado: %.2f -> %.2f km/h (cambio %.0f%%)",
+                         last_valid_speed, new_real_speed, change_pct * 100.0f);
+                new_real_speed = last_valid_speed;  // Mantener último valor bueno
+            }
+        }
+        last_valid_speed = new_real_speed;
+
         xSemaphoreTake(g_speed_mutex, portMAX_DELAY);
         g_real_speed_kmh = new_real_speed;
         xSemaphoreGive(g_speed_mutex);

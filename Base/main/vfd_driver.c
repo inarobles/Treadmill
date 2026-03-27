@@ -78,6 +78,13 @@ static float g_target_kph = 0.0;
 static bool g_emergency_stop = false;
 static float g_vfd_real_freq_hz = 0.0;  // Frecuencia real leída del VFD (0x2103)
 
+// Control de estado de marcha (Fix 1: evitar re-enviar RUN_FWD)
+static bool g_vfd_is_running = false;
+
+// Tolerancia a errores de escritura (Fix 2: no marcar DISCONNECTED al primer fallo)
+static int g_write_error_count = 0;
+#define VFD_MAX_WRITE_ERRORS 3
+
 // Tarea de control
 static TaskHandle_t vfd_task_handle = NULL;
 
@@ -166,12 +173,19 @@ static esp_err_t vfd_write_register(uint16_t reg_addr, uint16_t value) {
     esp_err_t err = mbc_master_send_request(master_handle, &req, &value);
 
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_VFD, "Error al escribir en registro 0x%04X: %s", reg_addr, esp_err_to_name(err));
-        if (xSemaphoreTake(vfd_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
-            g_vfd_status = VFD_STATUS_DISCONNECTED; // Asumimos desconexión
-            xSemaphoreGive(vfd_mutex);
+        // Fix 2: Tolerar errores puntuales por EMI. Solo marcar DISCONNECTED
+        // tras VFD_MAX_WRITE_ERRORS fallos consecutivos de escritura.
+        g_write_error_count++;
+        ESP_LOGW(TAG_VFD, "Error escritura reg 0x%04X: %s (consecutivos: %d/%d)",
+                 reg_addr, esp_err_to_name(err), g_write_error_count, VFD_MAX_WRITE_ERRORS);
+        if (g_write_error_count >= VFD_MAX_WRITE_ERRORS) {
+            if (xSemaphoreTake(vfd_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+                g_vfd_status = VFD_STATUS_DISCONNECTED;
+                xSemaphoreGive(vfd_mutex);
+            }
         }
     } else {
+        g_write_error_count = 0;  // Reset en éxito
         if (xSemaphoreTake(vfd_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
             g_vfd_status = VFD_STATUS_OK;
             xSemaphoreGive(vfd_mutex);
@@ -282,6 +296,7 @@ static void vfd_control_task(void *pvParameters) {
                 vfd_write_register(VFD_REG_CONTROL, VFD_CMD_STOP);
                 vTaskDelay(pdMS_TO_TICKS(10));
                 vfd_write_register(VFD_REG_FREQ, 0);
+                g_vfd_is_running = false;  // Fix 1: Resetear estado de marcha
             } else {
                 // --- MARCHA ---
                 float freq_hz = kph_to_set * KPH_TO_HZ_RATIO;
@@ -291,10 +306,19 @@ static void vfd_control_task(void *pvParameters) {
                 // Fórmula: (frecuencia_deseada / frecuencia_maxima) * 10000
                 uint16_t vfd_value = (uint16_t)((freq_hz / VFD_MAX_FREQ_HZ) * 10000.0f);
 
-                ESP_LOGI(TAG_VFD, "Enviando comando de MARCHA al VFD: %.2f Hz (Valor VFD: %u)", freq_hz, vfd_value);
+                // Fix 1: Solo enviar frecuencia. Enviar RUN_FWD únicamente la
+                // primera vez (transición parado→marcha). Re-enviar RUN_FWD con
+                // el motor ya corriendo causa un "hiccup" en muchos VFDs.
                 vfd_write_register(VFD_REG_FREQ, vfd_value);
-                vTaskDelay(pdMS_TO_TICKS(200));
-                vfd_write_register(VFD_REG_CONTROL, VFD_CMD_RUN_FWD);
+
+                if (!g_vfd_is_running) {
+                    ESP_LOGI(TAG_VFD, "Primera marcha: %.2f Hz (VFD: %u) — enviando RUN_FWD", freq_hz, vfd_value);
+                    vTaskDelay(pdMS_TO_TICKS(50));
+                    vfd_write_register(VFD_REG_CONTROL, VFD_CMD_RUN_FWD);
+                    g_vfd_is_running = true;
+                } else {
+                    ESP_LOGI(TAG_VFD, "Ajuste de frecuencia: %.2f Hz (VFD: %u) — motor ya en marcha", freq_hz, vfd_value);
+                }
             }
         }
 
